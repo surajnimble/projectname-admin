@@ -1,0 +1,128 @@
+:root {
+  color-scheme: light;
+}
+.dark {
+  color-scheme: dark;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer base {
+  :where(
+    button:not(:disabled),
+    a[href],
+    select:not(:disabled),
+    [role='button'],
+    [role='menuitem'],
+    [role='option'],
+    [role='tab'],
+    [role='switch'],
+    [role='radio'],
+    [data-ripple]:not([data-ripple='off'])
+  ):not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+
+  :where(
+    button:not(:disabled),
+    select:not(:disabled),
+    [role='button'],
+    [role='menuitem'],
+    [role='option'],
+    [role='tab'],
+    [role='switch'],
+    [role='radio'],
+    [data-ripple]:not([data-ripple='off']),
+    [data-hover-color]
+  ):not([aria-disabled='true']) {
+    position: relative;
+    isolation: isolate;
+  }
+
+  :where(
+    button:not(:disabled),
+    select:not(:disabled),
+    [role='button'],
+    [role='menuitem'],
+    [role='option'],
+    [role='tab'],
+    [role='switch'],
+    [role='radio'],
+    [data-ripple]:not([data-ripple='off']):not(tr),
+    [data-hover-color]:not(tr)
+  ):not([aria-disabled='true'])::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-color: var(--hover-color);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-base) var(--ease-standard);
+  }
+
+  :where(
+    button:not(:disabled),
+    select:not(:disabled),
+    [role='button'],
+    [role='menuitem'],
+    [role='option'],
+    [role='tab'],
+    [role='switch'],
+    [role='radio'],
+    [data-ripple]:not([data-ripple='off']):not(tr),
+    [data-hover-color]:not(tr)
+  ):not([aria-disabled='true']):hover::before {
+    opacity: var(--hover-opacity);
+  }
+
+  :where(
+    button:not(:disabled),
+    select:not(:disabled),
+    [role='button'],
+    [role='menuitem'],
+    [role='option'],
+    [role='tab'],
+    [role='switch'],
+    [role='radio'],
+    [data-ripple]:not([data-ripple='off']):not(tr),
+    [data-hover-color]:not(tr)
+  ):not([aria-disabled='true']):active::before {
+    opacity: calc(var(--hover-opacity) * 1.5);
+  }
+
+  :where(
+    tr[data-ripple]:not([data-ripple='off']),
+    tr[data-hover-color]
+  ):not([aria-disabled='true']):hover {
+    background-color: color-mix(
+      in srgb,
+      var(--hover-color) calc(var(--hover-opacity) * 100%),
+      transparent
+    );
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
