@@ -2,6 +2,8 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { toVendor } from '@/types/vendor';
 import { resetSeedStore } from '@/lib/api/seed-store';
+import { resetVendorPayoutsCache } from '@/hooks/use-vendor-payouts';
+import { resetVendorReturnsCache } from '@/hooks/use-vendor-returns';
 import { VendorDetails } from './vendor-details';
 
 const getVendorById = vi.fn();
@@ -9,6 +11,9 @@ const getVendorRatings = vi.fn();
 const getVendorProducts = vi.fn();
 const getProducts = vi.fn();
 const getProductById = vi.fn();
+const getPayouts = vi.fn();
+const getPayoutStatement = vi.fn();
+const getReturns = vi.fn();
 const verifyVendorDocument = vi.fn();
 const approveVendor = vi.fn();
 const updateVendorCommission = vi.fn();
@@ -22,6 +27,9 @@ vi.mock('@/lib/api/api.service', () => ({
     getVendorProducts: (id: string, query: unknown) => getVendorProducts(id, query),
     getProducts: (query: unknown) => getProducts(query),
     getProductById: (id: string) => getProductById(id),
+    getPayouts: (query: unknown) => getPayouts(query),
+    getPayoutStatement: (id: string) => getPayoutStatement(id),
+    getReturns: (query: unknown) => getReturns(query),
     verifyVendorDocument: (id: string, body: unknown) => verifyVendorDocument(id, body),
     approveVendor: (id: string, body: unknown) => approveVendor(id, body),
     updateVendorCommission: (id: string, body: unknown) => updateVendorCommission(id, body),
@@ -52,6 +60,11 @@ const firstOf = (items: HTMLElement[]) => {
 describe('VendorDetails', () => {
   beforeEach(() => {
     resetSeedStore();
+    resetVendorPayoutsCache();
+    resetVendorReturnsCache();
+    getPayouts.mockReset();
+    getPayoutStatement.mockReset();
+    getReturns.mockReset();
     getVendorById.mockReset();
     getVendorRatings.mockReset();
     getVendorProducts.mockReset();
@@ -63,6 +76,9 @@ describe('VendorDetails', () => {
     rejectVendor.mockReset();
     suspendVendor.mockReset();
     getVendorById.mockResolvedValue({ status: true, message: 'ok', data: vendor });
+    getPayouts.mockResolvedValue({ status: true, message: 'ok', data: { itemList: [] } });
+    getPayoutStatement.mockResolvedValue({ status: true, message: 'ok', data: {} });
+    getReturns.mockResolvedValue({ status: true, message: 'ok', data: { itemList: [] } });
     getVendorRatings.mockResolvedValue({
       status: true,
       message: 'ok',

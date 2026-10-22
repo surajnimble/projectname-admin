@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { VENDOR_PAGE_SIZE, VENDOR_STATUSES, type VendorStatusFilter } from '@/constants';
+import { ROUTES, VENDOR_PAGE_SIZE, VENDOR_STATUSES, type VendorStatusFilter } from '@/constants';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { apiService } from '@/lib/api/api.service';
 import type { BaseResponse, VendorListData } from '@/lib/api/contract';
+import { onScopeDropped } from '@/lib/api/navigation-cache';
 import { runVendorAction, type VendorAction, type VendorActionValues } from '@/lib/api/vendor-actions';
 import { rememberVendor } from '@/lib/api/seed-store';
 import { toVendorList } from '@/types/vendor';
@@ -61,6 +62,7 @@ export function useVendors() {
       cache = { data: response.data, query: next };
     }
     setIsLoading(false);
+    setIsFetching(false);
   }, []);
 
   const load = useCallback(
@@ -85,6 +87,13 @@ export function useVendors() {
       active = false;
     };
   }, [apply, load, query]);
+
+  useEffect(
+    () => onScopeDropped((scope) => {
+      if (scope === ROUTES.vendors) cache = null;
+    }),
+    [],
+  );
 
   const refresh = useCallback(async () => {
     setIsFetching(true);

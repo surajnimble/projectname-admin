@@ -1,4 +1,4 @@
-import { LayoutDashboard, Store, type LucideIcon } from 'lucide-react';
+import { CreditCard, LayoutDashboard, Store, type LucideIcon } from 'lucide-react';
 import { MESSAGES } from '@/messages';
 
 export const SITE = {
@@ -13,6 +13,7 @@ export const ROUTES = {
   login: '/login',
   maintenance: '/maintenance',
   vendors: '/vendors',
+  payments: '/payments',
   vendorDetails: (vendorId: string) => `/vendors/${vendorId}`,
   vendorProductDetails: (vendorId: string, productId: string) =>
     `/vendors/${vendorId}/products/${productId}`,
@@ -127,4 +128,5 @@ export interface NavItem {
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Overview', href: ROUTES.home, icon: LayoutDashboard },
   { label: MESSAGES.sections.vendors, href: ROUTES.vendors, icon: Store },
+  { label: MESSAGES.payments.title, href: ROUTES.payments, icon: CreditCard },
 ];

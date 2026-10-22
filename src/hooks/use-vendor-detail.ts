@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ROUTES } from '@/constants';
 import { apiService } from '@/lib/api/api.service';
 import type { BaseResponse, VendorData, VendorRatingSummaryData } from '@/lib/api/contract';
+import { onScopeDropped } from '@/lib/api/navigation-cache';
 import {
+  forgetVendor,
   rememberVendorDetail,
   rememberVendorRatings,
   vendorDetailSeed,
@@ -62,6 +65,14 @@ export function useVendorDetail(vendorId: string) {
       active = false;
     };
   }, [vendorId]);
+
+  useEffect(
+    () =>
+      onScopeDropped((scope) => {
+        if (scope === ROUTES.vendorDetails(vendorId)) forgetVendor(vendorId);
+      }),
+    [vendorId],
+  );
 
   const refresh = useCallback(async () => {
     setIsPending(true);

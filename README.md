@@ -78,7 +78,8 @@ src/
 | --- | --- |
 | Login | `/login` — email **or** phone + password, validation, server messages, "server waking up" hint, live API status |
 | Home | `/` — signed-in staff details, roles, API status/latency, dashboard stats, recent activity, orders, payments, product performance, top selling and low stock widgets |
-| Vendors | `/vendors` — vendor list with search, status filter and pagination; approve (optional commission + remark), reject, suspend and reactivate actions; `/vendors/[vendorId]` details page (shop, owner, performance, payout, KYC documents, products); KYC documents tab with verify and reject |
+| Vendors | `/vendors` — vendor list with search, status filter and pagination; approve (optional commission + remark), reject, suspend and reactivate actions; `/vendors/[vendorId]` details page (shop, owner, performance, payouts, returns, KYC documents, products); KYC documents tab with verify and reject |
+| Payments | `/payments` — payment list with confirm and refund actions |
 | Navigation | `(auth)` and `(dashboard)` route groups with their own `layout.tsx`, sidebar from `NAV_ITEMS`, mobile drawer, theme toggle, sign out |
 | Auth | access token in memory, refresh cookie via the backend, single-flight silent refresh on `TOKEN_EXPIRED`, session restored on reload, staff-role check |
 | Design system | tokens in `src/styles/tokens.css`, `ui/` primitives, `common/` components, `npm run tokens:check` |

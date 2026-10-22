@@ -22,6 +22,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar } from '@/components/ui/avatar';
 import { Thumbnail } from '@/components/ui/thumbnail';
 import { ProductList } from '@/components/product/product-list';
+import { VendorPayouts } from '@/components/vendor/vendor-payouts';
+import { VendorReturns } from '@/components/vendor/vendor-returns';
 import { ROUTES, VENDOR_STATUSES } from '@/constants';
 import { useVendorDetail } from '@/hooks/use-vendor-detail';
 import type { VendorAction } from '@/lib/api/vendor-actions';
@@ -300,7 +302,8 @@ export function VendorDetails({ vendorId }: { vendorId: string }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href={ROUTES.vendors}
-          className="border-border bg-surface-muted/50 text-fg-muted hover:text-fg hover:bg-hover inline-flex w-fit items-center gap-1 rounded-md border px-2.5 py-1.5 text-sm transition-colors"
+          replace
+          className="border-border bg-surface-muted/50 text-fg-muted hover:text-fg hover:bg-surface-muted inline-flex w-fit items-center gap-1 rounded-md border px-2.5 py-1.5 text-sm transition-colors"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
           {vendors.backToList}
@@ -517,6 +520,10 @@ export function VendorDetails({ vendorId }: { vendorId: string }) {
         isPending={isPending}
         onDecision={(documentId, mode) => setDocumentDecision({ documentId, mode })}
       />
+
+      <VendorPayouts vendorId={vendorId} />
+
+      <VendorReturns vendorId={vendorId} />
 
       <ProductList vendorId={vendorId} />
     </div>

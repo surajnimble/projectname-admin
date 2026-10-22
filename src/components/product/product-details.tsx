@@ -185,7 +185,8 @@ export function ProductDetails({
     <div className="flex flex-col gap-4">
       <Link
         href={`/vendors/${vendorId}`}
-        className="border-border bg-surface-muted/50 text-fg-muted hover:text-fg hover:bg-hover inline-flex w-fit items-center gap-1 rounded-md border px-2.5 py-1.5 text-sm transition-colors"
+        replace
+        className="border-border bg-surface-muted/50 text-fg-muted hover:text-fg hover:bg-surface-muted inline-flex w-fit items-center gap-1 rounded-md border px-2.5 py-1.5 text-sm transition-colors"
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
         {products.backToProducts}

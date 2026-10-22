@@ -24,4 +24,13 @@ export const API_URLS = {
   toggleProductStatus: (productId: string) => `/products/toggleStatus/${productId}`,
   updateProductStock: (productId: string) => `/products/updateStock/${productId}`,
   deleteProduct: (productId: string) => `/products/deleteProduct/${productId}`,
+  getPayouts: '/payouts/getAll',
+  approvePayout: (payoutId: string) => `/payouts/approvePayout/${payoutId}`,
+  rejectPayout: (payoutId: string) => `/payouts/rejectPayout/${payoutId}`,
+  getPayoutStatement: (vendorId: string) => `/payouts/getStatement/${vendorId}`,
+  getReturns: '/returns/getAll',
+  approveReturn: (returnId: string) => `/returns/approve/${returnId}`,
+  rejectReturn: (returnId: string) => `/returns/reject/${returnId}`,
+  confirmPayment: (paymentId: string) => `/payments/confirmPayment/${paymentId}`,
+  refundPayment: (paymentId: string) => `/payments/refund/${paymentId}`,
 } as const;

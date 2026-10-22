@@ -1,13 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import { trackPath } from '@/lib/api/navigation-cache';
 import { cn } from '@/lib/utils';
 import { Header } from './header';
 import { Sidebar } from './sidebar';
 
 export function DashboardShell({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname) trackPath(pathname);
+  }, [pathname]);
 
   return (
     <div

@@ -1,8 +1,9 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { VENDOR_PAGE_SIZE, VENDOR_STATUSES } from '@/constants';
 import { toVendorList } from '@/types/vendor';
 import { resetVendorsCache } from './use-vendors';
+import { resetNavigationCache, trackPath } from '@/lib/api/navigation-cache';
 import { useVendors } from './use-vendors';
 
 const getVendors = vi.fn();
@@ -97,6 +98,37 @@ describe('useVendors', () => {
 
     expect(done).toBe(true);
     expect(approveVendor).toHaveBeenCalledWith('v1', { commissionRate: 10, remark: undefined });
+    expect(getVendors).toHaveBeenCalledTimes(2);
+  });
+
+  it('finishes refreshing', async () => {
+    getVendors.mockResolvedValue({ status: true, message: 'ok', data: list });
+    const { result } = renderHook(() => useVendors());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    await act(async () => {
+      await result.current.refresh();
+    });
+
+    expect(result.current.isFetching).toBe(false);
+    expect(result.current.data.itemList).toHaveLength(1);
+  });
+
+  it('drops the cached list when the screen falls out of the navigation history', async () => {
+    resetNavigationCache();
+    getVendors.mockResolvedValue({ status: true, message: 'ok', data: list });
+    const { result, unmount } = renderHook(() => useVendors());
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    unmount();
+
+    trackPath('/');
+    trackPath('/vendors');
+    trackPath('/payments');
+    trackPath('/');
+    trackPath('/vendors');
+
+    const { result: again } = renderHook(() => useVendors());
+    await waitFor(() => expect(again.current.isLoading).toBe(false));
     expect(getVendors).toHaveBeenCalledTimes(2);
   });
 

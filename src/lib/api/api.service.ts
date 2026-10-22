@@ -5,9 +5,11 @@ import { toActivityLogList } from '@/types/activity';
 import { toProductPerformanceList } from '@/types/analytics';
 import { toAuthData, toEmptyData } from '@/types/auth';
 import { toDashboardStats } from '@/types/dashboard';
-import { toPaymentList } from '@/types/payment';
+import { toPaymentList, toPaymentSummary } from '@/types/payment';
+import { toPayout, toPayoutList, toPayoutStatement } from '@/types/payout';
 import { toProductDetail, toProductList, toProductSummary } from '@/types/product';
 import { toLowStockList } from '@/types/report';
+import { toReturn, toReturnList } from '@/types/return';
 import { toKycDocument, toKycDocumentList, toVendor, toVendorList, toVendorRatings } from '@/types/vendor';
 
 export class ApiService {
@@ -137,6 +139,49 @@ export class ApiService {
 
   deleteProduct(productId: string) {
     return apiClient.delete(API_URLS.deleteProduct(productId), { mapper: toProductSummary });
+  }
+
+  getPayouts(query: Pick<ApiRequest, 'page' | 'limit' | 'status' | 'vendorId' | 'from' | 'to'>) {
+    return apiClient.get(API_URLS.getPayouts, { query, mapper: toPayoutList });
+  }
+
+  approvePayout(payoutId: string, body: Pick<ApiRequest, 'reference' | 'notes'>) {
+    return apiClient.patch(API_URLS.approvePayout(payoutId), { body, mapper: toPayout });
+  }
+
+  rejectPayout(payoutId: string, body: Required<Pick<ApiRequest, 'rejectReason'>>) {
+    return apiClient.patch(API_URLS.rejectPayout(payoutId), { body, mapper: toPayout });
+  }
+
+  getPayoutStatement(vendorId: string) {
+    return apiClient.get(API_URLS.getPayoutStatement(vendorId), { mapper: toPayoutStatement });
+  }
+
+  getReturns(query: Pick<ApiRequest, 'page' | 'limit' | 'status' | 'vendorId' | 'orderId' | 'from' | 'to'>) {
+    return apiClient.get(API_URLS.getReturns, { query, mapper: toReturnList });
+  }
+
+  approveReturn(returnId: string) {
+    return apiClient.patch(API_URLS.approveReturn(returnId), { body: {}, mapper: toReturn });
+  }
+
+  rejectReturn(returnId: string, body: Required<Pick<ApiRequest, 'reason'>>) {
+    return apiClient.patch(API_URLS.rejectReturn(returnId), { body, mapper: toReturn });
+  }
+
+  confirmPayment(paymentId: string) {
+    return apiClient.patch(API_URLS.confirmPayment(paymentId), { body: {}, mapper: toPaymentSummary });
+  }
+
+  refundPayment(
+    paymentId: string,
+    body: Pick<ApiRequest, 'orderId' | 'amount' | 'reason' | 'mode'>,
+  ) {
+    return apiClient.post(API_URLS.refundPayment(paymentId), {
+      body,
+      idempotencyKey: `refund-${paymentId}-${Date.now()}`,
+      mapper: toPaymentSummary,
+    });
   }
 }
 

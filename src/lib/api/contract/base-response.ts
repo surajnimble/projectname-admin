@@ -213,8 +213,78 @@ export interface VendorData {
 
 export type VendorListData = PageData<VendorData>;
 
-export interface ProductSummaryData {
-  productId: string;
+export interface PayoutData {
+  payoutId: string;
+  vendorId: string;
+  amount: number;
+  method: string;
+  status: string;
+  period: string;
+  reference: string;
+  notes: string;
+  rejectReason: string;
+  requestedBy: string;
+  approvedBy: string;
+  isPending: boolean;
+  isApproved: boolean;
+  isPaid: boolean;
+  approvedAt: string;
+  processedAt: string;
+  createdAt: string;
+  bankData: { upiId: string; bankHolderName: string; bankIfsc: string; accountNo: string };
+}
+
+export type PayoutListData = PageData<PayoutData>;
+
+export interface PayoutStatementData {
+  grossAmount: number;
+  commissionAmount: number;
+  netAmount: number;
+  earningList: {
+    earningId: string;
+    orderId: string;
+    amount: number;
+    netAmount: number;
+    commission: number;
+    status: string;
+    createdAt: string;
+  }[];
+}
+
+export interface ReturnItemData {
+  returnItemId: string;
+  orderItemId: string;
+  qty: number;
+  refundAmount: number;
+  isApproved: boolean;
+}
+
+export interface ReturnRequestData {
+  returnId: string;
+  returnNumber: string;
+  orderId: string;
+  subOrderId: string;
+  vendorId: string;
+  userId: string;
+  status: string;
+  reasonText: string;
+  comment: string;
+  images: string[];
+  refundAmount: number;
+  refundMode: string;
+  rejectReason: string;
+  requestedAt: string;
+  pickedUpAt: string;
+  receivedAt: string;
+  settlementDays: number;
+  expectedSettlementAt: string;
+  vendorData: { vendorId: string; shopName: string; slug: string };
+  itemList: ReturnItemData[];
+}
+
+export type ReturnListData = PageData<ReturnRequestData>;
+
+export interface ProductSummaryData {  productId: string;
   vendorId: string;
   name: string;
   slug: string;

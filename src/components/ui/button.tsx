@@ -56,7 +56,7 @@ export function Button({
         children
       ) : (
         <>
-          {loading && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
+          {loading && <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden="true" />}
           {children}
         </>
       )}

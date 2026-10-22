@@ -41,3 +41,13 @@ export const resetSeedStore = () => {
   vendorDetails.clear();
   vendorRatings.clear();
 };
+
+export const forgetVendor = (vendorId: string) => {
+  vendors.delete(vendorId);
+  vendorDetails.delete(vendorId);
+  vendorRatings.delete(vendorId);
+};
+
+export const forgetProduct = (productId: string) => {
+  products.delete(productId);
+};

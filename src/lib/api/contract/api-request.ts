@@ -35,4 +35,12 @@ export class ApiRequest {
   stock?: number;
   lowStockThreshold?: number;
   variantId?: string;
+  rejectReason?: string;
+  mode?: string;
+  from?: string;
+  to?: string;
+  orderId?: string;
+  amount?: number;
+  reference?: string;
+  notes?: string;
 }

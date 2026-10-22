@@ -43,4 +43,23 @@ describe('OptionsMenu', () => {
 
     expect(screen.getByRole('menu').parentElement).toBe(document.body);
   });
+
+  it('closes on an outside press without triggering the element underneath', () => {
+    const onRowClick = vi.fn();
+    render(
+      <div onClick={onRowClick}>
+        <OptionsMenu label="Vendor actions" items={[{ label: 'Approve', onSelect: vi.fn() }]} />
+      </div>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Vendor actions' }));
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    const callsAfterOpen = onRowClick.mock.calls.length;
+
+    fireEvent.mouseDown(document.body);
+    fireEvent.click(document.body);
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(onRowClick.mock.calls.length).toBe(callsAfterOpen);
+  });
 });

@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { PRODUCT_PAGE_SIZE, type ProductStatus } from '@/constants';
+import { PRODUCT_PAGE_SIZE, ROUTES, type ProductStatus } from '@/constants';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { apiService } from '@/lib/api/api.service';
 import type { BaseResponse, ProductListData } from '@/lib/api/contract';
+import { onScopeDropped } from '@/lib/api/navigation-cache';
 import {
   runProductAction,
   type ProductAction,
   type ProductActionValues,
 } from '@/lib/api/product-actions';
-import { rememberProduct } from '@/lib/api/seed-store';
+import { forgetProduct, rememberProduct } from '@/lib/api/seed-store';
 import { toProductList } from '@/types/product';
 
 export type ProductStatusFilter = ProductStatus | '';
@@ -101,6 +102,17 @@ export function useVendorProducts(vendorId: string) {
       active = false;
     };
   }, [apply, load, query, vendorId]);
+
+  useEffect(
+    () =>
+      onScopeDropped((scope) => {
+        if (scope === ROUTES.vendorDetails(vendorId)) {
+          cache.delete(vendorId);
+          data.itemList.forEach((product) => forgetProduct(product.productId));
+        }
+      }),
+    [data.itemList, vendorId],
+  );
 
   const refresh = useCallback(async () => {
     setIsLoading(true);

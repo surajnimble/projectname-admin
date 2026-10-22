@@ -44,25 +44,30 @@ export function OptionsMenu({ label, items, className }: OptionsMenuProps) {
   useEffect(() => {
     if (!open) return;
 
+    // The click that follows an outside press must not reach the row underneath,
+    // otherwise closing the menu would also trigger the stretched row link.
+    const swallowNextClick = (event: MouseEvent) => {
+      event.stopPropagation();
+      event.preventDefault();
+      document.removeEventListener('click', swallowNextClick, true);
+    };
+
     const onPointerDown = (event: MouseEvent) => {
       const target = event.target as Node;
       if (triggerRef.current?.contains(target) || menuRef.current?.contains(target)) return;
       setOpen(false);
+      document.addEventListener('click', swallowNextClick, true);
+      window.setTimeout(() => document.removeEventListener('click', swallowNextClick, true), 500);
     };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setOpen(false);
     };
-    const onReposition = () => setOpen(false);
 
     document.addEventListener('mousedown', onPointerDown);
     document.addEventListener('keydown', onKeyDown);
-    window.addEventListener('scroll', onReposition, true);
-    window.addEventListener('resize', onReposition);
     return () => {
       document.removeEventListener('mousedown', onPointerDown);
       document.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('scroll', onReposition, true);
-      window.removeEventListener('resize', onReposition);
     };
   }, [open]);
 
