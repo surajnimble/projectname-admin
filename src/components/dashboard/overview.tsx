@@ -120,7 +120,7 @@ const STATS: readonly StatDefinition[] = [
 ];
 
 const INTENT_CLASSES: Record<StatIntent, string> = {
-  primary: 'bg-primary-soft text-primary',
+  primary: 'bg-soft text-soft-fg',
   info: 'bg-info-bg text-info',
   success: 'bg-success-bg text-success',
   warning: 'bg-warning-bg text-warning',
@@ -156,7 +156,7 @@ function StatCard({
   onSelect: () => void;
 }) {
   return (
-    <Card className="hover:border-border-strong hover:bg-surface-muted h-full transition-colors">
+    <Card className="hover:border-border-strong hover:bg-hover h-full transition-colors">
       <button
         type="button"
         onClick={onSelect}
@@ -191,10 +191,10 @@ function StatCardSkeleton() {
     <Card className="p-4 2xl:p-5">
       <div className="flex items-start justify-between gap-2 2xl:gap-4">
         <div className="flex flex-1 flex-col gap-2">
-          <Skeleton className="bg-border-strong h-4 w-20 2xl:h-5 2xl:w-28" />
-          <Skeleton className="bg-border-strong h-7 w-12 2xl:h-8 2xl:w-16" />
+          <Skeleton className="h-4 w-20 2xl:h-5 2xl:w-28" />
+          <Skeleton className="h-7 w-12 2xl:h-8 2xl:w-16" />
         </div>
-        <Skeleton className="bg-border-strong size-8 rounded-lg 2xl:size-10" />
+        <Skeleton className="size-8 rounded-lg 2xl:size-10" />
       </div>
     </Card>
   );

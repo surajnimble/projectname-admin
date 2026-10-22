@@ -95,7 +95,7 @@ const ACTION_META: Record<string, ActionMeta> = {
 const DEFAULT_META: ActionMeta = { icon: Activity, intent: 'primary' };
 
 const INTENT_CLASSES: Record<ActivityIntent, string> = {
-  primary: 'bg-primary-soft text-primary',
+  primary: 'bg-soft text-soft-fg',
   info: 'bg-info-bg text-info',
   success: 'bg-success-bg text-success',
   warning: 'bg-warning-bg text-warning',
@@ -109,7 +109,7 @@ export function ActivityItem({ activity }: { activity: ActivityLogData }) {
   const time = formatRelativeTime(activity.createdAt);
 
   return (
-    <li className="hover:bg-surface-muted flex items-start gap-3 px-5 py-4 transition-colors">
+    <li className="hover:bg-hover flex items-start gap-3 px-5 py-4 transition-colors">
       <span
         aria-hidden="true"
         className={cn(
@@ -164,10 +164,10 @@ export function RecentActivity({
           <span className="sr-only">{MESSAGES.common.loading}</span>
           {Array.from({ length: RECENT_ACTIVITY_LIMIT }).map((_, index) => (
             <div key={index} className="flex items-start gap-3 px-5 py-4">
-              <Skeleton className="bg-border-strong size-9 shrink-0 rounded-lg" />
+              <Skeleton className="size-9 shrink-0 rounded-lg" />
               <div className="flex flex-1 flex-col gap-2">
-                <Skeleton className="bg-border-strong h-4 w-3/4" />
-                <Skeleton className="bg-border-strong h-3 w-1/2" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-1/2" />
               </div>
             </div>
           ))}

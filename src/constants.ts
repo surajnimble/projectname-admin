@@ -14,6 +14,8 @@ export const ROUTES = {
   maintenance: '/maintenance',
   vendors: '/vendors',
   vendorDetails: (vendorId: string) => `/vendors/${vendorId}`,
+  vendorProductDetails: (vendorId: string, productId: string) =>
+    `/vendors/${vendorId}/products/${productId}`,
 } as const;
 
 export const ROLES = {
@@ -75,6 +77,19 @@ export const VENDOR_REASON_MAX_LENGTH = 500;
 export const VENDOR_COMMISSION_MIN = 0;
 
 export const VENDOR_COMMISSION_MAX = 100;
+
+export const PRODUCT_STATUSES = {
+  draft: 'DRAFT',
+  active: 'ACTIVE',
+  inactive: 'INACTIVE',
+  archived: 'ARCHIVED',
+} as const;
+
+export type ProductStatus = (typeof PRODUCT_STATUSES)[keyof typeof PRODUCT_STATUSES];
+
+export const PRODUCT_PAGE_SIZE = 10;
+
+export const PRODUCT_SKELETON_ROWS = 5;
 
 export const VENDOR_STATUSES = {
   all: 'all',

@@ -2,9 +2,9 @@
 
 import { Ban, Check, Percent, RotateCcw, X } from 'lucide-react';
 import Link from 'next/link';
-import { Badge, type BadgeProps } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge';
+import { StatusBadge, vendorStatusMeta } from '@/components/common/status-badge';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
-import { StatusDot } from '@/components/ui/status-dot';
 import { Thumbnail } from '@/components/ui/thumbnail';
 import {
   Table,
@@ -22,26 +22,6 @@ import { formatCurrency } from '@/lib/utils';
 import { MESSAGES } from '@/messages';
 
 const { vendors } = MESSAGES;
-
-type BadgeIntent = NonNullable<BadgeProps['intent']>;
-
-const STATUS_INTENTS: Record<string, BadgeIntent> = {
-  [VENDOR_STATUSES.pending]: 'warning',
-  [VENDOR_STATUSES.approved]: 'success',
-  [VENDOR_STATUSES.rejected]: 'danger',
-  [VENDOR_STATUSES.suspended]: 'danger',
-  [VENDOR_STATUSES.inactive]: 'neutral',
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  [VENDOR_STATUSES.pending]: vendors.statuses.PENDING,
-  [VENDOR_STATUSES.approved]: vendors.statuses.APPROVED,
-  [VENDOR_STATUSES.rejected]: vendors.statuses.REJECTED,
-  [VENDOR_STATUSES.suspended]: vendors.statuses.SUSPENDED,
-  [VENDOR_STATUSES.inactive]: vendors.statuses.INACTIVE,
-};
-
-const statusLabel = (status: string) => STATUS_LABELS[status] ?? status;
 
 const documentState = (vendor: VendorData) => {
   if (vendor.documentsVerifiedAt) return vendors.documentsVerified;
@@ -116,7 +96,7 @@ export function VendorTable({ vendors: items, onAction }: VendorTableProps) {
       <TableHeader>
         <TableRow>
           <TableHead>{vendors.columns.shop}</TableHead>
-          <TableHead>{vendors.columns.status}</TableHead>
+          <TableHead className="w-32 text-center">{vendors.columns.status}</TableHead>
           <TableHead className="hidden sm:table-cell">{vendors.columns.rating}</TableHead>
           <TableHead className="hidden md:table-cell">{vendors.columns.commission}</TableHead>
           <TableHead className="hidden lg:table-cell">{vendors.columns.pendingPayout}</TableHead>
@@ -127,32 +107,28 @@ export function VendorTable({ vendors: items, onAction }: VendorTableProps) {
       </TableHeader>
       <TableBody>
         {items.map((vendor) => (
-          <TableRow key={vendor.vendorId}>
-            <TableCell>
-              <div className="flex items-center gap-3">
-                <Thumbnail src={vendor.logo} alt={vendor.shopName || vendors.shopFallback} />
-                <div className="flex min-w-0 flex-col gap-0.5">
-                  <Link
-                    href={ROUTES.vendorDetails(vendor.vendorId)}
-                    className="text-primary block max-w-32 truncate font-medium hover:underline sm:max-w-56 lg:max-w-none"
-                  >
-                    {vendor.shopName || vendors.shopFallback}
-                  </Link>
+            <TableRow
+              key={vendor.vendorId}
+              className="hover:bg-hover relative cursor-pointer transition-colors"
+            >
+              <TableCell>
+                <div className="flex items-center gap-3">
+                  <Thumbnail src={vendor.logo} alt={vendor.shopName || vendors.shopFallback} />
+                  <div className="flex min-w-0 flex-col gap-0.5">
+                    <Link
+                      href={ROUTES.vendorDetails(vendor.vendorId)}
+                      className="text-primary after:absolute after:inset-0 block max-w-32 truncate font-medium hover:underline sm:max-w-56 lg:max-w-none"
+                    >
+                      {vendor.shopName || vendors.shopFallback}
+                    </Link>
                   <span className="text-fg-muted block max-w-32 truncate text-xs sm:max-w-56 lg:max-w-none">
                     {vendor.userData.email || vendors.ownerFallback}
                   </span>
                 </div>
               </div>
             </TableCell>
-            <TableCell>
-              <span className="sm:hidden">
-                <StatusDot intent={STATUS_INTENTS[vendor.status] ?? 'neutral'} label={statusLabel(vendor.status)} />
-              </span>
-              <span className="hidden sm:inline">
-                <Badge intent={STATUS_INTENTS[vendor.status] ?? 'neutral'}>
-                  {statusLabel(vendor.status)}
-                </Badge>
-              </span>
+            <TableCell className="w-32 text-center">
+              <StatusBadge meta={vendorStatusMeta(vendor.status)} />
             </TableCell>
             <TableCell className="hidden tabular-nums sm:table-cell">
               {vendors.rating(vendor.rating)}
@@ -174,7 +150,7 @@ export function VendorTable({ vendors: items, onAction }: VendorTableProps) {
             <TableCell className="text-fg-muted hidden whitespace-nowrap xl:table-cell">
               {formatRelativeTime(vendor.createdAt)}
             </TableCell>
-            <TableCell>
+            <TableCell className="relative z-10">
               <VendorRowActions vendor={vendor} onAction={onAction} />
             </TableCell>
           </TableRow>

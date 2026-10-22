@@ -42,6 +42,7 @@ projectname-admin/
 │   │   ├── (auth)/          layout.tsx · login/page.tsx
 │   │   └── (dashboard)/     layout.tsx · page.tsx · vendors/page.tsx
 │   │   │                        vendors/[vendorId]/page.tsx
+│   │   │                        vendors/[vendorId]/products/[productId]/page.tsx
 │   ├── components/
 │   │   ├── ui/              button, input, textarea, label, card, badge, table, dialog,
 │   │   │                    options-menu, select, status-dot, thumbnail, skeleton, spinner
@@ -53,10 +54,13 @@ projectname-admin/
 │   │   └── dashboard/       overview
 │   │   └── vendor/         vendor-page, vendor-list, vendor-filters, vendor-table, vendor-details,
 │   │   │                    vendor-documents, vendor-action-dialog, vendor-document-dialog
+│   │   │                    product/         product-list, product-table, product-details, product-action-dialog
+│   │   │                                    product-detail-dialog
 │   ├── config/env.ts
 │   ├── constants.ts
 │   ├── hooks/               use-login, use-health, use-mounted, use-vendors,
-│   │   │                    use-vendor-detail, use-vendor-documents, use-vendor-products
+│   │   │                    use-vendor-detail, use-vendor-documents, use-vendor-products,
+│   │   │                    use-product-detail
 │   ├── lib/
 │   │   ├── api/              client, api.service (the ApiService), api-urls (API_URLS), session, auth, device
 │   │   │   └── contract/     api-request, base-response, api-models (the whole contract)

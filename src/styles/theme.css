@@ -11,6 +11,8 @@
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
   --color-surface-raised: var(--surface-raised);
+  --color-skeleton: var(--skeleton);
+  --color-hover: var(--hover);
   --color-overlay: var(--overlay);
 
   --color-fg: var(--fg);
@@ -26,6 +28,8 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-fg: var(--primary-fg);
   --color-primary-soft: var(--primary-soft);
+  --color-soft: var(--soft);
+  --color-soft-fg: var(--soft-fg);
   --color-nav-active: var(--nav-active);
   --color-nav-active-fg: var(--nav-active-fg);
   --color-secondary: var(--secondary);

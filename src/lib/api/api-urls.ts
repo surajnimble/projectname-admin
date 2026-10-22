@@ -19,4 +19,9 @@ export const API_URLS = {
   verifyVendorDocument: (documentId: string) => `/vendors/verifyDocuments/${documentId}`,
   getVendorProducts: (vendorId: string) => `/vendors/getProducts/${vendorId}`,
   getVendorRatings: (vendorId: string) => `/vendors/getRatings/${vendorId}`,
+  getProducts: '/products/getAll',
+  getProductById: (productId: string) => `/products/getById/${productId}`,
+  toggleProductStatus: (productId: string) => `/products/toggleStatus/${productId}`,
+  updateProductStock: (productId: string) => `/products/updateStock/${productId}`,
+  deleteProduct: (productId: string) => `/products/deleteProduct/${productId}`,
 } as const;

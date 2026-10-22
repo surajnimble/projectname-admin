@@ -17,7 +17,7 @@ export function Thumbnail({ src, alt, className, fallback }: ThumbnailProps) {
       <span
         aria-hidden="true"
         className={cn(
-          'bg-primary-soft text-primary flex size-10 shrink-0 items-center justify-center rounded-lg text-sm font-semibold',
+          'bg-surface-muted/60 text-primary flex size-10 shrink-0 items-center justify-center rounded-lg border border-border text-sm font-semibold',
           className,
         )}
       >

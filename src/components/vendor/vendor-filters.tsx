@@ -22,8 +22,8 @@ export function VendorFilters({
   onOpenFilters,
 }: VendorFiltersProps) {
   return (
-    <div className="flex items-center gap-2">
-      <div className="relative min-w-0 flex-1 lg:max-w-xs">
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="relative min-w-0 flex-1 sm:w-80 sm:flex-none lg:w-96">
         <Search
           className="text-fg-muted pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
           aria-hidden="true"
@@ -52,7 +52,7 @@ export function VendorFilters({
           </span>
         )}
       </Button>
-      {action}
+      {action && <div className="w-full sm:ml-auto sm:w-auto">{action}</div>}
     </div>
   );
 }

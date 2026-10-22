@@ -35,7 +35,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
                 'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
                 active
                   ? 'bg-nav-active text-nav-active-fg font-semibold'
-                  : 'text-fg-muted hover:bg-surface-muted hover:text-fg',
+                  : 'text-fg-muted hover:bg-hover hover:text-fg',
               )}
             >
               <item.icon className="size-4" aria-hidden="true" />

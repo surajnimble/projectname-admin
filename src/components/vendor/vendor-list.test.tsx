@@ -1,6 +1,8 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { toVendorList } from '@/types/vendor';
+import { resetSeedStore } from '@/lib/api/seed-store';
+import { resetVendorsCache } from '@/hooks/use-vendors';
 import { VendorList } from './vendor-list';
 
 const getVendors = vi.fn();
@@ -51,6 +53,8 @@ const firstOf = (items: HTMLElement[]) => {
 
 describe('VendorList', () => {
   beforeEach(() => {
+    resetSeedStore();
+    resetVendorsCache();
     getVendors.mockReset();
     approveVendor.mockReset();
     rejectVendor.mockReset();
@@ -119,7 +123,7 @@ describe('VendorList', () => {
     expect(showSuccess).toHaveBeenCalledWith('Vendor approved.');
   });
 
-  it('opens the filter sheet and applies a status filter', async () => {
+  it('opens the filter sheet and applies a status filter only on done', async () => {
     getVendors.mockResolvedValue({ status: true, message: 'ok', data: list });
 
     render(<VendorList />);
@@ -128,6 +132,9 @@ describe('VendorList', () => {
     expect(await screen.findByRole('heading', { name: 'Filter vendors' })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('radio', { name: 'Approved' }));
+    expect(getVendors).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }));
 
     await waitFor(() =>
       expect(getVendors).toHaveBeenCalledWith({ page: 1, limit: 10, status: 'APPROVED' }),

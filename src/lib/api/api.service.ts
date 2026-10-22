@@ -6,7 +6,7 @@ import { toProductPerformanceList } from '@/types/analytics';
 import { toAuthData, toEmptyData } from '@/types/auth';
 import { toDashboardStats } from '@/types/dashboard';
 import { toPaymentList } from '@/types/payment';
-import { toProductList } from '@/types/product';
+import { toProductDetail, toProductList, toProductSummary } from '@/types/product';
 import { toLowStockList } from '@/types/report';
 import { toKycDocument, toKycDocumentList, toVendor, toVendorList, toVendorRatings } from '@/types/vendor';
 
@@ -100,6 +100,43 @@ export class ApiService {
 
   getVendorRatings(vendorId: string) {
     return apiClient.get(API_URLS.getVendorRatings(vendorId), { mapper: toVendorRatings });
+  }
+
+  getProducts(
+    query: Pick<
+      ApiRequest,
+      | 'page'
+      | 'limit'
+      | 'search'
+      | 'vendorId'
+      | 'status'
+      | 'inStock'
+      | 'isFeatured'
+      | 'minPrice'
+      | 'maxPrice'
+      | 'rating'
+    >,
+  ) {
+    return apiClient.get(API_URLS.getProducts, { query, mapper: toProductList });
+  }
+
+  getProductById(productId: string) {
+    return apiClient.get(API_URLS.getProductById(productId), { mapper: toProductDetail });
+  }
+
+  toggleProductStatus(productId: string, body: Required<Pick<ApiRequest, 'status'>>) {
+    return apiClient.patch(API_URLS.toggleProductStatus(productId), { body, mapper: toProductSummary });
+  }
+
+  updateProductStock(
+    productId: string,
+    body: Pick<ApiRequest, 'stock' | 'lowStockThreshold' | 'variantId'>,
+  ) {
+    return apiClient.patch(API_URLS.updateProductStock(productId), { body, mapper: toProductSummary });
+  }
+
+  deleteProduct(productId: string) {
+    return apiClient.delete(API_URLS.deleteProduct(productId), { mapper: toProductSummary });
   }
 }
 

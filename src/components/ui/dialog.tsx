@@ -74,7 +74,7 @@ export function Dialog({
               type="button"
               onClick={onClose}
               aria-label={closeLabel}
-              className="text-fg-muted hover:text-fg hover:bg-surface-muted -mr-2 -mt-1 flex size-8 shrink-0 items-center justify-center rounded-md"
+              className="text-fg-muted hover:text-fg hover:bg-hover -mr-2 -mt-1 flex size-8 shrink-0 items-center justify-center rounded-md"
             >
               <span aria-hidden="true">×</span>
             </button>

@@ -12,10 +12,11 @@ interface FilterSheetProps {
   title: string;
   onClose: () => void;
   onReset: () => void;
+  onDone: () => void;
   children: ReactNode;
 }
 
-export function FilterSheet({ open, title, onClose, onReset, children }: FilterSheetProps) {
+export function FilterSheet({ open, title, onClose, onReset, onDone, children }: FilterSheetProps) {
   return (
     <Dialog
       open={open}
@@ -28,7 +29,7 @@ export function FilterSheet({ open, title, onClose, onReset, children }: FilterS
           <Button type="button" variant="outline" onClick={onReset}>
             {MESSAGES.common.reset}
           </Button>
-          <Button type="button" onClick={onClose}>
+          <Button type="button" onClick={onDone}>
             {MESSAGES.common.done}
           </Button>
         </>
@@ -70,37 +71,11 @@ export function FilterOption({ label, selected, onSelect }: FilterOptionProps) {
       onClick={onSelect}
       className={cn(
         'flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-sm transition-colors',
-        selected
-          ? 'bg-primary-soft text-primary font-medium'
-          : 'text-fg hover:bg-surface-muted',
+        selected ? 'bg-soft text-soft-fg font-medium' : 'text-fg hover:bg-hover',
       )}
     >
       {label}
       {selected && <Check className="size-4" aria-hidden="true" />}
-    </button>
-  );
-}
-
-interface FilterSwitchProps {
-  label: string;
-  checked: boolean;
-  onChange: (value: boolean) => void;
-}
-
-export function FilterSwitch({ label, checked, onChange }: FilterSwitchProps) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={cn(
-        'flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-sm transition-colors',
-        checked ? 'bg-primary-soft text-primary font-medium' : 'text-fg hover:bg-surface-muted',
-      )}
-    >
-      {label}
-      {checked && <Check className="size-4" aria-hidden="true" />}
     </button>
   );
 }

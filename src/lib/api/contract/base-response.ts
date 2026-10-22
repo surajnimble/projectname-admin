@@ -236,6 +236,76 @@ export interface ProductSummaryData {
 
 export type ProductListData = PageData<ProductSummaryData>;
 
+export interface ProductVariantData {
+  variantId: string;
+  title: string;
+  sku: string;
+  attributes: Record<string, string>;
+  price: number;
+  mrpPrice: number;
+  stock: number;
+  isActive: boolean;
+}
+
+export interface ProductAttributeData {
+  attributeId: string;
+  name: string;
+  value: string;
+}
+
+export interface ProductTagData {
+  tagId: string;
+  name: string;
+  slug: string;
+}
+
+export interface ProductReviewData {
+  reviewId: string;
+  rating: number;
+  title: string;
+  comment: string;
+  images: string[];
+  isVerified: boolean;
+  vendorReply: string;
+  createdAt: string;
+  userData: { userId: string; name: string };
+}
+
+export interface ProductDetailData {
+  productId: string;
+  vendorId: string;
+  name: string;
+  slug: string;
+  description: string;
+  sku: string;
+  price: number;
+  mrpPrice: number;
+  taxPercent: number;
+  stock: number;
+  lowStockThreshold: number;
+  condition: string;
+  warrantyMonths: number;
+  warrantySummary: string;
+  isNonReturnable: boolean;
+  weight: number;
+  status: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  isOutOfStock: boolean;
+  soldCount: number;
+  viewCount: number;
+  rating: number;
+  ratingCount: number;
+  createdAt: string;
+  imageList: string[];
+  categoryData: { categoryId: string; name: string; slug: string };
+  brandData: { brandId: string; name: string; slug: string };
+  variantList: ProductVariantData[];
+  attributeList: ProductAttributeData[];
+  tagList: ProductTagData[];
+  reviewList: ProductReviewData[];
+}
+
 export interface EmptyData {
   [key: string]: never;
 }

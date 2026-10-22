@@ -1,11 +1,14 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { toVendor } from '@/types/vendor';
+import { resetSeedStore } from '@/lib/api/seed-store';
 import { VendorDetails } from './vendor-details';
 
 const getVendorById = vi.fn();
 const getVendorRatings = vi.fn();
 const getVendorProducts = vi.fn();
+const getProducts = vi.fn();
+const getProductById = vi.fn();
 const verifyVendorDocument = vi.fn();
 const approveVendor = vi.fn();
 const updateVendorCommission = vi.fn();
@@ -17,6 +20,8 @@ vi.mock('@/lib/api/api.service', () => ({
     getVendorById: (id: string) => getVendorById(id),
     getVendorRatings: (id: string) => getVendorRatings(id),
     getVendorProducts: (id: string, query: unknown) => getVendorProducts(id, query),
+    getProducts: (query: unknown) => getProducts(query),
+    getProductById: (id: string) => getProductById(id),
     verifyVendorDocument: (id: string, body: unknown) => verifyVendorDocument(id, body),
     approveVendor: (id: string, body: unknown) => approveVendor(id, body),
     updateVendorCommission: (id: string, body: unknown) => updateVendorCommission(id, body),
@@ -46,9 +51,12 @@ const firstOf = (items: HTMLElement[]) => {
 
 describe('VendorDetails', () => {
   beforeEach(() => {
+    resetSeedStore();
     getVendorById.mockReset();
     getVendorRatings.mockReset();
     getVendorProducts.mockReset();
+    getProducts.mockReset();
+    getProductById.mockReset();
     verifyVendorDocument.mockReset();
     approveVendor.mockReset();
     updateVendorCommission.mockReset();
@@ -60,7 +68,7 @@ describe('VendorDetails', () => {
       message: 'ok',
       data: { average: 4.5, total: 8, breakdownList: [{ star: 5, count: 6, percent: 75 }] },
     });
-    getVendorProducts.mockResolvedValue({
+    getProducts.mockResolvedValue({
       status: true,
       message: 'ok',
       data: {
@@ -101,6 +109,18 @@ describe('VendorDetails', () => {
     expect(screen.getByText('₹999')).toBeInTheDocument();
   });
 
+  it('keeps the loaded data when the screen is opened again', async () => {
+    const { unmount } = render(<VendorDetails vendorId="v1" />);
+    expect(await screen.findByText('Demo Shop')).toBeInTheDocument();
+    unmount();
+
+    render(<VendorDetails vendorId="v1" />);
+
+    expect(await screen.findByText('Demo Shop')).toBeInTheDocument();
+    expect(screen.getByText('•••• 1111')).toBeInTheDocument();
+    expect(getVendorById).toHaveBeenCalledTimes(1);
+  });
+
   it('opens the commission dialog and saves the new rate', async () => {
     updateVendorCommission.mockResolvedValue({ status: true, message: 'ok', data: vendor });
     render(<VendorDetails vendorId="v1" />);
@@ -117,8 +137,7 @@ describe('VendorDetails', () => {
     );
   });
 
-  it('verifies a KYC document from the details page', async () => {
-    verifyVendorDocument.mockResolvedValue({ status: true, message: 'ok', data: {} });
+  it('verifies a KYC document from the details page', async () => {    verifyVendorDocument.mockResolvedValue({ status: true, message: 'ok', data: {} });
     render(<VendorDetails vendorId="v1" />);
 
     fireEvent.click(firstOf(await screen.findAllByRole('button', { name: 'Document actions' })));

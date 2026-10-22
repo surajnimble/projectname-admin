@@ -1,62 +1,96 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { VENDOR_PAGE_SIZE, VENDOR_STATUSES, type VendorStatusFilter } from '@/constants';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { apiService } from '@/lib/api/api.service';
 import type { BaseResponse, VendorListData } from '@/lib/api/contract';
 import { runVendorAction, type VendorAction, type VendorActionValues } from '@/lib/api/vendor-actions';
+import { rememberVendor } from '@/lib/api/seed-store';
 import { toVendorList } from '@/types/vendor';
 
+interface VendorsQuery {
+  page: number;
+  status: VendorStatusFilter;
+  search: string;
+  hasDocuments: boolean;
+}
+
+interface VendorsCacheEntry {
+  data: VendorListData;
+  query: VendorsQuery;
+}
+
+// The list is kept between visits so coming back from a vendor page does not refetch it.
+let cache: VendorsCacheEntry | null = null;
+
+export const resetVendorsCache = () => {
+  cache = null;
+};
+
+const isSameQuery = (a: VendorsQuery, b: VendorsQuery) =>
+  a.page === b.page &&
+  a.status === b.status &&
+  a.search === b.search &&
+  a.hasDocuments === b.hasDocuments;
+
 export function useVendors() {
-  const [page, setPage] = useState(1);
-  const [status, setStatusState] = useState<VendorStatusFilter>(VENDOR_STATUSES.all);
-  const [search, setSearchState] = useState('');
-  const [hasDocuments, setHasDocumentsState] = useState(false);
-  const [data, setData] = useState<VendorListData>(toVendorList());
-  const [isLoading, setIsLoading] = useState(true);
+  const [initial] = useState(() => cache);
+  const [page, setPage] = useState(initial?.query.page ?? 1);
+  const [status, setStatusState] = useState<VendorStatusFilter>(
+    initial?.query.status ?? VENDOR_STATUSES.all,
+  );
+  const [search, setSearchState] = useState(initial?.query.search ?? '');
+  const [hasDocuments, setHasDocumentsState] = useState(initial?.query.hasDocuments ?? false);
+  const [data, setData] = useState<VendorListData>(initial?.data ?? toVendorList());
+  const [isLoading, setIsLoading] = useState(!initial);
   const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState('');
   const [actionError, setActionError] = useState('');
   const [isActioning, setIsActioning] = useState(false);
   const debouncedSearch = useDebouncedValue(search);
 
-  const apply = useCallback((response: BaseResponse<VendorListData>) => {
+  const query: VendorsQuery = useMemo(
+    () => ({ page, status, search: debouncedSearch, hasDocuments }),
+    [debouncedSearch, hasDocuments, page, status],
+  );
+
+  const apply = useCallback((response: BaseResponse<VendorListData>, next: VendorsQuery) => {
     setError(response.status ? '' : response.message);
-    if (response.status) setData(response.data);
+    if (response.status) {
+      setData(response.data);
+      response.data.itemList.forEach(rememberVendor);
+      cache = { data: response.data, query: next };
+    }
     setIsLoading(false);
-    setIsFetching(false);
   }, []);
 
   const load = useCallback(
-    (
-      nextPage: number,
-      nextStatus: VendorStatusFilter,
-      nextSearch: string,
-      nextHasDocuments: boolean,
-    ) =>
+    (next: VendorsQuery) =>
       apiService.getVendors({
-        page: nextPage,
+        page: next.page,
         limit: VENDOR_PAGE_SIZE,
-        ...(nextStatus !== VENDOR_STATUSES.all ? { status: nextStatus } : {}),
-        ...(nextSearch ? { search: nextSearch } : {}),
-        ...(nextHasDocuments ? { hasDocuments: true } : {}),
+        ...(next.status !== VENDOR_STATUSES.all ? { status: next.status } : {}),
+        ...(next.search ? { search: next.search } : {}),
+        ...(next.hasDocuments ? { hasDocuments: true } : {}),
       }),
     [],
   );
 
   useEffect(() => {
+    if (cache && isSameQuery(cache.query, query)) return;
     let active = true;
-    void load(page, status, debouncedSearch, hasDocuments).then((response) => {
-      if (active) apply(response);
+    void load(query).then((response) => {
+      if (active) apply(response, query);
     });
     return () => {
       active = false;
     };
-  }, [apply, debouncedSearch, hasDocuments, load, page, status]);
+  }, [apply, load, query]);
 
   const refresh = useCallback(async () => {
     setIsFetching(true);
-    apply(await load(page, status, debouncedSearch, hasDocuments));
-  }, [apply, debouncedSearch, hasDocuments, load, page, status]);
+    apply(await load(query), query);
+  }, [apply, load, query]);
+
 
   const changePage = useCallback((next: number) => {
     setIsFetching(true);

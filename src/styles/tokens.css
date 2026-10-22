@@ -42,6 +42,8 @@
   --surface: var(--palette-neutral-0);
   --surface-muted: var(--palette-neutral-100);
   --surface-raised: var(--palette-neutral-0);
+  --skeleton: var(--palette-neutral-300);
+  --hover: var(--palette-neutral-200);
   --overlay: rgb(9 9 11 / 0.5);
 
   --fg: var(--palette-neutral-950);
@@ -57,6 +59,8 @@
   --primary-hover: var(--palette-brand-700);
   --primary-fg: var(--palette-neutral-0);
   --primary-soft: var(--palette-brand-100);
+  --soft: var(--palette-brand-100);
+  --soft-fg: var(--palette-brand-700);
 
   --nav-active: var(--palette-brand-100);
   --nav-active-fg: var(--palette-brand-700);
@@ -113,7 +117,9 @@
   --surface: var(--palette-neutral-925);
   --surface-muted: var(--palette-neutral-900);
   --surface-raised: var(--palette-neutral-850);
-  --overlay: rgb(0 0 0 / 0.65);
+  --skeleton: var(--palette-neutral-600);
+  --hover: var(--palette-neutral-800);
+  --overlay: rgb(0 0 0 / 0.55);
 
   --fg: var(--palette-neutral-0);
   --fg-muted: var(--palette-neutral-400);
@@ -128,6 +134,8 @@
   --primary-hover: var(--palette-brand-400);
   --primary-fg: var(--palette-neutral-0);
   --primary-soft: var(--palette-brand-950);
+  --soft: var(--palette-brand-900);
+  --soft-fg: var(--palette-brand-400);
 
   --nav-active: var(--palette-brand-900);
   --nav-active-fg: var(--palette-brand-400);

@@ -1,6 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { toVendor } from '@/types/vendor';
+import { resetSeedStore } from '@/lib/api/seed-store';
 import { useVendorDetail } from './use-vendor-detail';
 
 const getVendorById = vi.fn();
@@ -32,6 +33,7 @@ const vendor = toVendor({
 
 describe('useVendorDetail', () => {
   beforeEach(() => {
+    resetSeedStore();
     getVendorById.mockReset();
     getVendorRatings.mockReset();
     verifyVendorDocument.mockReset();

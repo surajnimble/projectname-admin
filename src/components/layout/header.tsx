@@ -61,7 +61,7 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
           <div className="mx-1 flex items-center gap-3">
             <span
               aria-hidden="true"
-              className="bg-primary-soft text-primary flex size-9 items-center justify-center rounded-full text-sm font-semibold"
+              className="bg-soft text-soft-fg flex size-9 items-center justify-center rounded-full text-sm font-semibold"
             >
               {initials(user.name, user.email)}
             </span>

@@ -8,7 +8,7 @@ import { SITE } from '@/constants';
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <main className="flex min-h-dvh flex-col md:flex-row md:p-4">
-      <section className="bg-primary-soft border-border/40 @container relative hidden overflow-hidden rounded-xl border md:flex md:w-1/2">
+      <section className="bg-soft border-border/40 @container relative hidden overflow-hidden rounded-xl border md:flex md:w-1/2">
         <AuthGlobe className="absolute top-(--auth-globe-top) left-1/2 w-(--auth-globe-width) -translate-x-1/2 opacity-80 dark:opacity-30" />
 
         <div className="absolute top-(--auth-brand-top) left-1/2 z-10 flex max-w-md -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-3 px-6">

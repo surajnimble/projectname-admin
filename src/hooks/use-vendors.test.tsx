@@ -2,6 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { VENDOR_PAGE_SIZE, VENDOR_STATUSES } from '@/constants';
 import { toVendorList } from '@/types/vendor';
+import { resetVendorsCache } from './use-vendors';
 import { useVendors } from './use-vendors';
 
 const getVendors = vi.fn();
@@ -28,6 +29,7 @@ const list = toVendorList({
 
 describe('useVendors', () => {
   beforeEach(() => {
+    resetVendorsCache();
     getVendors.mockReset();
     approveVendor.mockReset();
     rejectVendor.mockReset();

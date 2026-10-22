@@ -4,14 +4,15 @@ import { RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { EmptyState } from '@/components/common/empty-state';
 import { ErrorState } from '@/components/common/error-state';
-import { FilterGroup, FilterOption, FilterSheet, FilterSwitch } from '@/components/common/filter-sheet';
+import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
 import { Pagination } from '@/components/common/pagination';
+import { TableSkeleton } from '@/components/common/table-skeleton';
 import { VendorActionDialog } from '@/components/vendor/vendor-action-dialog';
 import { VendorFilters } from '@/components/vendor/vendor-filters';
 import { VendorTable } from '@/components/vendor/vendor-table';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { VENDOR_PAGE_SIZE, VENDOR_SKELETON_ROWS, VENDOR_STATUSES, type VendorStatusFilter } from '@/constants';
 import { useVendors } from '@/hooks/use-vendors';
 import type { VendorAction } from '@/lib/api/vendor-actions';
@@ -40,23 +41,6 @@ const STATUS_FILTERS: readonly { value: VendorStatusFilter; label: string }[] = 
   { value: VENDOR_STATUSES.suspended, label: vendors.statuses.SUSPENDED },
 ];
 
-function VendorTableSkeleton() {
-  return (
-    <div className="divide-border divide-y" role="status" aria-busy="true">
-      <span className="sr-only">{MESSAGES.common.loading}</span>
-      {Array.from({ length: VENDOR_SKELETON_ROWS }).map((_, index) => (
-        <div key={index} className="flex items-center gap-4 px-4 py-3">
-          <Skeleton className="bg-border-strong h-4 w-1/3" />
-          <Skeleton className="bg-border-strong h-4 w-16" />
-          <Skeleton className="bg-border-strong h-4 w-12" />
-          <Skeleton className="bg-border-strong h-4 w-16" />
-          <Skeleton className="bg-border-strong h-4 w-20" />
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export function VendorList() {
   const {
     data,
@@ -78,12 +62,26 @@ export function VendorList() {
   } = useVendors();
   const [target, setTarget] = useState<{ vendor: VendorData; action: VendorAction } | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [draft, setDraft] = useState<{ status: VendorStatusFilter; hasDocuments: boolean }>({
+    status: VENDOR_STATUSES.all,
+    hasDocuments: false,
+  });
   const activeFilterCount =
     (status === VENDOR_STATUSES.all ? 0 : 1) + (hasDocuments ? 1 : 0);
 
-  const resetFilters = () => {
-    setStatus(VENDOR_STATUSES.all);
-    setHasDocuments(false);
+  const openFilters = () => {
+    setDraft({ status, hasDocuments });
+    setFiltersOpen(true);
+  };
+
+  const resetDraft = () => {
+    setDraft({ status: VENDOR_STATUSES.all, hasDocuments: false });
+  };
+
+  const applyDraft = () => {
+    setStatus(draft.status);
+    setHasDocuments(draft.hasDocuments);
+    setFiltersOpen(false);
   };
 
   const handleSubmit = async (values: {
@@ -118,12 +116,12 @@ export function VendorList() {
               </Button>
             }
             onSearchChange={setSearch}
-            onOpenFilters={() => setFiltersOpen(true)}
+            onOpenFilters={openFilters}
           />
         </div>
 
         {isLoading ? (
-          <VendorTableSkeleton />
+          <TableSkeleton rows={VENDOR_SKELETON_ROWS} />
         ) : error ? (
           <div className="p-4">
             <ErrorState message={error} onRetry={() => void refresh()} />
@@ -162,22 +160,23 @@ export function VendorList() {
         open={filtersOpen}
         title={vendors.filtersTitle}
         onClose={() => setFiltersOpen(false)}
-        onReset={resetFilters}
+        onReset={resetDraft}
+        onDone={applyDraft}
       >
         <FilterGroup label={vendors.columns.status}>
           {STATUS_FILTERS.map((option) => (
             <FilterOption
               key={option.value}
               label={option.label}
-              selected={status === option.value}
-              onSelect={() => setStatus(option.value)}
+              selected={draft.status === option.value}
+              onSelect={() => setDraft((current) => ({ ...current, status: option.value }))}
             />
           ))}
         </FilterGroup>
-        <FilterSwitch
+        <Switch
           label={vendors.hasDocumentsFilter}
-          checked={hasDocuments}
-          onChange={setHasDocuments}
+          checked={draft.hasDocuments}
+          onChange={(value) => setDraft((current) => ({ ...current, hasDocuments: value }))}
         />
       </FilterSheet>
     </div>

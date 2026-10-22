@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
+import { Select } from '@/components/ui/select';
 import { StatusDot } from '@/components/ui/status-dot';
 import {
   Table,
@@ -65,12 +66,26 @@ export function VendorDocuments() {
     shop: string;
   } | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [draft, setDraft] = useState<{ filter: DocumentFilter; docType: string }>({
+    filter: 'all',
+    docType: '',
+  });
   const activeFilterCount =
     (filter === 'all' ? 0 : 1) + (docType === '' ? 0 : 1);
 
-  const resetFilters = () => {
-    setFilter('all');
-    setDocType('');
+  const openFilters = () => {
+    setDraft({ filter, docType });
+    setFiltersOpen(true);
+  };
+
+  const resetDraft = () => {
+    setDraft({ filter: 'all', docType: '' });
+  };
+
+  const applyDraft = () => {
+    setFilter(draft.filter);
+    setDocType(draft.docType);
+    setFiltersOpen(false);
   };
 
   const submitDecision = async (remark: string) => {
@@ -90,8 +105,8 @@ export function VendorDocuments() {
   return (
     <>
       <Card className="overflow-hidden">
-        <div className="border-border flex items-center gap-2 border-b p-4">
-          <div className="relative min-w-0 flex-1 lg:max-w-xs">
+        <div className="border-border flex flex-wrap items-center gap-2 border-b p-4">
+          <div className="relative min-w-0 flex-1 sm:w-80 sm:flex-none lg:w-96">
             <Search
               className="text-fg-muted pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
               aria-hidden="true"
@@ -109,7 +124,7 @@ export function VendorDocuments() {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => setFiltersOpen(true)}
+            onClick={() => openFilters()}
             className="shrink-0"
           >
             <SlidersHorizontal className="size-4" aria-hidden="true" />
@@ -120,16 +135,18 @@ export function VendorDocuments() {
               </span>
             )}
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            loading={isLoading}
-            onClick={() => void refresh()}
-            className="shrink-0"
-          >
-            {!isLoading && <RefreshCw className="size-4" aria-hidden="true" />}
-            {dashboard.refresh}
-          </Button>
+          <div className="w-full sm:ml-auto sm:w-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              loading={isLoading}
+              onClick={() => void refresh()}
+              className="shrink-0"
+            >
+              {!isLoading && <RefreshCw className="size-4" aria-hidden="true" />}
+              {dashboard.refresh}
+            </Button>
+          </div>
         </div>
 
         {isLoading ? (
@@ -151,7 +168,7 @@ export function VendorDocuments() {
                 <TableHead>{vendors.columns.vendor}</TableHead>
                 <TableHead className="hidden sm:table-cell">{vendors.columns.documentType}</TableHead>
                 <TableHead className="hidden md:table-cell">{vendors.columns.documentNumber}</TableHead>
-                <TableHead>{vendors.columns.documentStatus}</TableHead>
+                <TableHead className="w-32 text-center">{vendors.columns.documentStatus}</TableHead>
                 <TableHead className="hidden lg:table-cell">{vendors.columns.uploaded}</TableHead>
                 <TableHead className="hidden text-right sm:table-cell">
                   {vendors.columns.actions}
@@ -209,7 +226,7 @@ export function VendorDocuments() {
                       <TableCell className="hidden md:table-cell">
                         {document.number || vendors.dash}
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="w-32 text-center">
                         <span className="sm:hidden">
                           <StatusDot
                             intent={document.isVerified ? 'success' : 'warning'}
@@ -276,32 +293,32 @@ export function VendorDocuments() {
         open={filtersOpen}
         title={vendors.documentsFiltersTitle}
         onClose={() => setFiltersOpen(false)}
-        onReset={resetFilters}
+        onReset={resetDraft}
+        onDone={applyDraft}
       >
         <FilterGroup label={vendors.columns.documentStatus}>
           {FILTERS.map((item) => (
             <FilterOption
               key={item.value}
               label={item.label}
-              selected={filter === item.value}
-              onSelect={() => setFilter(item.value)}
+              selected={draft.filter === item.value}
+              onSelect={() => setDraft((current) => ({ ...current, filter: item.value }))}
             />
           ))}
         </FilterGroup>
         <FilterGroup label={vendors.columns.documentType}>
-          <FilterOption
-            label={vendors.documentsFilterAllTypes}
-            selected={docType === ''}
-            onSelect={() => setDocType('')}
-          />
-          {DOC_TYPES.map((type) => (
-            <FilterOption
-              key={type}
-              label={vendors.documentTypes[type] ?? type}
-              selected={docType === type}
-              onSelect={() => setDocType(type)}
-            />
-          ))}
+          <Select
+            value={draft.docType}
+            onChange={(event) => setDraft((current) => ({ ...current, docType: event.target.value }))}
+            aria-label={vendors.columns.documentType}
+          >
+            <option value="">{vendors.documentsFilterAllTypes}</option>
+            {DOC_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {vendors.documentTypes[type] ?? type}
+              </option>
+            ))}
+          </Select>
         </FilterGroup>
       </FilterSheet>
     </>

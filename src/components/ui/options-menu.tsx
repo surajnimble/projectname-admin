@@ -75,7 +75,7 @@ export function OptionsMenu({ label, items, className }: OptionsMenuProps) {
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
-        className="text-fg-muted hover:text-fg hover:bg-surface-muted flex size-8 items-center justify-center rounded-md transition-colors"
+        className="text-fg-muted hover:border-transparent hover:bg-soft hover:text-soft-fg flex size-8 items-center justify-center rounded-md transition-colors"
       >
         <MoreVertical className="size-4" aria-hidden="true" />
       </button>
@@ -102,7 +102,7 @@ export function OptionsMenu({ label, items, className }: OptionsMenuProps) {
                   'flex items-center gap-2 rounded-sm px-2.5 py-1.5 text-left text-sm transition-colors',
                   item.intent === 'danger'
                     ? 'text-danger hover:bg-danger-bg'
-                    : 'text-fg hover:bg-surface-muted',
+                    : 'text-fg hover:bg-hover',
                 )}
               >
                 {item.icon && <item.icon className="size-4" aria-hidden="true" />}

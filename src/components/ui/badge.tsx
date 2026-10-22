@@ -8,7 +8,7 @@ const badgeVariants = cva(
     variants: {
       intent: {
         neutral: 'bg-surface-muted text-fg-muted',
-        primary: 'bg-primary-soft text-primary',
+        primary: 'bg-soft text-soft-fg',
         success: 'bg-success-bg text-success',
         warning: 'bg-warning-bg text-warning',
         danger: 'bg-danger-bg text-danger',

@@ -90,7 +90,7 @@ If a case is missing, use the closest row and say so in your report; do not inve
 src/
   app/                routes: layout.tsx, page.tsx, error.tsx, not-found.tsx
     (auth)/           layout.tsx (brand panel) · login/page.tsx
-    (dashboard)/      layout.tsx (sidebar + header) · page.tsx · vendors/page.tsx · vendors/[vendorId]/page.tsx
+    (dashboard)/      layout.tsx (sidebar + header) · page.tsx · vendors/page.tsx · vendors/[vendorId]/page.tsx · vendors/[vendorId]/products/[productId]/page.tsx
     maintenance/
   components/
     ui/               button, input, textarea, label, card, badge, table, dialog, options-menu, select, status-dot, thumbnail, skeleton, spinner
@@ -99,9 +99,10 @@ src/
     auth/             login-form, guards (AuthGuard, GuestGuard, RoleGuard)
     dashboard/        overview
     vendor/           vendor-page, vendor-list, vendor-filters, vendor-table, vendor-details, vendor-documents, vendor-action-dialog, vendor-document-dialog
+    product/          product-list, product-table, product-details, product-action-dialog
   config/             env.ts
   constants.ts        ← every non-copy app constant (routes, roles, keys, timings, regex, nav items)
-  hooks/              use-login, use-health, use-mounted, use-vendors, use-vendor-detail, use-vendor-documents, use-vendor-products
+  hooks/              use-login, use-health, use-mounted, use-vendors, use-vendor-detail, use-vendor-documents, use-vendor-products, use-product-detail
   lib/
     api/              client, api.service (the ApiService), api-urls (API_URLS), session, auth, device
       contract/       api-request, base-response, api-models (the request/response contract)

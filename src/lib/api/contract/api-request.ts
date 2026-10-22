@@ -26,4 +26,13 @@ export class ApiRequest {
   reason?: string;
   isVerified?: boolean;
   docType?: string;
+  vendorId?: string;
+  inStock?: boolean;
+  isFeatured?: boolean;
+  minPrice?: number;
+  maxPrice?: number;
+  rating?: number;
+  stock?: number;
+  lowStockThreshold?: number;
+  variantId?: string;
 }
