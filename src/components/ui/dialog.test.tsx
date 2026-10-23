@@ -15,7 +15,7 @@ describe('Dialog', () => {
     expect(screen.getByRole('heading', { name: 'Update commission' })).toBeInTheDocument();
     expect(screen.getByText('Change the rate')).toBeInTheDocument();
     expect(screen.getByText('Body')).toBeInTheDocument();
-    expect(screen.getByRole('dialog')).toHaveAttribute('open');
+    expect(screen.getByRole('dialog')).toHaveAttribute('data-state', 'open');
   });
 
   it('closes when the close button is pressed', () => {
@@ -38,6 +38,6 @@ describe('Dialog', () => {
       </Dialog>,
     );
 
-    expect(container.querySelector('dialog')).not.toHaveAttribute('open');
+    expect(container.querySelector('[role="dialog"]')).toBeNull();
   });
 });

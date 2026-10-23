@@ -4,12 +4,13 @@ import { cn } from '@/lib/utils';
 type BadgeIntent = NonNullable<BadgeProps['intent']>;
 
 const DOT_CLASSES: Record<BadgeIntent, string> = {
+  default: 'bg-primary',
   primary: 'bg-primary',
   success: 'bg-success',
   warning: 'bg-warning',
-  danger: 'bg-danger',
-  info: 'bg-info',
-  neutral: 'bg-fg-muted',
+  danger: 'bg-destructive',
+  info: 'bg-primary',
+  neutral: 'bg-muted-foreground',
 };
 
 interface StatusDotProps {

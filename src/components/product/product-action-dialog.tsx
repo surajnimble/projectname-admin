@@ -95,7 +95,7 @@ export function ProductActionDialog({
           <Button
             type="submit"
             form={formId}
-            variant={action === 'delete' ? 'danger' : 'primary'}
+            variant={action === 'delete' ? 'destructive' : 'primary'}
             loading={isSubmitting}
           >
             {confirmLabel}

@@ -14,6 +14,7 @@ export const ROUTES = {
   maintenance: '/maintenance',
   vendors: '/vendors',
   payments: '/payments',
+  componentsShowcase: '/components-showcase',
   vendorDetails: (vendorId: string) => `/vendors/${vendorId}`,
   vendorProductDetails: (vendorId: string, productId: string) =>
     `/vendors/${vendorId}/products/${productId}`,
@@ -150,4 +151,5 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Overview', href: ROUTES.home, icon: LayoutDashboard },
   { label: MESSAGES.sections.vendors, href: ROUTES.vendors, icon: Store },
   { label: MESSAGES.payments.title, href: ROUTES.payments, icon: CreditCard },
+  { label: 'Components', href: ROUTES.componentsShowcase, icon: LayoutDashboard },
 ];

@@ -115,7 +115,7 @@ export function VendorActionDialog({
           <Button
             type="submit"
             form={formId}
-            variant={isDanger ? 'danger' : 'primary'}
+            variant={isDanger ? 'destructive' : 'primary'}
             loading={isSubmitting}
           >
             {CONFIRM_LABELS[action]}

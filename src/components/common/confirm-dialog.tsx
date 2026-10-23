@@ -35,7 +35,7 @@ export function ConfirmDialog({
           <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
             {MESSAGES.common.cancel}
           </Button>
-          <Button type="button" variant="danger" loading={isSubmitting} onClick={onConfirm}>
+          <Button type="button" variant="destructive" loading={isSubmitting} onClick={onConfirm}>
             {confirmLabel}
           </Button>
         </>

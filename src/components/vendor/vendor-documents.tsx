@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
-import { Select } from '@/components/ui/select';
+import { Select, SelectItem } from '@/components/ui/select';
 import { StatusDot } from '@/components/ui/status-dot';
 import {
   Table,
@@ -309,14 +309,14 @@ export function VendorDocuments() {
         <FilterGroup label={vendors.columns.documentType}>
           <Select
             value={draft.docType}
-            onChange={(event) => setDraft((current) => ({ ...current, docType: event.target.value }))}
+            onValueChange={(value) => setDraft((current) => ({ ...current, docType: value }))}
             aria-label={vendors.columns.documentType}
           >
-            <option value="">{vendors.documentsFilterAllTypes}</option>
+            <SelectItem value="">{vendors.documentsFilterAllTypes}</SelectItem>
             {DOC_TYPES.map((type) => (
-              <option key={type} value={type}>
+              <SelectItem key={type} value={type}>
                 {vendors.documentTypes[type] ?? type}
-              </option>
+              </SelectItem>
             ))}
           </Select>
         </FilterGroup>

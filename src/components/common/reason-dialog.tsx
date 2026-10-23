@@ -50,7 +50,7 @@ export function ReasonDialog({
           </Button>
           <Button
             type="button"
-            variant="danger"
+            variant="destructive"
             loading={isSubmitting}
             onClick={() => onConfirm(reason.trim())}
           >

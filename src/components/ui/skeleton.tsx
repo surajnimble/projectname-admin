@@ -1,12 +1,18 @@
-import type * as React from 'react';
 import { cn } from '@/lib/utils';
 
-export function Skeleton({ className, ...props }: React.ComponentProps<'div'>) {
+function Skeleton({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      aria-hidden="true"
-      className={cn('bg-skeleton animate-pulse rounded-md', className)}
+      data-slot="skeleton"
+      className={cn(
+        'rounded-md',
+        'bg-[var(--skeleton-color)] opacity-[var(--skeleton-opacity)]',
+        'animate-[pulse_var(--skeleton-speed)_infinite]',
+        className,
+      )}
       {...props}
     />
   );
 }
+
+export { Skeleton };

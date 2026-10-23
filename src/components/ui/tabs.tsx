@@ -1,47 +1,66 @@
 'use client';
 
+import * as TabsPrimitive from '@radix-ui/react-tabs';
+import * as React from 'react';
+
 import { cn } from '@/lib/utils';
 
-export interface TabItem {
-  value: string;
-  label: string;
-}
-
-interface TabsProps {
-  items: readonly TabItem[];
-  value: string;
-  onChange: (value: string) => void;
-  ariaLabel: string;
-  className?: string;
-}
-
-export function Tabs({ items, value, onChange, ariaLabel, className }: TabsProps) {
+function Tabs({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Root>) {
   return (
-    <div
-      role="tablist"
-      aria-label={ariaLabel}
-      className={cn('flex flex-wrap items-center gap-2', className)}
-    >
-      {items.map((item) => {
-        const active = item.value === value;
-        return (
-          <button
-            key={item.value}
-            type="button"
-            role="tab"
-            aria-selected={active}
-            onClick={() => onChange(item.value)}
-            className={cn(
-              'rounded-md border px-3 py-1.5 text-sm font-medium transition-colors',
-              active
-                ? 'bg-soft text-soft-fg border-transparent'
-                : 'border-border text-fg-muted hover:bg-hover hover:text-fg',
-            )}
-          >
-            {item.label}
-          </button>
-        );
-      })}
-    </div>
+    <TabsPrimitive.Root
+      data-slot="tabs"
+      className={cn('flex flex-col gap-2', className)}
+      {...props}
+    />
   );
 }
+
+function TabsList({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.List>) {
+  return (
+    <TabsPrimitive.List
+      data-slot="tabs-list"
+      className={cn(
+        'inline-flex h-12 w-fit items-center justify-center text-foreground',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function TabsTrigger({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+  return (
+    <TabsPrimitive.Trigger
+      data-slot="tabs-trigger"
+      className={cn(
+        'inline-flex h-[calc(100%-1px)] flex-1 cursor-pointer items-center justify-center gap-2 border-b-2 border-border px-4 font-semibold whitespace-nowrap text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-primary hover:bg-primary/10 hover:text-primary active:bg-primary/20',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+function TabsContent({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Content>) {
+  return (
+    <TabsPrimitive.Content
+      data-slot="tabs-content"
+      className={cn('flex-1 outline-none', className)}
+      {...props}
+    />
+  );
+}
+
+export { Tabs, TabsContent, TabsList, TabsTrigger };

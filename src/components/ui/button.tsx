@@ -1,69 +1,124 @@
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Loader2 } from 'lucide-react';
-import type * as React from 'react';
+import * as React from 'react';
+
 import { cn } from '@/lib/utils';
+import { Ripple } from '@/components/ui/ripple';
 
 const buttonVariants = cva(
-  "relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-md font-medium whitespace-nowrap transition-all before:pointer-events-none before:absolute before:inset-0 before:bg-primary before:opacity-0 before:transition-opacity before:duration-200 before:content-[''] hover:shadow-sm hover:before:opacity-5 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md overflow-hidden text-sm font-medium outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
+        default: 'bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80',
         primary:
-          'bg-primary text-primary-fg hover:bg-primary-hover before:hidden [--ripple-color:var(--primary-fg)]',
-        secondary: 'bg-secondary text-secondary-fg hover:bg-soft hover:text-soft-fg',
+          'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:bg-primary/80',
+        subtle: 'bg-primary/10 text-primary hover:bg-primary/20 active:bg-primary/30',
+        destructive:
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+        destructiveSubtle:
+          'bg-destructive/10 text-destructive-foreground hover:bg-destructive/20 active:bg-destructive/30 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
         outline:
-          'border border-border-strong bg-surface text-fg hover:border-transparent hover:bg-soft hover:text-soft-fg',
+          'border border-input bg-transparent shadow-xs hover:bg-primary/10 hover:text-primary active:bg-primary/20 dark:bg-input/30 dark:border-input dark:hover:bg-primary/10 dark:hover:text-primary',
+        secondary:
+          'bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/90',
         ghost:
-          'border border-transparent bg-surface-muted text-fg-muted hover:border-transparent hover:bg-soft hover:text-soft-fg',
-        danger:
-          'bg-danger text-primary-fg hover:opacity-90 before:hidden [--ripple-color:var(--primary-fg)]',
+          'bg-transparent text-foreground hover:bg-primary/10 hover:text-primary active:bg-primary/20',
+        ghostPrimary:
+          'text-primary hover:bg-primary/10 hover:text-primary active:bg-primary/20',
+        ghostDestructive:
+          'text-destructive-foreground hover:bg-destructive/10 hover:text-destructive-foreground active:bg-destructive/20',
+        toggle:
+          'bg-transparent text-foreground hover:bg-primary/10 hover:text-primary active:bg-primary/20',
+        link: 'text-primary underline-offset-4 hover:underline active:text-primary/80',
+        accent:
+          'bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 focus-visible:ring-primary/20 dark:focus-visible:ring-primary/40',
+        muted: 'bg-muted text-muted-foreground hover:bg-muted/80 active:bg-muted/90',
+        success:
+          'bg-success text-success-foreground hover:bg-success/90 active:bg-success/80 focus-visible:ring-success/20 dark:focus-visible:ring-success/40',
       },
       size: {
-        sm: 'h-8 px-3 text-sm',
-        md: 'h-9 px-4 text-sm',
-        lg: 'h-10 px-6 text-sm',
+        default: 'h-9 px-4 py-2 has-[>svg]:px-3',
+        sm: 'h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5',
+        lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
         icon: 'size-9',
+        'icon-sm': 'size-8',
+        'icon-lg': 'size-10',
       },
     },
-    defaultVariants: { variant: 'primary', size: 'md' },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
   },
 );
 
-export interface ButtonProps
-  extends React.ComponentProps<'button'>, VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
-  loading?: boolean;
-}
-
-export function Button({
+function ButtonComp({
   className,
   variant,
   size,
   asChild = false,
-  loading = false,
-  disabled,
-  children,
   ...props
-}: ButtonProps) {
+}: React.ComponentProps<'button'> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+  }) {
   const Comp = asChild ? Slot : 'button';
+
   return (
     <Comp
+      data-slot="button"
       className={cn(buttonVariants({ variant, size }), className)}
-      disabled={disabled || loading}
-      aria-busy={loading || undefined}
       {...props}
-    >
-      {asChild ? (
-        children
-      ) : (
-        <>
-          {loading && <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden="true" />}
-          {children}
-        </>
-      )}
-    </Comp>
+    />
   );
 }
 
-export { buttonVariants };
+function Button({
+  children,
+  loading = false,
+  className,
+  variant,
+  size,
+  asChild = false,
+  ...props
+}: React.ComponentProps<'button'> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+    loading?: boolean;
+  }) {
+  const isDisabled = loading || props.disabled;
+
+  if (asChild) {
+    return (
+      <Ripple disabled={isDisabled}>
+        <ButtonComp
+          variant={variant}
+          size={size}
+          className={className}
+          asChild
+          disabled={isDisabled}
+          {...props}
+        >
+          {children}
+        </ButtonComp>
+      </Ripple>
+    );
+  }
+
+  return (
+    <Ripple disabled={isDisabled}>
+      <ButtonComp
+        variant={variant}
+        size={size}
+        className={className}
+        disabled={isDisabled}
+        {...props}
+      >
+        {loading ? <span className="flex items-center gap-2">{children}</span> : children}
+      </ButtonComp>
+    </Ripple>
+  );
+}
+
+export { Button, buttonVariants };

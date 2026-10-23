@@ -1,27 +1,78 @@
+import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
-import type * as React from 'react';
+import * as React from 'react';
+
 import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+  'inline-flex items-center justify-center rounded border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden',
   {
     variants: {
-      intent: {
-        neutral: 'bg-surface-muted text-fg-muted',
-        primary: 'bg-soft text-soft-fg',
-        success: 'bg-success-bg text-success',
-        warning: 'bg-warning-bg text-warning',
-        danger: 'bg-danger-bg text-danger',
-        info: 'bg-info-bg text-info',
+      variant: {
+        default:
+          'border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90',
+        primary:
+          'border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90',
+        secondary:
+          'border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90',
+        success:
+          'border-transparent bg-success text-white [a&]:hover:bg-success/90 focus-visible:ring-success/20 dark:focus-visible:ring-success/40 dark:bg-success/60',
+        warning:
+          'border-transparent bg-warning text-white [a&]:hover:bg-warning/90 focus-visible:ring-warning/20 dark:focus-visible:ring-warning/40 dark:bg-warning/60',
+        destructive:
+          'border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+        outline:
+          'text-foreground [a&]:hover:bg-primary/10 [a&]:hover:text-primary',
+        successSubtle: 'border border-transparent text-primary bg-primary/20',
+        primaryOutline:
+          'border border-primary rounded-full text-primary bg-primary/10',
+        successOutline:
+          'border border-success rounded-full text-success bg-success/10',
+        warningOutline:
+          'border border-warning rounded-full text-warning bg-warning/10',
+        destructiveOutline:
+          'border border-destructive rounded-full text-destructive bg-destructive/10',
       },
     },
-    defaultVariants: { intent: 'neutral' },
+    defaultVariants: {
+      variant: 'default',
+    },
   },
 );
 
-export interface BadgeProps
-  extends React.ComponentProps<'span'>, VariantProps<typeof badgeVariants> {}
+export type BadgeProps = React.ComponentProps<'span'> &
+  VariantProps<typeof badgeVariants> & {
+    asChild?: boolean;
+    intent?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'neutral' | 'info';
+  };
 
-export function Badge({ className, intent, ...props }: BadgeProps) {
-  return <span className={cn(badgeVariants({ intent }), className)} {...props} />;
+function Badge({
+  className,
+  variant,
+  intent,
+  asChild = false,
+  ...props
+}: BadgeProps) {
+  const Comp = asChild ? Slot : 'span';
+
+  // Map intent to variant if intent is provided and variant is not
+  const resolvedVariant: VariantProps<typeof badgeVariants>['variant'] =
+    variant ??
+    (intent === 'success' ? 'success' :
+     intent === 'warning' ? 'warning' :
+     intent === 'danger' ? 'destructive' :
+     intent === 'info' ? 'primary' :
+     intent === 'neutral' ? 'secondary' :
+     intent === 'primary' ? 'primary' :
+     variant);
+
+  return (
+    <Comp
+      data-slot="badge"
+      className={cn(badgeVariants({ variant: resolvedVariant }), className)}
+      {...props}
+    />
+  );
 }
+
+export { Badge, badgeVariants };

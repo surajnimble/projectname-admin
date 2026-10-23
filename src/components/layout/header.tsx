@@ -28,7 +28,7 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
   return (
     <header className="border-border bg-surface sticky top-0 z-(--z-sticky) flex h-16 items-center justify-between border-b px-4 lg:px-6">
       <Button
-        variant="ghost"
+        variant="subtle"
         size="icon"
         className="lg:hidden"
         aria-label={MESSAGES.common.openSidebar}
@@ -40,7 +40,7 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
       </Button>
       <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
       <Button
-        variant="ghost"
+        variant="subtle"
         size="icon"
         className="hidden lg:inline-flex"
         aria-label={sidebarOpen ? MESSAGES.common.closeSidebar : MESSAGES.common.openSidebar}

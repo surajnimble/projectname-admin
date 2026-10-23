@@ -51,7 +51,7 @@ export function VendorDocumentDialog({
           </Button>
           <Button
             type="button"
-            variant={isVerify ? 'primary' : 'danger'}
+            variant={isVerify ? 'primary' : 'destructive'}
             loading={isSubmitting}
             onClick={() => onSubmit(remark.trim())}
           >

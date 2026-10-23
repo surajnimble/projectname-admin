@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Avatar } from '@/components/ui/avatar';
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Thumbnail } from '@/components/ui/thumbnail';
 import { ProductList } from '@/components/product/product-list';
 import { VendorPayouts } from '@/components/vendor/vendor-payouts';
@@ -444,7 +444,9 @@ export function VendorDetails({ vendorId }: { vendorId: string }) {
             {isPending ? (
               <Skeleton className="size-10 rounded-lg" />
             ) : (
-              <Avatar src={vendor.userData.avatarUrl} name={vendor.userData.name} />
+              <Avatar>
+                <AvatarImage src={vendor.userData.avatarUrl} alt={vendor.userData.name} />
+              </Avatar>
             )}
             <div className="flex flex-col gap-0.5">
               {isPending ? (

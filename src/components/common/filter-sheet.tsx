@@ -22,7 +22,6 @@ export function FilterSheet({ open, title, onClose, onReset, onDone, children }:
       open={open}
       onClose={onClose}
       title={title}
-      placement="bottom"
       closeLabel={MESSAGES.common.close}
       footer={
         <>

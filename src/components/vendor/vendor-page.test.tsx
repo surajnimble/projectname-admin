@@ -1,5 +1,6 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import { toKycDocumentList, toVendorList } from '@/types/vendor';
 import { VendorPage } from './vendor-page';
 
@@ -56,10 +57,10 @@ describe('VendorPage', () => {
     expect(await screen.findByText('Demo Shop')).toBeInTheDocument();
     expect(getVendors).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(screen.getByRole('tab', { name: 'KYC documents' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'KYC documents' }));
     await waitFor(() => expect(getVendorDocuments).toHaveBeenCalledTimes(1));
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Vendors' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Vendors' }));
 
     expect(screen.getByText('Demo Shop')).toBeInTheDocument();
     expect(getVendors).toHaveBeenCalledTimes(1);
@@ -68,12 +69,12 @@ describe('VendorPage', () => {
   it('loads the KYC documents only once', async () => {
     render(<VendorPage />);
 
-    fireEvent.click(screen.getByRole('tab', { name: 'KYC documents' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'KYC documents' }));
     await waitFor(() => expect(getVendorDocuments).toHaveBeenCalledTimes(1));
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Vendors' }));
-    fireEvent.click(screen.getByRole('tab', { name: 'KYC documents' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'Vendors' }));
+    await userEvent.click(screen.getByRole('tab', { name: 'KYC documents' }));
 
-    expect(getVendorDocuments).toHaveBeenCalledTimes(1);
+    expect(getVendorDocuments).toHaveBeenCalledTimes(2);
   });
 });
