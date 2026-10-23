@@ -14,7 +14,7 @@ export function ThemeToggle() {
     <Button
       variant="ghost"
       size="icon"
-      aria-label={MESSAGES.common.toggleTheme}
+      aria-label={MESSAGES.common.cancel}
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
     >
       {isDark ? <Sun className="size-5" /> : <Moon className="size-5" />}
