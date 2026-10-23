@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Package, Tag, Trash2, Warehouse } from 'lucide-react';
 import { StatusBadge, productStatusMeta } from '@/components/common/status-badge';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
@@ -29,6 +30,8 @@ interface ProductTableProps {
 }
 
 export function ProductTable({ products: items, vendorId, onAction }: ProductTableProps) {
+  const router = useRouter();
+
   return (
     <Table>
       <TableHeader>
@@ -68,7 +71,8 @@ export function ProductTable({ products: items, vendorId, onAction }: ProductTab
           return (
             <TableRow
               key={product.productId}
-              className="hover:bg-hover relative cursor-pointer transition-colors"
+              className="hover:bg-hover cursor-pointer transition-colors"
+              onClick={() => router.push(detailPath)}
             >
               <TableCell>
                 <div className="flex items-center gap-3">
@@ -80,7 +84,8 @@ export function ProductTable({ products: items, vendorId, onAction }: ProductTab
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <Link
                       href={detailPath}
-                      className="text-primary after:absolute after:inset-0 block max-w-32 truncate font-medium hover:underline sm:max-w-56 lg:max-w-none"
+                      onClick={(event) => event.stopPropagation()}
+                      className="text-primary block max-w-32 truncate font-medium hover:underline sm:max-w-56 lg:max-w-none"
                     >
                       {product.name}
                     </Link>
@@ -111,7 +116,7 @@ export function ProductTable({ products: items, vendorId, onAction }: ProductTab
               <TableCell className="w-32 text-center">
                 <StatusBadge meta={productStatusMeta(status)} />
               </TableCell>
-              <TableCell className="relative z-10">
+              <TableCell className="relative z-10" onClick={(event) => event.stopPropagation()}>
                 <OptionsMenu
                   label={products.rowActionsLabel}
                   items={menuItems}

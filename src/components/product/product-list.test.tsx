@@ -5,6 +5,12 @@ import { toProductList } from '@/types/product';
 import { resetSeedStore } from '@/lib/api/seed-store';
 import { ProductList } from './product-list';
 
+const { push } = vi.hoisted(() => ({ push: vi.fn() }));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push }),
+}));
+
 const getProducts = vi.fn();
 const getProductById = vi.fn();
 const toggleProductStatus = vi.fn();
@@ -49,6 +55,7 @@ describe('ProductList', () => {
   beforeEach(() => {
     resetSeedStore();
     resetVendorProductsCache();
+    push.mockReset();
     getProducts.mockReset();
     getProductById.mockReset();
     toggleProductStatus.mockReset();
@@ -68,6 +75,17 @@ describe('ProductList', () => {
 
     expect(await screen.findByText('Demo Product')).toBeInTheDocument();
     expect(getProducts).toHaveBeenCalledWith({ page: 1, limit: 10, vendorId: 'v1' });
+  });
+
+  it('opens the product details when its row is clicked but not from the actions', async () => {
+    render(<ProductList vendorId="v1" />);
+
+    fireEvent.click(await screen.findByText('Mobiles'));
+    expect(push).toHaveBeenCalledWith('/vendors/v1/products/p1');
+
+    push.mockClear();
+    fireEvent.click(await screen.findByRole('button', { name: 'Product actions' }));
+    expect(push).not.toHaveBeenCalled();
   });
 
   it('opens the filter sheet and applies a status filter only on done', async () => {

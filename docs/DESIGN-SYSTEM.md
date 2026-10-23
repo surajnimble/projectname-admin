@@ -292,6 +292,7 @@ Add new ones only through the reuse procedure (AGENTS §6).
 - Spacing uses the Tailwind scale (multiples of 4 px): `p-4`, `gap-6`. Page gutters and section rhythm are set once in the shell, not per page.
 - Layout: the `(dashboard)/layout.tsx` is a fixed sidebar (collapsible to a drawer below `lg`) + topbar + a scrolling content area; content uses full width with page gutters set once in the shell; forms and detail views cap their width (`max-w-3xl`) for readability.
 - Tables on mobile collapse to stacked cards (DataTable `responsive` mode) or scroll inside their own `overflow-x-auto` container — the page body never scrolls sideways.
+- Clickable table rows keep a real `Link` on the name (keyboard path) and navigate with `onClick` + `router.push` on the row; never use a stretched `after:absolute after:inset-0` link on a `<tr>` — mobile browsers ignore `position: relative` on table rows and the invisible link captures taps for the whole page.
 - Use `next/image` with explicit sizes for thumbnails and logos; reserve aspect ratio to avoid layout shift.
 - Z-index uses the `--z-*` tokens only.
 

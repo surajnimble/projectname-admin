@@ -6,6 +6,10 @@ import { resetVendorPayoutsCache } from '@/hooks/use-vendor-payouts';
 import { resetVendorReturnsCache } from '@/hooks/use-vendor-returns';
 import { VendorDetails } from './vendor-details';
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 const getVendorById = vi.fn();
 const getVendorRatings = vi.fn();
 const getVendorProducts = vi.fn();

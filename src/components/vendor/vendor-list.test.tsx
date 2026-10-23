@@ -5,6 +5,12 @@ import { resetSeedStore } from '@/lib/api/seed-store';
 import { resetVendorsCache } from '@/hooks/use-vendors';
 import { VendorList } from './vendor-list';
 
+const { push } = vi.hoisted(() => ({ push: vi.fn() }));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push }),
+}));
+
 const getVendors = vi.fn();
 const approveVendor = vi.fn();
 const rejectVendor = vi.fn();
@@ -55,6 +61,7 @@ describe('VendorList', () => {
   beforeEach(() => {
     resetSeedStore();
     resetVendorsCache();
+    push.mockReset();
     getVendors.mockReset();
     approveVendor.mockReset();
     rejectVendor.mockReset();
@@ -73,6 +80,19 @@ describe('VendorList', () => {
     expect(screen.getByText('rahul@demo.com')).toBeInTheDocument();
     expect(within(screen.getByRole('table')).getAllByText('Pending').length).toBeGreaterThan(0);
     expect(screen.getByText('10%')).toBeInTheDocument();
+  });
+
+  it('opens the vendor when its row is clicked but not from the actions', async () => {
+    getVendors.mockResolvedValue({ status: true, message: 'ok', data: list });
+
+    render(<VendorList />);
+
+    fireEvent.click(await screen.findByText('rahul@demo.com'));
+    expect(push).toHaveBeenCalledWith('/vendors/v1');
+
+    push.mockClear();
+    fireEvent.click(firstOf(await screen.findAllByRole('button', { name: 'Vendor actions' })));
+    expect(push).not.toHaveBeenCalled();
   });
 
   it('shows the empty state when there is no vendor', async () => {

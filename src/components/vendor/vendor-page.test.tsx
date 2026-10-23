@@ -3,6 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { toKycDocumentList, toVendorList } from '@/types/vendor';
 import { VendorPage } from './vendor-page';
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 const getVendors = vi.fn();
 const getVendorDocuments = vi.fn();
 const approveVendor = vi.fn();

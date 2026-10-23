@@ -2,6 +2,7 @@
 
 import { Ban, Check, Percent, RotateCcw, X } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge, vendorStatusMeta } from '@/components/common/status-badge';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
@@ -91,6 +92,8 @@ interface VendorTableProps {
 }
 
 export function VendorTable({ vendors: items, onAction }: VendorTableProps) {
+  const router = useRouter();
+
   return (
     <Table>
       <TableHeader>
@@ -109,7 +112,8 @@ export function VendorTable({ vendors: items, onAction }: VendorTableProps) {
         {items.map((vendor) => (
             <TableRow
               key={vendor.vendorId}
-              className="hover:bg-hover relative cursor-pointer transition-colors"
+              className="hover:bg-hover cursor-pointer transition-colors"
+              onClick={() => router.push(ROUTES.vendorDetails(vendor.vendorId))}
             >
               <TableCell>
                 <div className="flex items-center gap-3">
@@ -117,7 +121,8 @@ export function VendorTable({ vendors: items, onAction }: VendorTableProps) {
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <Link
                       href={ROUTES.vendorDetails(vendor.vendorId)}
-                      className="text-primary after:absolute after:inset-0 block max-w-32 truncate font-medium hover:underline sm:max-w-56 lg:max-w-none"
+                      onClick={(event) => event.stopPropagation()}
+                      className="text-primary block max-w-32 truncate font-medium hover:underline sm:max-w-56 lg:max-w-none"
                     >
                       {vendor.shopName || vendors.shopFallback}
                     </Link>
@@ -150,7 +155,7 @@ export function VendorTable({ vendors: items, onAction }: VendorTableProps) {
             <TableCell className="text-fg-muted hidden whitespace-nowrap xl:table-cell">
               {formatRelativeTime(vendor.createdAt)}
             </TableCell>
-            <TableCell className="relative z-10">
+            <TableCell className="relative z-10" onClick={(event) => event.stopPropagation()}>
               <VendorRowActions vendor={vendor} onAction={onAction} />
             </TableCell>
           </TableRow>
