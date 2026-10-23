@@ -48,7 +48,7 @@ Non-negotiable. If a task seems to require breaking one, stop and ask.
 13. **Comments only when the why is not obvious** (a non-trivial constraint or gotcha). No narration, no section banners, no JSDoc that repeats the signature.
 14. **Accessibility is part of done:** semantic elements, labels, focus, keyboard.
 15. **Definition of done = `npm run verify` passes** (typecheck + lint + tokens + tests). Never claim a check you did not run.
-16. **Clickable table rows never use an absolute link overlay.** Never put `after:absolute after:inset-0` on a link inside a `<tr>`: mobile browsers ignore `position: relative` on table rows, so the overlay escapes and captures taps for the whole page. Use `onClick` + `router.push` on the row, with `stopPropagation()` on the name link and the actions cell (see `vendor-table.tsx` / `product-table.tsx`).
+16. **Clickable table rows never use an absolute link overlay.** Never put `after:absolute after:inset-0` on a link inside a `<tr>`: mobile browsers ignore `position: relative` on table rows, so the overlay escapes and captures taps for the whole page. Use `onClick` + `router.push` on the row, with `stopPropagation()` on the name link and the actions cell (see `vendor-table.tsx` / `product-table.tsx`), and mark the row with `data-ripple=""` for the shared click effect.
 
 ---
 
@@ -110,7 +110,7 @@ src/
       contract/       api-request, base-response, api-models (the request/response contract)
     utils/            index (cn, format), validations, activity, datetime, toast
   messages/           en.ts (English UI copy) · index.ts (exports MESSAGES + Messages type)
-  providers/          auth-provider, theme-provider, toast-provider, app-providers
+  providers/          auth-provider, theme-provider, toast-provider, ripple-provider, app-providers
 
   styles/             tokens.css, theme.css, base.css
   types/              api.ts (re-exports the API contract, parseResponse), auth.ts (mappers)

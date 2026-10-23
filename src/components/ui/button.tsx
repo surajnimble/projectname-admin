@@ -5,17 +5,19 @@ import type * as React from 'react';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 rounded-md font-medium whitespace-nowrap transition-colors disabled:pointer-events-none disabled:opacity-50',
+  "relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-md font-medium whitespace-nowrap transition-all before:pointer-events-none before:absolute before:inset-0 before:bg-primary before:opacity-0 before:transition-opacity before:duration-200 before:content-[''] hover:shadow-sm hover:before:opacity-5 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        primary: 'bg-primary text-primary-fg hover:bg-primary-hover',
-        secondary: 'bg-secondary text-secondary-fg hover:bg-secondary-hover',
+        primary:
+          'bg-primary text-primary-fg hover:bg-primary-hover before:hidden [--ripple-color:var(--primary-fg)]',
+        secondary: 'bg-secondary text-secondary-fg hover:bg-soft hover:text-soft-fg',
         outline:
           'border border-border-strong bg-surface text-fg hover:border-transparent hover:bg-soft hover:text-soft-fg',
         ghost:
           'border border-transparent bg-surface-muted text-fg-muted hover:border-transparent hover:bg-soft hover:text-soft-fg',
-        danger: 'bg-danger text-primary-fg hover:opacity-90',
+        danger:
+          'bg-danger text-primary-fg hover:opacity-90 before:hidden [--ripple-color:var(--primary-fg)]',
       },
       size: {
         sm: 'h-8 px-3 text-sm',

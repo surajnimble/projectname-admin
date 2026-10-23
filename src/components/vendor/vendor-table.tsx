@@ -112,7 +112,8 @@ export function VendorTable({ vendors: items, onAction }: VendorTableProps) {
         {items.map((vendor) => (
             <TableRow
               key={vendor.vendorId}
-              className="hover:bg-hover cursor-pointer transition-colors"
+              className="hover:bg-hover transition-colors"
+              data-ripple=""
               onClick={() => router.push(ROUTES.vendorDetails(vendor.vendorId))}
             >
               <TableCell>

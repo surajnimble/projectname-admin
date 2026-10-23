@@ -16,6 +16,23 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@layer base {
+  :where(
+    button:not(:disabled),
+    a[href],
+    select:not(:disabled),
+    [role='button'],
+    [role='menuitem'],
+    [role='option'],
+    [role='tab'],
+    [role='switch'],
+    [role='radio'],
+    [data-ripple]:not([data-ripple='off'])
+  ):not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+}
+
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;

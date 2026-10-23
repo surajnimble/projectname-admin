@@ -21,6 +21,7 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
       <button
         type="button"
         aria-label={MESSAGES.common.closeSidebar}
+        data-ripple="off"
         className="bg-overlay absolute inset-0"
         onClick={onClose}
       />

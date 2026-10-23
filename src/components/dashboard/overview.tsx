@@ -160,7 +160,7 @@ function StatCard({
       <button
         type="button"
         onClick={onSelect}
-        className="flex h-full w-full flex-col p-4 text-left 2xl:p-5"
+        className="flex h-full w-full flex-col rounded-lg p-4 text-left 2xl:p-5"
       >
         <span className="flex items-start justify-between gap-2 2xl:gap-4">
           <span className="flex min-w-0 flex-col gap-1">

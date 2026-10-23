@@ -110,7 +110,28 @@ export const TIMING = {
   healthFreshMs: 30_000,
   healthPollMs: 60_000,
   slowRequestHintMs: 6_000,
+  rippleHoldDelayMs: 200,
+  ripplePressMs: 1000,
+  rippleClickMs: 380,
+  rippleClickTailMs: 360,
+  ripplePressFadeMs: 450,
+  rippleClickFadeMs: 400,
 } as const;
+
+export const RIPPLE_TARGET_SELECTOR = [
+  'button',
+  'a[href]',
+  '[role="button"]',
+  '[role="menuitem"]',
+  '[role="option"]',
+  '[role="tab"]',
+  '[role="switch"]',
+  '[role="radio"]',
+  '[data-ripple]',
+].join(', ');
+
+export const RIPPLE_SIZE_REFERENCE_PX = 320;
+export const RIPPLE_MAX_SIZE_SCALE = 1.6;
 
 export const REGEX = {
   email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,

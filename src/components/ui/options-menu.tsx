@@ -9,6 +9,7 @@ export interface OptionsMenuItem {
   label: string;
   icon?: LucideIcon;
   intent?: 'default' | 'danger';
+  active?: boolean;
   onSelect: () => void;
 }
 
@@ -16,13 +17,15 @@ interface OptionsMenuProps {
   label: string;
   items: OptionsMenuItem[];
   className?: string;
+  triggerIcon?: LucideIcon;
 }
 
-export function OptionsMenu({ label, items, className }: OptionsMenuProps) {
+export function OptionsMenu({ label, items, className, triggerIcon }: OptionsMenuProps) {
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const TriggerIcon = triggerIcon ?? MoreVertical;
 
   useLayoutEffect(() => {
     if (!open) return;
@@ -82,7 +85,7 @@ export function OptionsMenu({ label, items, className }: OptionsMenuProps) {
         onClick={() => setOpen((value) => !value)}
         className="text-fg-muted hover:border-transparent hover:bg-soft hover:text-soft-fg flex size-8 items-center justify-center rounded-md transition-colors"
       >
-        <MoreVertical className="size-4" aria-hidden="true" />
+        <TriggerIcon className="size-4" aria-hidden="true" />
       </button>
 
       {open &&

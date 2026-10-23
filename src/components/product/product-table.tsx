@@ -71,7 +71,8 @@ export function ProductTable({ products: items, vendorId, onAction }: ProductTab
           return (
             <TableRow
               key={product.productId}
-              className="hover:bg-hover cursor-pointer transition-colors"
+              className="hover:bg-hover transition-colors"
+              data-ripple=""
               onClick={() => router.push(detailPath)}
             >
               <TableCell>

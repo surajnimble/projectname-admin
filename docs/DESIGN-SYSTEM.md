@@ -253,6 +253,7 @@ Order statuses map to intents through one constant (`features/order/constants`):
 - Accessible behaviour (focus trap, keyboard, ARIA) comes from Radix UI primitives wrapped in `components/ui`; do not hand-roll dialogs, menus, tabs or selects.
 - Primitives are **presentational**: no API calls, no routing, no auth, no copy strings (labels arrive as props/children).
 - Every interactive primitive implements: default, hover, `focus-visible`, active, disabled, and (if async) loading.
+- Press/click feedback is global: `RippleProvider` (`src/providers/ripple-provider.tsx`) applies the shared ripple to every `button`, `a[href]`, ARIA widget role (`button`, `menuitem`, `option`, `tab`, `switch`, `radio`) and any `[data-ripple]` element. Mark non-semantic clickables such as clickable table rows with `data-ripple=""`; use `data-ripple="off"` for full-screen overlays such as the mobile-nav backdrop. The ripple and button hover tint use the theme `primary`; primary/danger buttons set `--ripple-color: var(--primary-fg)` so their ripple stays visible. A quick release accelerates to the click timing; holding keeps the slow press expansion. Ripples are cleared on route or query changes and as soon as their target leaves the DOM, is hidden, or is covered by a newly opened dialog. Timing lives in the `TIMING.ripple*` values, visuals in `theme.css`.
 - Sizes use the shared scale `sm | md | lg` mapping to fixed heights/padding; do not invent per-component sizes.
 
 ```tsx
