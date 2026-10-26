@@ -4,7 +4,7 @@ Admin panel (Next.js) for the `projectname-api` marketplace backend. Staff only:
 
 **Stack:** Next.js 16 (App Router) · React 19 · TypeScript (strict) · Tailwind CSS 4 · centralized design tokens (light + dark).
 
-It talks to the **real API** at `https://projectname-api.onrender.com/api/v1`. There are no mocks in the app.
+It talks to the **real API** at `https://projectname-api.vercel.app/api/v1`. There are no mocks in the app.
 
 ## Run it
 

@@ -65,7 +65,7 @@ function OptionCard({
       className={cn(
         'flex items-center gap-3 justify-between w-full text-left border border-border rounded-lg overflow-hidden',
         selected
-          ? 'border-primary border-2 bg-primary text-primary-foreground ring-1 ring-primary/30'
+          ? 'border-primary border-2 bg-primary dark:bg-primary/70 text-primary-foreground ring-1 ring-primary/30'
           : 'hover:border-border hover:bg-surface-muted',
         className,
       )}
