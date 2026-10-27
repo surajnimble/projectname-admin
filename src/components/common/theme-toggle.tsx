@@ -63,30 +63,29 @@ function OptionCard({
       size="sm"
       onClick={onClick}
       className={cn(
-        'flex items-center gap-3 justify-between w-full text-left border border-border rounded-lg overflow-hidden',
+        'flex items-center justify-between w-full text-left border border-border rounded-lg px-3 py-2',
         selected
-          ? 'border-primary border-2 bg-primary dark:bg-primary/70 text-primary-foreground ring-1 ring-primary/30'
-          : 'hover:border-border hover:bg-surface-muted',
+          ? 'border-primary border-2 bg-primary dark:bg-primary/70 text-primary-foreground'
+          : 'hover:border-border hover:bg-hover',
         className,
       )}
     >
-      <div className="flex items-center gap-3 flex-1 min-w-0">
+      <div className="flex items-center gap-1.5 min-w-0">
         {swatch && (
           <span
             className={cn(
-              'size-4 rounded-full shrink-0 border border-border-strong',
-              selected ? 'border-white/50' : 'border-border-strong',
+              'size-3 rounded-full shrink-0 border border-white',
               swatch,
             )}
           />
         )}
-        <span className="text-sm leading-none">{label}</span>
         {primaryDot && (
           <span
-            className="size-3 rounded-full border border-white/50"
+            className="ml-1 size-3 rounded-full shrink-0 border border-white"
             style={{ backgroundColor: primaryDot }}
           />
         )}
+        <span className="text-sm truncate leading-none">{label}</span>
       </div>
       {selected && <span aria-hidden="true" className="text-primary-foreground font-bold">✓</span>}
     </Button>
@@ -112,23 +111,53 @@ function Slider({
   onChange: (value: number) => void;
   format?: (value: number) => string;
 }) {
+  const [inputValue, setInputValue] = useState('');
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+  };
+
+  const handleInputBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    const parsed = Number(event.target.value);
+    if (!Number.isNaN(parsed)) {
+      onChange(Math.min(Math.max(parsed, min), max));
+    }
+    setInputValue('');
+  };
+
+  const displayValue = inputValue || (format ? format(value) : `${value}${unit}`);
+
   return (
     <section className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <span className="text-fg text-xs font-semibold uppercase tracking-wider">
           {label}
         </span>
-        <span className="text-fg-muted text-xs">{format ? format(value) : `${value}${unit}`}</span>
+        <span className="text-fg-muted text-xs">{displayValue}</span>
       </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        defaultValue={value}
-        onChange={(event) => onChange(Number(event.target.value))}
-        className="w-full h-2 bg-surface-muted rounded-full appearance-none cursor-pointer accent-primary"
-      />
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(event) => onChange(Number(event.target.value))}
+          className="w-full h-2 bg-surface-muted rounded-full appearance-none cursor-pointer accent-primary"
+        />
+      <div className="flex items-center gap-2">
+        <label className="text-fg-muted text-xs flex-1">{MESSAGES.common.themeEnterValue}</label>
+        <input
+          type="number"
+          min={min}
+          max={max}
+          step={step}
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={handleInputBlur}
+          placeholder={`${min} – ${max}`}
+          className="text-fg text-xs border border-border rounded px-1.5 py-1 w-20"
+        />
+      </div>
     </section>
   );
 }
@@ -141,7 +170,7 @@ function ColorPicker({
 }: {
   label: string;
   value: string;
-  options: { value: string; label: string; color: string }[];
+  options: { value: string; label: string; className: string }[];
   onChange: (value: string) => void;
 }) {
   return (
@@ -162,10 +191,8 @@ function ColorPicker({
             aria-label={opt.label}
             aria-pressed={value === opt.value}
             className={cn(
-              opt.color === 'var(--primary)' || opt.color.startsWith('var(')
-                ? 'bg-[var(--primary)]'
-                : `bg-[${opt.color}]`,
-              value === opt.value ? 'border-2 border-primary ring-1 ring-primary/20' : 'border-transparent',
+              opt.className,
+              value === opt.value ? 'border-2 border-primary' : 'border-transparent',
             )}
             onClick={() => onChange(opt.value)}
           />
@@ -188,6 +215,8 @@ export function ThemeToggle() {
     rippleColor,
     rippleOpacity,
     rippleSpeed,
+    hoverColor,
+    hoverOpacity,
     setMode,
     setFontSize,
     setAccent,
@@ -199,6 +228,8 @@ export function ThemeToggle() {
     setRippleColor,
     setRippleOpacity,
     setRippleSpeed,
+    setHoverColor,
+    setHoverOpacity,
     reset,
   } = useThemeSettings();
   const [open, setOpen] = useState(false);
@@ -241,21 +272,23 @@ export function ThemeToggle() {
         closeLabel={MESSAGES.common.close}
         footer={
           <>
-            <Button type="button" variant="outline" onClick={reset}>
-              {MESSAGES.common.reset}
-            </Button>
-            <Button type="button" onClick={() => setOpen(false)}>
-              {MESSAGES.common.done}
-            </Button>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" ripple onClick={reset}>
+                {MESSAGES.common.reset}
+              </Button>
+              <Button type="button" ripple onClick={() => setOpen(false)}>
+                {MESSAGES.common.done}
+              </Button>
+            </div>
           </>
         }
       >
-        <div className="flex max-h-[60dvh] flex-col gap-5 overflow-y-auto pr-2 sm:max-h-[65dvh]">
+        <div className="flex max-h-[60dvh] flex-col gap-5 overflow-y-auto px-2 sm:max-h-[65dvh]">
           <section className="flex flex-col gap-3">
             <h3 className="text-fg text-xs font-semibold uppercase tracking-wider">
               {MESSAGES.common.themeMode}
             </h3>
-            <div className="grid w-full grid-cols-3 gap-2">
+            <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {THEME_MODES.map((option) => (
                 <OptionCard
                   key={option.value}
@@ -272,7 +305,7 @@ export function ThemeToggle() {
             <h3 className="text-fg text-xs font-semibold uppercase tracking-wider">
               Theme
             </h3>
-            <div className="grid w-full grid-cols-4 gap-2">
+            <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {THEME_VARIANTS.map((variant) => (
                 <OptionCard
                   key={variant.value}
@@ -323,7 +356,7 @@ export function ThemeToggle() {
               {MESSAGES.common.themeFontSizeValue}
             </h3>
             <div className="flex flex-col gap-2 flex-1 min-w-0">
-              <div className="grid w-full grid-cols-3 gap-2">
+            <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {[
                   { value: 14, label: MESSAGES.common.themeFontSmall },
                   { value: 16, label: MESSAGES.common.themeFontMedium },
@@ -386,7 +419,7 @@ export function ThemeToggle() {
               {MESSAGES.common.themeRadiusValue}
             </h3>
             <div className="flex flex-col gap-2 flex-1 min-w-0">
-              <div className="grid w-full grid-cols-4 gap-2">
+            <div className="grid w-full grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {[
                   { value: 0.6, label: MESSAGES.common.themeRadiusSharp },
                   { value: 1, label: MESSAGES.common.themeRadiusStandard },
@@ -422,11 +455,11 @@ export function ThemeToggle() {
               label={MESSAGES.common.themeSkeletonColor}
               value={skeletonColor}
               options={[
-                { value: 'var(--muted)', label: 'Muted', color: '#a1a1aa' },
-                { value: 'var(--primary)', label: 'Primary', color: 'var(--primary)' },
-                { value: 'var(--success)', label: 'Success', color: '#22c55e' },
-                { value: 'var(--warning)', label: 'Warning', color: '#f59e0b' },
-                { value: 'var(--destructive)', label: 'Destructive', color: '#ef4444' },
+                { value: 'var(--muted)', label: 'Muted', className: 'bg-muted' },
+                { value: 'var(--primary)', label: 'Primary', className: 'bg-primary' },
+                { value: 'var(--success)', label: 'Success', className: 'bg-success' },
+                { value: 'var(--warning)', label: 'Warning', className: 'bg-warning' },
+                { value: 'var(--destructive)', label: 'Destructive', className: 'bg-destructive' },
               ]}
               onChange={setSkeletonColor}
             />
@@ -460,11 +493,11 @@ export function ThemeToggle() {
               label={MESSAGES.common.themeRippleColor}
               value={rippleColor}
               options={[
-                { value: 'var(--primary)', label: 'Primary', color: 'var(--primary)' },
-                { value: 'var(--success)', label: 'Success', color: '#22c55e' },
-                { value: 'var(--warning)', label: 'Warning', color: '#f59e0b' },
-                { value: 'var(--destructive)', label: 'Destructive', color: '#ef4444' },
-                { value: 'rgba(255,255,255,.35)', label: 'White', color: 'rgba(255,255,255,.35)' },
+                { value: 'rgba(255,255,255,.35)', label: 'White', className: 'bg-white/35' },
+                { value: 'var(--primary)', label: 'Primary', className: 'bg-primary' },
+                { value: 'var(--success)', label: 'Success', className: 'bg-success' },
+                { value: 'var(--warning)', label: 'Warning', className: 'bg-warning' },
+                { value: 'var(--destructive)', label: 'Destructive', className: 'bg-destructive' },
               ]}
               onChange={setRippleColor}
             />
@@ -481,12 +514,39 @@ export function ThemeToggle() {
             <Slider
               label={MESSAGES.common.themeRippleSpeed}
               value={rippleSpeed}
-              min={0.2}
+              min={0}
               max={1}
               step={0.05}
               unit="s"
               format={(v) => v.toFixed(2)}
               onChange={setRippleSpeed}
+            />
+          </section>
+
+          <section className="flex flex-col gap-3">
+            <h3 className="text-fg text-xs font-semibold uppercase tracking-wider">
+              {MESSAGES.common.themeHover}
+            </h3>
+            <ColorPicker
+              label={MESSAGES.common.themeHoverColor}
+              value={hoverColor}
+              options={[
+                { value: 'var(--primary)', label: 'Primary', className: 'bg-primary' },
+                { value: 'var(--success)', label: 'Success', className: 'bg-success' },
+                { value: 'var(--warning)', label: 'Warning', className: 'bg-warning' },
+                { value: 'var(--destructive)', label: 'Destructive', className: 'bg-destructive' },
+              ]}
+              onChange={setHoverColor}
+            />
+            <Slider
+              label={MESSAGES.common.themeHoverOpacity}
+              value={hoverOpacity}
+              min={0}
+              max={1}
+              step={0.05}
+              unit=""
+              format={(v) => v.toFixed(2)}
+              onChange={setHoverOpacity}
             />
           </section>
         </div>

@@ -30,6 +30,8 @@ export interface ThemeSettingsState {
   rippleColor: string;
   rippleOpacity: number;
   rippleSpeed: number;
+  hoverColor: string;
+  hoverOpacity: number;
 }
 
 const ACCENT_TOKEN: Record<Accent, string> = {
@@ -62,8 +64,10 @@ const DEFAULT_SKELETON_COLOR = 'var(--muted)';
 const DEFAULT_SKELETON_OPACITY = 0.5;
 const DEFAULT_SKELETON_SPEED = 1.5;
 const DEFAULT_RIPPLE_COLOR = 'var(--primary)';
-const DEFAULT_RIPPLE_OPACITY = 0.3;
-const DEFAULT_RIPPLE_SPEED = 0.47;
+const DEFAULT_RIPPLE_OPACITY = 0.25;
+const DEFAULT_RIPPLE_SPEED = 1;
+const DEFAULT_HOVER_COLOR = 'var(--primary)';
+const DEFAULT_HOVER_OPACITY = 0.1;
 
 export function useThemeSettings() {
   const { setTheme } = useTheme();
@@ -79,12 +83,13 @@ export function useThemeSettings() {
   const [rippleColor, setRippleColorState] = useState<string>(DEFAULT_RIPPLE_COLOR);
   const [rippleOpacity, setRippleOpacityState] = useState<number>(DEFAULT_RIPPLE_OPACITY);
   const [rippleSpeed, setRippleSpeedState] = useState<number>(DEFAULT_RIPPLE_SPEED);
+  const [hoverColor, setHoverColorState] = useState<string>(DEFAULT_HOVER_COLOR);
+  const [hoverOpacity, setHoverOpacityState] = useState<number>(DEFAULT_HOVER_OPACITY);
 
   const setMode = useCallback(
     (value: ThemeMode) => {
       setModeState(value);
       setTheme(value);
-      // Auto-set primary color to match the selected theme variant
       const primaryColor = THEME_PRIMARY_COLORS[value];
       if (mounted) {
         document.documentElement.style.setProperty('--primary', primaryColor);
@@ -196,6 +201,26 @@ export function useThemeSettings() {
     [mounted],
   );
 
+  const setHoverColor = useCallback(
+    (value: string) => {
+      setHoverColorState(value);
+      if (mounted) {
+        document.documentElement.style.setProperty('--hover-color', value);
+      }
+    },
+    [mounted],
+  );
+
+  const setHoverOpacity = useCallback(
+    (value: number) => {
+      setHoverOpacityState(value);
+      if (mounted) {
+        document.documentElement.style.setProperty('--hover-opacity', String(value));
+      }
+    },
+    [mounted],
+  );
+
   const reset = useCallback(() => {
     setModeState(DEFAULT_MODE);
     setFontSizeState(DEFAULT_FONT_SIZE);
@@ -208,6 +233,8 @@ export function useThemeSettings() {
     setRippleColorState(DEFAULT_RIPPLE_COLOR);
     setRippleOpacityState(DEFAULT_RIPPLE_OPACITY);
     setRippleSpeedState(DEFAULT_RIPPLE_SPEED);
+    setHoverColorState(DEFAULT_HOVER_COLOR);
+    setHoverOpacityState(DEFAULT_HOVER_OPACITY);
     setTheme(DEFAULT_MODE);
     if (mounted) {
       document.documentElement.style.removeProperty('font-size');
@@ -221,6 +248,8 @@ export function useThemeSettings() {
       document.documentElement.style.removeProperty('--ripple-color');
       document.documentElement.style.removeProperty('--ripple-opacity');
       document.documentElement.style.removeProperty('--ripple-speed');
+      document.documentElement.style.removeProperty('--hover-color');
+      document.documentElement.style.removeProperty('--hover-opacity');
     }
   }, [setTheme, mounted]);
 
@@ -236,6 +265,8 @@ export function useThemeSettings() {
     rippleColor,
     rippleOpacity,
     rippleSpeed,
+    hoverColor,
+    hoverOpacity,
     setMode,
     setFontSize,
     setDensity,
@@ -247,6 +278,8 @@ export function useThemeSettings() {
     setRippleColor,
     setRippleOpacity,
     setRippleSpeed,
+    setHoverColor,
+    setHoverOpacity,
     reset,
   };
 }

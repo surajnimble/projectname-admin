@@ -100,6 +100,14 @@
   --color-ripple-opacity: var(--ripple-opacity);
   --color-ripple-speed: var(--ripple-speed);
 
+  /* ========== Hover Controls ========== */
+  --color-hover-color: var(--hover-color);
+  --color-hover-opacity: var(--hover-opacity);
+
+  /* ========== Hover Controls ========== */
+  --color-hover-color: var(--hover-color);
+  --color-hover-opacity: var(--hover-opacity);
+
   /* ========== Density & Radius Scale ========== */
   --density: var(--density);
   --radius-scale: var(--radius-scale);
@@ -157,16 +165,16 @@
   --shadow-lg: var(--shadow-lg);
 
   /* ========== Animations ========== */
-  --animate-ripple: ripple 340ms var(--ease-standard) forwards;
+  --animate-ripple: ripple var(--ripple-speed) var(--ease-standard) forwards;
 }
 
 @keyframes ripple {
   from {
-    opacity: 0.05;
+    opacity: var(--ripple-opacity, 0.4);
     transform: scale(0);
   }
   to {
-    opacity: 0.07;
+    opacity: var(--ripple-opacity, 0.4);
     transform: scale(1);
   }
 }

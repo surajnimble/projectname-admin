@@ -3,6 +3,7 @@
 import { LogOut, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/common/theme-toggle';
+import { IconButton } from '@/components/ui/icon-button';
 import { Button } from '@/components/ui/button';
 import { MESSAGES } from '@/messages';
 import { useAuth } from '@/providers/auth-provider';
@@ -28,33 +29,30 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
   return (
     <header className="border-border bg-surface sticky top-0 z-(--z-sticky) flex h-16 items-center justify-between border-b px-4 lg:px-6">
       <div className="flex items-center">
-        <Button
+        <IconButton
+          icon={<PanelLeftOpen className="size-5" aria-hidden="true" />}
+          label={MESSAGES.common.openSidebar}
           variant="subtle"
-          size="icon"
           className="lg:hidden"
-          aria-label={MESSAGES.common.openSidebar}
           aria-haspopup="dialog"
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen(true)}
-        >
-          <PanelLeftOpen className="size-5" aria-hidden="true" />
-        </Button>
+        />
         <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
-        <Button
+
+        <IconButton
+          icon={
+            sidebarOpen
+              ? <PanelLeftClose className="size-5" aria-hidden="true" />
+              : <PanelLeftOpen className="size-5" aria-hidden="true" />
+          }
+          label={sidebarOpen ? MESSAGES.common.closeSidebar : MESSAGES.common.openSidebar}
           variant="subtle"
-          size="icon"
           className="hidden lg:inline-flex"
-          aria-label={sidebarOpen ? MESSAGES.common.closeSidebar : MESSAGES.common.openSidebar}
           aria-controls="app-sidebar"
           aria-expanded={sidebarOpen}
           onClick={onToggleSidebar}
-        >
-          {sidebarOpen ? (
-            <PanelLeftClose className="size-5" aria-hidden="true" />
-          ) : (
-            <PanelLeftOpen className="size-5" aria-hidden="true" />
-          )}
-        </Button>
+        />
       </div>
 
       <div className="flex items-center gap-2">
@@ -69,7 +67,9 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
             </span>
             <div className="hidden flex-col leading-tight sm:flex">
               <span className="text-sm font-medium">{user.name || user.email}</span>
-              {user.name && <span className="text-fg-muted text-xs">{user.email}</span>}
+              {user.name && (
+                <span className="text-muted-foreground text-xs">{user.email}</span>
+              )}
             </div>
           </div>
         )}

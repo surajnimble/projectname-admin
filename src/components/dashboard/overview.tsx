@@ -156,7 +156,7 @@ function StatCard({
   onSelect: () => void;
 }) {
   return (
-    <Card className="hover:border-border-strong hover:bg-hover h-full transition-colors">
+    <Card className="hover:border-border-strong hover:bg-hover h-full transition-colors" data-hover-color>
       <button
         type="button"
         onClick={onSelect}

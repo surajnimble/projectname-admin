@@ -112,7 +112,9 @@ export function RippleProvider() {
     };
 
     const prune = () => {
-      const openDialog = document.querySelector('dialog[open]');
+      const openDialog = document.querySelector(
+        'dialog[open], [role="dialog"][data-state="open"]',
+      );
 
       ripples.forEach((ripple) => {
         if (!ripple.element.isConnected) {
@@ -201,8 +203,10 @@ export function RippleProvider() {
       if (rect.width === 0 || rect.height === 0) return;
 
       const style = window.getComputedStyle(element);
-      const dialog = element.closest('dialog[open]');
-      const fixed = dialog !== null || style.position === 'fixed' || style.position === 'sticky';
+      const dialog = element.closest(
+        'dialog[open], [role="dialog"][data-state="open"]',
+      );
+      const fixed = style.position === 'fixed' || style.position === 'sticky';
       const radius = style.borderRadius || '0px';
       const sizeScale = Math.min(
         RIPPLE_MAX_SIZE_SCALE,
@@ -214,21 +218,35 @@ export function RippleProvider() {
           : Math.round(TIMING.rippleClickMs * sizeScale);
       const quickTailMs = Math.round(TIMING.rippleClickTailMs * sizeScale);
 
-      // Appended outside React so rows and other arbitrary clickables can host a ripple
-      // without turning them into positioned/overflow-hidden containers.
       const layer = document.createElement('div');
       layer.setAttribute('data-ripple-layer', '');
       layer.setAttribute('aria-hidden', 'true');
       layer.className =
         'pointer-events-none overflow-hidden opacity-100 transition-opacity ease-(--ease-standard)';
-      layer.style.position = fixed ? 'fixed' : 'absolute';
-      layer.style.left = `${rect.left + (fixed ? 0 : window.scrollX)}px`;
-      layer.style.top = `${rect.top + (fixed ? 0 : window.scrollY)}px`;
+
+      let layerLeft: string;
+      let layerTop: string;
+      let layerPosition: 'fixed' | 'absolute' = fixed ? 'fixed' : 'absolute';
+
+      if (dialog !== null) {
+        const dialogRect = dialog.getBoundingClientRect();
+        layerPosition = 'absolute';
+        layerLeft = `${rect.left - dialogRect.left}px`;
+        layerTop = `${rect.top - dialogRect.top}px`;
+        layer.style.zIndex = 'calc(var(--z-modal) + 2)';
+      } else {
+        layerLeft = `${rect.left + (fixed ? 0 : window.scrollX)}px`;
+        layerTop = `${rect.top + (fixed ? 0 : window.scrollY)}px`;
+        layer.style.zIndex = 'calc(var(--z-toast) + 1)';
+      }
+
+      layer.style.position = layerPosition;
+      layer.style.left = layerLeft;
+      layer.style.top = layerTop;
       layer.style.width = `${rect.width}px`;
       layer.style.height = `${rect.height}px`;
       layer.style.borderRadius = radius;
       layer.style.color = style.getPropertyValue('--ripple-color').trim() || 'var(--primary)';
-      layer.style.zIndex = 'calc(var(--z-toast) + 1)';
 
       const { top, right, bottom, left, radii } = visibleClip(element, rect);
       if (top || right || bottom || left || radii.some(Boolean)) {

@@ -3,6 +3,7 @@
 import { MoreVertical, type LucideIcon } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { IconButton } from '@/components/ui/icon-button';
 import { cn } from '@/lib/utils';
 
 export interface OptionsMenuItem {
@@ -20,7 +21,12 @@ interface OptionsMenuProps {
   triggerIcon?: LucideIcon;
 }
 
-export function OptionsMenu({ label, items, className, triggerIcon }: OptionsMenuProps) {
+export function OptionsMenu({
+  label,
+  items,
+  className,
+  triggerIcon,
+}: OptionsMenuProps) {
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -39,7 +45,9 @@ export function OptionsMenu({ label, items, className, triggerIcon }: OptionsMen
     const left = Math.min(Math.max(8, rect.right - width), window.innerWidth - width - 8);
     const below = rect.bottom + 4;
     const top =
-      below + height > window.innerHeight - 8 ? Math.max(8, rect.top - height - 4) : below;
+      below + height > window.innerHeight - 8
+        ? Math.max(8, rect.top - height - 4)
+        : below;
 
     setPosition({ top, left });
   }, [open]);
@@ -47,23 +55,25 @@ export function OptionsMenu({ label, items, className, triggerIcon }: OptionsMen
   useEffect(() => {
     if (!open) return;
 
-    // The click that follows an outside press must not reach the row underneath,
-    // otherwise closing the menu would also trigger the stretched row link.
-    const swallowNextClick = (event: MouseEvent) => {
-      event.stopPropagation();
-      event.preventDefault();
+    const swallowNextClick = (e: MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
       document.removeEventListener('click', swallowNextClick, true);
     };
 
-    const onPointerDown = (event: MouseEvent) => {
-      const target = event.target as Node;
+    const onPointerDown = (e: MouseEvent) => {
+      const target = e.target as Node;
       if (triggerRef.current?.contains(target) || menuRef.current?.contains(target)) return;
       setOpen(false);
       document.addEventListener('click', swallowNextClick, true);
-      window.setTimeout(() => document.removeEventListener('click', swallowNextClick, true), 500);
+      window.setTimeout(
+        () => document.removeEventListener('click', swallowNextClick, true),
+        500,
+      );
     };
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
     };
 
     document.addEventListener('mousedown', onPointerDown);
@@ -76,17 +86,16 @@ export function OptionsMenu({ label, items, className, triggerIcon }: OptionsMen
 
   return (
     <div className={cn('relative', className)}>
-      <button
+      <IconButton
         ref={triggerRef}
-        type="button"
-        aria-label={label}
+        icon={<TriggerIcon className="size-4" aria-hidden="true" />}
+        label={label}
+        variant="ghost"
+        size="icon-sm"
         aria-haspopup="menu"
         aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
-        className="text-fg-muted hover:border-transparent hover:bg-soft hover:text-soft-fg flex size-8 items-center justify-center rounded-md transition-colors"
-      >
-        <TriggerIcon className="size-4" aria-hidden="true" />
-      </button>
+        onClick={() => setOpen((v) => !v)}
+      />
 
       {open &&
         createPortal(
@@ -95,7 +104,7 @@ export function OptionsMenu({ label, items, className, triggerIcon }: OptionsMen
             role="menu"
             aria-label={label}
             style={{ top: position.top, left: position.left }}
-            className="bg-surface-raised border-border fixed z-50 flex w-48 flex-col gap-0.5 rounded-md border p-1 shadow-md"
+            className="bg-background border-border fixed z-50 flex w-48 flex-col gap-0.5 rounded-md border p-1 shadow-md"
           >
             {items.map((item) => (
               <button
@@ -109,8 +118,8 @@ export function OptionsMenu({ label, items, className, triggerIcon }: OptionsMen
                 className={cn(
                   'flex items-center gap-2 rounded-sm px-2.5 py-1.5 text-left text-sm transition-colors',
                   item.intent === 'danger'
-                    ? 'text-danger hover:bg-danger-bg'
-                    : 'text-fg hover:bg-hover',
+                    ? 'text-destructive hover:bg-destructive/10'
+                    : 'text-foreground data-hover-color hover:bg-hover',
                 )}
               >
                 {item.icon && <item.icon className="size-4" aria-hidden="true" />}

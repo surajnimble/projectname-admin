@@ -157,8 +157,12 @@
 
   /* ========== Ripple Tokens ========== */
   --ripple-color: var(--primary);
-  --ripple-opacity: 0.3;
+  --ripple-opacity: 0.4;
   --ripple-speed: 0.47s;
+
+  /* ========== Hover Tokens ========== */
+  --hover-color: var(--primary);
+  --hover-opacity: 0.1;
 
   /* ========== Spacing & Layout ========== */
   --app-header-height: 3.8125rem;
@@ -170,9 +174,6 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-
-  /* ========== Ripple ========== */
-  --ripple-color: rgb(92 75 235 / 0.5);
 
   /* ========== Density & Radius Scale ========== */
   --density: 1;
@@ -256,9 +257,12 @@
   --browser-chrome-top: var(--background);
   --glow-accent: rgba(118, 99, 255, 0.28);
   --glow-accent-subtle: rgba(118, 99, 255, 0.14);
-  --ripple-color: rgb(92 75 235 / 0.5);
-  --ripple-opacity: 0.3;
+  --ripple-opacity: 0.4;
   --ripple-speed: 0.47s;
+
+  /* ========== Hover Tokens ========== */
+  --hover-color: var(--primary);
+  --hover-opacity: 0.1;
 
   --surface: var(--card);
   --surface-muted: #18181b;

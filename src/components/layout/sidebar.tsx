@@ -1,9 +1,9 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+
+import { ClickableText } from '@/components/ui/clickable-text';
 import { NAV_ITEMS, SITE } from '@/constants';
-import { cn } from '@/lib/utils';
 import { useAuth } from '@/providers/auth-provider';
 import { Logo } from './logo';
 
@@ -13,7 +13,8 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const roles = user?.roles ?? [];
 
   const items = NAV_ITEMS.filter(
-    (item) => !item.roles || roles.length === 0 || item.roles.some((role) => roles.includes(role)),
+    (item) =>
+      !item.roles || roles.length === 0 || item.roles.some((role) => roles.includes(role)),
   );
 
   return (
@@ -22,25 +23,24 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         <Logo className="text-primary size-7" />
         <span className="font-semibold tracking-tight">{SITE.shortName}</span>
       </div>
+
       <nav aria-label="Main" className="flex flex-col gap-1">
         {items.map((item) => {
-          const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+          const active =
+            item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
           return (
-            <Link
+            <ClickableText
               key={item.href}
               href={item.href}
-              onClick={onNavigate}
+              variant="nav"
+              active={active}
               aria-current={active ? 'page' : undefined}
-              className={cn(
-                'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                active
-                  ? 'bg-nav-active text-nav-active-fg font-semibold'
-                  : 'text-fg-muted hover:bg-hover hover:text-fg',
-              )}
+              onClick={onNavigate}
+              data-hover-color
             >
               <item.icon className="size-4" aria-hidden="true" />
               {item.label}
-            </Link>
+            </ClickableText>
           );
         })}
       </nav>

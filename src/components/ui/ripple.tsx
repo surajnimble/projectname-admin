@@ -77,10 +77,8 @@ function Ripple({
     <div
       data-slot="ripple"
       className={cn(
-        'relative isolate overflow-hidden select-none',
+        'relative isolate rounded-md select-none',
         'before:pointer-events-none before:absolute before:inset-0 before:content-[""]',
-        'before:bg-[var(--ripple-color)] before:opacity-0 before:transition-opacity before:duration-200',
-        'hover:before:opacity-[var(--ripple-opacity)] active:before:opacity-[calc(var(--ripple-opacity)_*_1.5)]',
         className,
       )}
       onMouseDown={handleMouseDown}

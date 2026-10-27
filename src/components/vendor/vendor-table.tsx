@@ -114,6 +114,7 @@ export function VendorTable({ vendors: items, onAction }: VendorTableProps) {
               key={vendor.vendorId}
               className="hover:bg-hover transition-colors"
               data-ripple=""
+              data-hover-color
               onClick={() => router.push(ROUTES.vendorDetails(vendor.vendorId))}
             >
               <TableCell>

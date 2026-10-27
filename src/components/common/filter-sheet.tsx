@@ -70,7 +70,7 @@ export function FilterOption({ label, selected, onSelect }: FilterOptionProps) {
       onClick={onSelect}
       className={cn(
         'flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-sm transition-colors',
-        selected ? 'bg-soft text-soft-fg font-medium' : 'text-fg hover:bg-hover',
+        selected ? 'bg-soft text-soft-fg font-medium' : 'text-fg data-hover-color hover:bg-hover',
       )}
     >
       {label}
