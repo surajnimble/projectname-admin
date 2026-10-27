@@ -6,6 +6,7 @@ import { FormError } from '@/components/common/form-error';
 import { FormField } from '@/components/common/form-field';
 import { PasswordInput } from '@/components/common/password-input';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import { Input } from '@/components/ui/input';
 import { QUERY_PARAMS, ROUTES, TIMING } from '@/constants';
 import { useLogin } from '@/hooks/use-login';
@@ -85,7 +86,8 @@ export function LoginForm() {
 
       <FormError message={error} />
 
-      <Button type="submit" loading={isLoading}>
+      <Button type="submit" loading={isLoading} className="w-full">
+        {isLoading && <Spinner className="h-5 w-5" />}
         {isLoading ? auth.signingIn : auth.signIn}
       </Button>
 

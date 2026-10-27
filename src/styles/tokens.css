@@ -86,7 +86,7 @@
 
   /* Destructive Colors */
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --destructive-foreground: #ffffff;
 
   /* Semantic Colors */
   --success: oklch(0.52 0.194 149.214);

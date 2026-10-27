@@ -250,7 +250,7 @@ export function ThemeToggle() {
           </>
         }
       >
-        <div className="flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-160px)] pr-2">
+        <div className="flex max-h-[60dvh] flex-col gap-5 overflow-y-auto pr-2 sm:max-h-[65dvh]">
           <section className="flex flex-col gap-3">
             <h3 className="text-fg text-xs font-semibold uppercase tracking-wider">
               {MESSAGES.common.themeMode}

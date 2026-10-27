@@ -27,33 +27,35 @@ export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
 
   return (
     <header className="border-border bg-surface sticky top-0 z-(--z-sticky) flex h-16 items-center justify-between border-b px-4 lg:px-6">
-      <Button
-        variant="subtle"
-        size="icon"
-        className="lg:hidden"
-        aria-label={MESSAGES.common.openSidebar}
-        aria-haspopup="dialog"
-        aria-expanded={menuOpen}
-        onClick={() => setMenuOpen(true)}
-      >
-        <PanelLeftOpen className="size-5" aria-hidden="true" />
-      </Button>
-      <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <Button
-        variant="subtle"
-        size="icon"
-        className="hidden lg:inline-flex"
-        aria-label={sidebarOpen ? MESSAGES.common.closeSidebar : MESSAGES.common.openSidebar}
-        aria-controls="app-sidebar"
-        aria-expanded={sidebarOpen}
-        onClick={onToggleSidebar}
-      >
-        {sidebarOpen ? (
-          <PanelLeftClose className="size-5" aria-hidden="true" />
-        ) : (
+      <div className="flex items-center">
+        <Button
+          variant="subtle"
+          size="icon"
+          className="lg:hidden"
+          aria-label={MESSAGES.common.openSidebar}
+          aria-haspopup="dialog"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen(true)}
+        >
           <PanelLeftOpen className="size-5" aria-hidden="true" />
-        )}
-      </Button>
+        </Button>
+        <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
+        <Button
+          variant="subtle"
+          size="icon"
+          className="hidden lg:inline-flex"
+          aria-label={sidebarOpen ? MESSAGES.common.closeSidebar : MESSAGES.common.openSidebar}
+          aria-controls="app-sidebar"
+          aria-expanded={sidebarOpen}
+          onClick={onToggleSidebar}
+        >
+          {sidebarOpen ? (
+            <PanelLeftClose className="size-5" aria-hidden="true" />
+          ) : (
+            <PanelLeftOpen className="size-5" aria-hidden="true" />
+          )}
+        </Button>
+      </div>
 
       <div className="flex items-center gap-2">
         <ThemeToggle />
