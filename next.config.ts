@@ -1,6 +1,6 @@
 import type { NextConfig } from 'next';
 
-const API_BASE_URL = (process.env.API_BASE_URL ?? 'https://projectname-api.vercel.app').replace(/\/+$/, '');
+const API_BASE_URL = (process.env.API_BASE_URL ?? 'https://projectname-api-render.onrender.com').replace(/\/+$/, '');
 const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX ?? '/api/v1';
 
 const nextConfig: NextConfig = {
