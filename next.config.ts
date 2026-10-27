@@ -6,10 +6,6 @@ const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX ?? '/api/v1';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  experimental: {
-    // Render's free tier can take ~1 minute to wake up; keep the proxy waiting.
-    proxyTimeout: 120_000,
-  },
   async rewrites() {
     return [{ source: `${API_PREFIX}/:path*`, destination: `${API_BASE_URL}${API_PREFIX}/:path*` }];
   },

@@ -21,8 +21,6 @@ Open <http://localhost:3000> → you land on `/login` → sign in → you arrive
 
 `.env.local` is included and points at the live API. To use another backend, change `API_BASE_URL` there and restart `npm run dev` (for a production build, set it **before** `npm run build`: the `/api/v1` rewrite is fixed at build time).
 
-> The backend runs on Render's free tier, so the first request after a quiet period can take up to a minute. The login form shows a hint after 6 seconds, and the API status indicator on the sign-in page wakes the server as soon as the page opens.
-
 ## Deploy to Cloudflare Workers
 
 The app ships as one Cloudflare Worker plus static assets, built with `@opennextjs/cloudflare`. Config lives in `wrangler.jsonc` and `open-next.config.ts`.

@@ -184,7 +184,6 @@ Show `response.message` exactly as the backend sent it; branch on the **HTTP sta
 - **Idempotency:** money-moving admin calls (`confirmPayment`, `refund`, `markCodCollected`, `verifyUpi`, `verifyBank`) pass `idempotencyKey` (one `crypto.randomUUID()` per user intent, reused on retries).
 - **Uploads:** pass `FormData` as `body` (the client leaves `Content-Type` to the browser); respect the backend limits (images ≤ 5 MB, video ≤ 50 MB, documents ≤ 10 MB, CSV ≤ 20 MB).
 - **Pagination:** `query: { page, limit, sort, search }`, state kept in the URL, list model in `types/`.
-- **Render cold start:** the free backend can take ~1 minute; the proxy waits up to 120 s and the login form shows a hint after 6 s.
 - **Realtime:** Socket.io on `/ws` (token at handshake) is added as its own module when a page needs it.
 - **Two-step verification:** not supported; `useLogin` reports it. Add the form, API method and `ApiRequest` fields when it is needed.
 
