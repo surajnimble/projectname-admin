@@ -51,6 +51,7 @@ export const en = {
     themeEnterValue: 'Enter value',
     openSidebar: 'Open sidebar',
     closeSidebar: 'Close sidebar',
+    settings: 'Settings',
     serverWaking: 'The server may be waking up. This can take up to a minute.',
     comingSoon: (section: string) => `Coming soon: ${section}`,
     viewAll: 'View all',
@@ -374,7 +375,7 @@ export const en = {
   },
   dashboard: {
     greeting: (name: string) => (name ? `Welcome back, ${name}` : 'Welcome back'),
-    homeSubtitle: 'See all your stats at a glance.',
+    homeSubtitle: 'Stay informed with today’s analytics',
     refresh: 'Refresh',
     apiLatency: (ms: number) => `${ms} ms`,
     activityTitle: 'Recent Activity',

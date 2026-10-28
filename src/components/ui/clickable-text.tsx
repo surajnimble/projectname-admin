@@ -13,7 +13,10 @@ const clickableTextVariants = cva(
       variant: {
         default: 'text-primary hover:text-primary/80 hover:underline underline-offset-4',
         muted: 'text-muted-foreground hover:text-foreground hover:underline underline-offset-4',
-        danger: 'text-destructive hover:text-destructive/80 hover:underline underline-offset-4',
+        danger: [
+          'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium',
+          'bg-destructive text-destructive-foreground active:bg-destructive/80 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+        ],
         nav: [
           'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium',
           'text-muted-foreground hover:text-foreground',

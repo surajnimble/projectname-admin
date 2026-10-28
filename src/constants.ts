@@ -15,6 +15,7 @@ export const ROUTES = {
   vendors: '/vendors',
   payments: '/payments',
   componentsShowcase: '/components-showcase',
+  settings: '/settings',
   vendorDetails: (vendorId: string) => `/vendors/${vendorId}`,
   vendorProductDetails: (vendorId: string, productId: string) =>
     `/vendors/${vendorId}/products/${productId}`,
