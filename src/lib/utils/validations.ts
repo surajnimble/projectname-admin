@@ -1,7 +1,7 @@
 import { REGEX, VENDOR_COMMISSION_MAX, VENDOR_COMMISSION_MIN, VENDOR_REASON_MAX_LENGTH } from '@/constants';
 import { MESSAGES } from '@/messages';
 
-export type ValidationField = 'identifier' | 'password' | 'reason' | 'commissionRate' | '';
+export type ValidationField = 'identifier' | 'password' | 'reason' | 'commissionRate' | 'subAdminName' | 'subAdminEmail' | 'subAdminPhone' | 'subAdminPassword' | '';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -44,6 +44,30 @@ export function validateVendorCommission(commission: string): ValidationResult {
   const rate = Number(commission);
   if (!Number.isFinite(rate) || rate < VENDOR_COMMISSION_MIN || rate > VENDOR_COMMISSION_MAX) {
     return invalid('commissionRate', vendorCommissionInvalid);
+  }
+  return valid;
+}
+
+export function validateSubAdmin(values: {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  mode: 'create' | 'update';
+}): ValidationResult {
+  const {
+    subAdminNameRequired,
+    subAdminEmailRequired,
+    subAdminEmailInvalid,
+    subAdminPhoneRequired,
+    subAdminPasswordRequired,
+  } = MESSAGES.validation;
+  if (isEmpty(values.name)) return invalid('subAdminName', subAdminNameRequired);
+  if (isEmpty(values.email)) return invalid('subAdminEmail', subAdminEmailRequired);
+  if (!isEmail(values.email)) return invalid('subAdminEmail', subAdminEmailInvalid);
+  if (isEmpty(values.phone)) return invalid('subAdminPhone', subAdminPhoneRequired);
+  if (values.mode === 'create' && isEmpty(values.password)) {
+    return invalid('subAdminPassword', subAdminPasswordRequired);
   }
   return valid;
 }

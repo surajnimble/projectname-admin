@@ -1,4 +1,4 @@
-import { CreditCard, LayoutDashboard, Store, type LucideIcon } from 'lucide-react';
+import { CreditCard, LayoutDashboard, Store, Users, type LucideIcon } from 'lucide-react';
 import { MESSAGES } from '@/messages';
 
 export const SITE = {
@@ -19,6 +19,7 @@ export const ROUTES = {
   vendorDetails: (vendorId: string) => `/vendors/${vendorId}`,
   vendorProductDetails: (vendorId: string, productId: string) =>
     `/vendors/${vendorId}/products/${productId}`,
+  subAdmins: '/sub-admins',
 } as const;
 
 export const ROLES = {
@@ -72,6 +73,8 @@ export const DASHBOARD_WIDGET_LIMIT = 5;
 export const PRODUCT_PERFORMANCE_DAYS = 30;
 
 export const VENDOR_PAGE_SIZE = 10;
+
+export const SUB_ADMIN_PAGE_SIZE = 10;
 
 export const VENDOR_SKELETON_ROWS = 5;
 
@@ -153,4 +156,5 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: MESSAGES.sections.vendors, href: ROUTES.vendors, icon: Store },
   { label: MESSAGES.payments.title, href: ROUTES.payments, icon: CreditCard },
   { label: 'Components', href: ROUTES.componentsShowcase, icon: LayoutDashboard },
+  { label: MESSAGES.sections.subAdmins, href: ROUTES.subAdmins, icon: Users, roles: [ROLES.superAdmin] },
 ];

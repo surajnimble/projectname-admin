@@ -33,4 +33,11 @@ export const API_URLS = {
   rejectReturn: (returnId: string) => `/returns/reject/${returnId}`,
   confirmPayment: (paymentId: string) => `/payments/confirmPayment/${paymentId}`,
   refundPayment: (paymentId: string) => `/payments/refund/${paymentId}`,
+  createSubAdmin: '/admin/createSubAdmin',
+  getAllSubAdmins: '/admin/getAllSubAdmins',
+  updateSubAdmin: (id: string) => `/admin/updateSubAdmin/${id}`,
+  deleteSubAdmin: (id: string) => `/admin/deleteSubAdmin/${id}`,
+  toggleSubAdminStatus: (id: string) => `/admin/toggleSubAdminStatus/${id}`,
+  getPermissions: '/admin/getPermissions',
+  updatePermissions: (id: string) => `/admin/updatePermissions/${id}`,
 } as const;

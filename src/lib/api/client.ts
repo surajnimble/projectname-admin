@@ -111,6 +111,11 @@ async function execute<T>(
     const gateway = [502, 503, 504].includes(res.status);
     return failure(gateway ? MESSAGES.errors.serverWaking : MESSAGES.errors.unknown, mapper);
   }
+
+  if (!response.status && response.message) {
+    showError(response.message);
+  }
+
   return response;
 }
 

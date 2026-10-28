@@ -1,4 +1,4 @@
-import type { AuthData, EmptyData, UserData } from '@/lib/api/contract';
+import type { AuthData, EmptyData, PermissionData, SubAdminData, SubAdminListData, UserData } from '@/lib/api/contract';
 import { emptyData } from '@/lib/api/contract';
 
 // Response shapes live in lib/api-contract (base-response); this module only fills
@@ -47,3 +47,39 @@ export const toAuthData = (raw: RawAuth = {}): AuthData => {
     rolesList: pickRoles(raw),
   };
 };
+
+type RawSubAdmin = Partial<Record<keyof SubAdminData, unknown>> & { role?: string };
+
+export const toSubAdmin = (raw: RawSubAdmin = {}): SubAdminData => ({
+  userId: typeof raw.userId === 'string' ? raw.userId : '',
+  name: typeof raw.name === 'string' ? raw.name : '',
+  email: typeof raw.email === 'string' ? raw.email : '',
+  phone: typeof raw.phone === 'string' ? raw.phone : '',
+  role: typeof raw.role === 'string' ? raw.role : 'SUB_ADMIN',
+  permissions: Array.isArray(raw.permissions) ? raw.permissions.filter((p): p is string => typeof p === 'string') : [],
+  isActive: raw.isActive === true,
+  createdAt: typeof raw.createdAt === 'string' ? raw.createdAt : '',
+  updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : '',
+});
+
+export const toPermissionData = (raw: Partial<Record<keyof PermissionData, unknown>> = {}): PermissionData => ({
+  roleList: typeof raw.roleList === 'object' && raw.roleList !== null ? raw.roleList as Record<string, string[]> : {},
+});
+
+export const toSubAdminList = (
+  raw: Partial<Record<keyof Omit<SubAdminListData, 'itemList'>, unknown>> & {
+    itemList?: unknown;
+  } = {},
+): SubAdminListData => ({
+  totalRecord: typeof raw.totalRecord === 'number' ? raw.totalRecord : 0,
+  totalPage: typeof raw.totalPage === 'number' ? raw.totalPage : 0,
+  currentPage: typeof raw.currentPage === 'number' ? raw.currentPage : 0,
+  limit: typeof raw.limit === 'number' ? raw.limit : 0,
+  hasNext: raw.hasNext === true,
+  hasPrevious: raw.hasPrevious === true,
+  nextPage: typeof raw.nextPage === 'number' ? raw.nextPage : 0,
+  previousPage: typeof raw.previousPage === 'number' ? raw.previousPage : 0,
+  itemList: Array.isArray(raw.itemList)
+    ? raw.itemList.filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null).map((item) => toSubAdmin(item))
+    : [],
+});

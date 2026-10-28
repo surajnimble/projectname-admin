@@ -43,4 +43,5 @@ export class ApiRequest {
   amount?: number;
   reference?: string;
   notes?: string;
+  permissions?: string[];
 }

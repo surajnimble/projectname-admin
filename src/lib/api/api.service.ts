@@ -3,7 +3,7 @@ import { apiClient } from './client';
 import type { ApiRequest } from '@/types/api';
 import { toActivityLogList } from '@/types/activity';
 import { toProductPerformanceList } from '@/types/analytics';
-import { toAuthData, toEmptyData } from '@/types/auth';
+import { toAuthData, toEmptyData, toPermissionData, toSubAdmin, toSubAdminList } from '@/types/auth';
 import { toDashboardStats } from '@/types/dashboard';
 import { toPaymentList, toPaymentSummary } from '@/types/payment';
 import { toPayout, toPayoutList, toPayoutStatement } from '@/types/payout';
@@ -181,6 +181,55 @@ export class ApiService {
       body,
       idempotencyKey: `refund-${paymentId}-${Date.now()}`,
       mapper: toPaymentSummary,
+    });
+  }
+
+  createSubAdmin(body: Pick<ApiRequest, 'name' | 'email' | 'phone' | 'password' | 'permissions'>) {
+    return apiClient.post(API_URLS.createSubAdmin, {
+      body,
+      mapper: toSubAdmin,
+    });
+  }
+
+  getAllSubAdmins(query: Pick<ApiRequest, 'page' | 'limit' | 'search'>) {
+    return apiClient.get(API_URLS.getAllSubAdmins, {
+      query,
+      mapper: toSubAdminList,
+    });
+  }
+
+  updateSubAdmin(
+    id: string,
+    body: Pick<ApiRequest, 'name' | 'email' | 'phone'>,
+  ) {
+    return apiClient.patch(API_URLS.updateSubAdmin(id), {
+      body,
+      mapper: toSubAdmin,
+    });
+  }
+
+  deleteSubAdmin(id: string) {
+    return apiClient.delete(API_URLS.deleteSubAdmin(id), { mapper: toEmptyData });
+  }
+
+  toggleSubAdminStatus(id: string, isActive: boolean) {
+    return apiClient.patch(API_URLS.toggleSubAdminStatus(id), {
+      body: { key: 'status', enabled: isActive },
+      mapper: toSubAdmin,
+    });
+  }
+
+  getPermissions() {
+    return apiClient.get(API_URLS.getPermissions, { mapper: toPermissionData });
+  }
+
+  updatePermissions(
+    id: string,
+    body: Pick<ApiRequest, 'permissions'>,
+  ) {
+    return apiClient.patch(API_URLS.updatePermissions(id), {
+      body,
+      mapper: toEmptyData,
     });
   }
 }

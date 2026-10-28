@@ -38,6 +38,24 @@ export interface UserData {
   isPhoneVerified: boolean;
 }
 
+export interface SubAdminData {
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  permissions: string[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type SubAdminListData = PageData<SubAdminData>;
+
+export interface PermissionData {
+  roleList: Record<string, string[]>;
+}
+
 export interface AuthData {
   accessToken: string;
   expiresIn: number;
