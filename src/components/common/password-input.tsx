@@ -15,7 +15,7 @@ export function PasswordInput(props: Omit<ComponentProps<typeof Input>, 'type'>)
         onClick={() => setVisible((v) => !v)}
         aria-label={visible ? MESSAGES.auth.hidePassword : MESSAGES.auth.showPassword}
         aria-pressed={visible}
-        className="text-fg-muted hover:text-fg absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-md"
+        className="text-fg-muted data-hover-color absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-md"
       >
         {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
       </button>

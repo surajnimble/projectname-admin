@@ -10,35 +10,35 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80',
+          'bg-primary text-primary-foreground active:bg-primary/80',
         primary:
-          'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:bg-primary/80',
+          'bg-primary text-primary-foreground shadow-sm active:bg-primary/80',
         subtle:
-          'bg-primary/10 text-primary hover:bg-primary/20 active:bg-primary/30',
+          'bg-primary/10 text-primary active:bg-primary/30',
         destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+          'bg-destructive text-destructive-foreground active:bg-destructive/80 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
         destructiveSubtle:
-          'bg-destructive/10 text-destructive-foreground hover:bg-destructive/20 active:bg-destructive/30 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
+          'bg-destructive/10 text-destructive-foreground active:bg-destructive/30 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
         outline:
-          'border border-input bg-transparent shadow-xs hover:bg-primary/10 hover:text-primary active:bg-primary/20 dark:bg-input/30 dark:border-input dark:hover:bg-primary/10 dark:hover:text-primary',
+          'border border-input bg-transparent shadow-xs active:bg-primary/20 dark:bg-input/30 dark:border-input',
         secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/90',
+          'bg-secondary text-secondary-foreground active:bg-secondary/90',
         ghost:
-          'bg-transparent text-foreground hover:bg-primary/10 hover:text-primary active:bg-primary/20',
+          'bg-transparent text-foreground active:bg-primary/20',
         ghostPrimary:
-          'text-primary hover:bg-primary/10 hover:text-primary active:bg-primary/20',
+          'text-primary active:bg-primary/20',
         ghostDestructive:
-          'text-destructive-foreground hover:bg-destructive/10 hover:text-destructive-foreground active:bg-destructive/20',
+          'text-destructive-foreground active:bg-destructive/20',
         toggle:
-          'bg-transparent text-foreground hover:bg-primary/10 hover:text-primary active:bg-primary/20',
+          'bg-transparent text-foreground active:bg-primary/20',
         link:
-          'text-primary underline-offset-4 hover:underline active:text-primary/80',
+          'text-primary underline-offset-4 active:text-primary/80',
         accent:
-          'bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 focus-visible:ring-primary/20 dark:focus-visible:ring-primary/40',
+          'bg-primary text-primary-foreground active:bg-primary/80 focus-visible:ring-primary/20 dark:focus-visible:ring-primary/40',
         muted:
-          'bg-muted text-muted-foreground hover:bg-muted/80 active:bg-muted/90',
+          'bg-muted text-muted-foreground active:bg-muted/90',
         success:
-          'bg-success text-success-foreground hover:bg-success/90 active:bg-success/80 focus-visible:ring-success/20 dark:focus-visible:ring-success/40',
+          'bg-success text-success-foreground active:bg-success/80 focus-visible:ring-success/20 dark:focus-visible:ring-success/40',
       },
       size: {
         default:  'h-9 px-4 py-2 has-[>svg]:px-3',
@@ -80,6 +80,7 @@ export interface ButtonProps
   asChild?: boolean;
   loading?: boolean;
   ripple?: boolean;
+  icon?: React.ReactNode;
 }
 
 function Button({
@@ -92,6 +93,7 @@ function Button({
   asChild = false,
   ...props
 }: ButtonProps) {
+  const isLoading = loading;
   const isDisabled = loading || props.disabled;
 
   if (asChild) {
@@ -103,6 +105,7 @@ function Button({
         asChild
         disabled={isDisabled}
         data-ripple={ripple ? undefined : 'off'}
+        data-hover-color
         {...props}
       >
         {children}
@@ -117,9 +120,22 @@ function Button({
       className={className}
       disabled={isDisabled}
       data-ripple={ripple ? undefined : 'off'}
+      data-hover-color
       {...props}
     >
-      {loading ? <span className="flex items-center gap-2">{children}</span> : children}
+      {isLoading ? (
+        <>
+          {React.Children.map(children, (child, index) => {
+            if (index === 0 && React.isValidElement(child)) {
+              const el = child as React.ReactElement<{ className?: string }>;
+              return React.cloneElement(el, { className: 'animate-spin' });
+            }
+            return child;
+          })}
+        </>
+      ) : (
+        children
+      )}
     </ButtonComp>
   );
 }

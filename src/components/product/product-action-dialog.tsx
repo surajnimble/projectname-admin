@@ -119,7 +119,7 @@ export function ProductActionDialog({
                   className={
                     status === option.value
                       ? 'bg-soft text-soft-fg rounded-md px-3 py-2 text-left text-sm font-medium'
-                      : 'text-fg data-hover-color hover:bg-hover rounded-md px-3 py-2 text-left text-sm'
+                      : 'text-fg data-hover-color rounded-md px-3 py-2 text-left text-sm'
                   }
                 >
                   {option.label}

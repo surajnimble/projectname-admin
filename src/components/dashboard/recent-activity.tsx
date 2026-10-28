@@ -109,7 +109,7 @@ export function ActivityItem({ activity }: { activity: ActivityLogData }) {
   const time = formatRelativeTime(activity.createdAt);
 
   return (
-    <li className="hover:bg-hover flex items-start gap-3 px-5 py-4 transition-colors" data-hover-color>
+    <li className="flex items-start gap-3 px-5 py-4 transition-colors" data-hover-color>
       <span
         aria-hidden="true"
         className={cn(

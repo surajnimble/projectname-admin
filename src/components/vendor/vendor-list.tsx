@@ -111,7 +111,7 @@ export function VendorList() {
                 onClick={() => void refresh()}
                 className="shrink-0"
               >
-                {!isLoading && !isFetching && <RefreshCw className="size-4" aria-hidden="true" />}
+                <RefreshCw className="size-4" aria-hidden="true" />
                 {dashboard.refresh}
               </Button>
             }

@@ -11,12 +11,12 @@ export function HoverStyleProvider() {
     const update = () => {
       const root = document.documentElement;
       const color = getComputedStyle(root).getPropertyValue('--hover-color').trim() || 'var(--primary)';
-      const opacity = getComputedStyle(root).getPropertyValue('--hover-opacity').trim() || '0.1';
+      const opacityStr = getComputedStyle(root).getPropertyValue('--hover-opacity').trim() || '0.1';
+      const mixedOpacity = Math.round(parseFloat(opacityStr) * 100);
 
       style.textContent = `
         [data-hover-color]:hover {
-          background-color: ${color};
-          opacity: ${opacity};
+          background-color: color-mix(in srgb, ${color} ${mixedOpacity}%, transparent);
         }
       `;
     };

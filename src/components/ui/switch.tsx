@@ -37,7 +37,7 @@ function Switch({
         onCheckedChange={onChange}
         disabled={disabled}
         className={cn(
-          'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input data-[state=checked]:hover:bg-primary/90 dark:data-[state=unchecked]:bg-input/80',
+          'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input data-[state=checked]:active:bg-primary/90 dark:data-[state=unchecked]:bg-input/80 data-hover-color',
           size === 'default' ? 'h-[1.15rem] w-8' : 'h-6 w-11',
           className,
         )}

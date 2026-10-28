@@ -118,8 +118,8 @@ export function OptionsMenu({
                 className={cn(
                   'flex items-center gap-2 rounded-sm px-2.5 py-1.5 text-left text-sm transition-colors',
                   item.intent === 'danger'
-                    ? 'text-destructive hover:bg-destructive/10'
-                    : 'text-foreground data-hover-color hover:bg-hover',
+                    ? 'text-destructive active:bg-destructive/10'
+                    : 'text-foreground data-hover-color',
                 )}
               >
                 {item.icon && <item.icon className="size-4" aria-hidden="true" />}

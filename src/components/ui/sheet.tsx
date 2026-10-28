@@ -98,7 +98,7 @@ function SheetHeader({
     >
       {showBackButton && (
         <button
-          className="-mx-1.5 -my-1.5 inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+          className="-mx-1.5 -my-1.5 inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors active:bg-primary/10 active:text-primary data-hover-color focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
         >
           <ArrowLeftIcon className="size-5" />
           <span className="sr-only">Back</span>

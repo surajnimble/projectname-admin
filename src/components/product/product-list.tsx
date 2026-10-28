@@ -137,7 +137,7 @@ export function ProductList({ vendorId }: { vendorId: string }) {
                   onClick={() => void refresh()}
                   className="shrink-0"
                 >
-                  {!isLoading && <RefreshCw className="size-4" aria-hidden="true" />}
+                  <RefreshCw className="size-4" aria-hidden="true" />
                   {MESSAGES.dashboard.refresh}
                 </Button>
               </div>

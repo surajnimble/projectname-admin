@@ -249,7 +249,7 @@ export function VendorDocuments() {
                               href={document.fileUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="text-fg-muted hover:text-fg inline-flex items-center gap-1 text-sm"
+                              className="text-fg-muted data-hover-color inline-flex items-center gap-1 text-sm"
                             >
                               {vendors.openDocument}
                               <ExternalLink className="size-4" aria-hidden="true" />

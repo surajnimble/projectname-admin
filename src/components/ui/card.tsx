@@ -34,7 +34,7 @@ function Card({
   const CARD_SOLID_CLASS =
     'relative isolate overflow-hidden border border-border/40 bg-background shadow-sm dark:border-border/60 dark:bg-card';
   const CARD_SURFACE_CLASS =
-    'relative isolate overflow-hidden border border-border/40 bg-background/80 shadow-sm backdrop-blur-md transition-[border-color,box-shadow,background-color] duration-300 hover:border-border hover:bg-background/90 hover:shadow-md dark:border-border/60 dark:bg-card dark:hover:border-border dark:hover:bg-card/95';
+    'relative isolate overflow-hidden border border-border/40 bg-background/80 shadow-sm backdrop-blur-md transition-[border-color,box-shadow,background-color] duration-300 active:bg-background/90 active:shadow-md dark:border-border/60 dark:bg-card dark:active:border-border dark:active:bg-card/95 data-hover-color'
   const CARD_GLOW_CLASS =
     'pointer-events-none absolute top-0 right-0 h-32 w-32 -translate-y-1/2 translate-x-1/2 overflow-hidden opacity-75';
 

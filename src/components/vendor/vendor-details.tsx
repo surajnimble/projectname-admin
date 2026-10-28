@@ -182,7 +182,7 @@ function VendorDocumentsCard({
                       href={document.fileUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-fg-muted hover:text-fg inline-flex items-center gap-1 text-sm"
+                      className="text-fg-muted data-hover-color inline-flex items-center gap-1 text-sm"
                     >
                       {vendors.openDocument}
                       <ExternalLink className="size-4" aria-hidden="true" />
@@ -303,7 +303,7 @@ export function VendorDetails({ vendorId }: { vendorId: string }) {
         <Link
           href={ROUTES.vendors}
           replace
-          className="border-border bg-surface-muted/50 text-fg-muted hover:text-fg hover:bg-surface-muted inline-flex w-fit items-center gap-1 rounded-md border px-2.5 py-1.5 text-sm transition-colors"
+          className="border-border bg-surface-muted/50 text-fg-muted hover:text-fg data-hover-color inline-flex w-fit items-center gap-1 rounded-md border px-2.5 py-1.5 text-sm transition-colors"
         >
           <ArrowLeft className="size-4" aria-hidden="true" />
           {vendors.backToList}
@@ -314,7 +314,7 @@ export function VendorDetails({ vendorId }: { vendorId: string }) {
           loading={isPending}
           onClick={() => void refresh()}
         >
-          {!isPending && <RefreshCw className="size-4" aria-hidden="true" />}
+          <RefreshCw className="size-4" aria-hidden="true" />
           {MESSAGES.dashboard.refresh}
         </Button>
       </div>
