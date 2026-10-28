@@ -12,34 +12,35 @@ const clickableTextVariants = cva(
     variants: {
       variant: {
         default: 'text-primary hover:text-primary/80 hover:underline underline-offset-4',
-        muted:   'text-muted-foreground hover:text-foreground hover:underline underline-offset-4',
-        danger:  'text-destructive hover:text-destructive/80 hover:underline underline-offset-4',
+        muted: 'text-muted-foreground hover:text-foreground hover:underline underline-offset-4',
+        danger: 'text-destructive hover:text-destructive/80 hover:underline underline-offset-4',
         nav: [
-          'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium data-hover-color',
+          'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium',
           'text-muted-foreground hover:text-foreground',
         ],
       },
       active: {
-        true:  '',
+        true: '',
         false: '',
       },
       size: {
-        sm:      'text-xs',
+        sm: 'text-xs',
         default: 'text-sm',
-        lg:      'text-base',
+        lg: 'text-base',
       },
     },
     compoundVariants: [
       {
         variant: 'nav',
-        active:  true,
-        className: 'bg-nav-active text-nav-active-fg font-semibold hover:bg-nav-active hover:text-nav-active-fg',
+        active: true,
+        className:
+          'bg-nav-active text-nav-active-fg font-semibold hover:bg-nav-active hover:text-nav-active-fg',
       },
     ],
     defaultVariants: {
       variant: 'default',
-      size:    'default',
-      active:  false,
+      size: 'default',
+      active: false,
     },
   },
 );
@@ -51,13 +52,15 @@ interface SharedProps extends CVAProps {
   children?: React.ReactNode;
 }
 
-interface AsLinkProps extends SharedProps, Omit<React.ComponentProps<typeof Link>, 'href' | 'className' | 'children'> {
+interface AsLinkProps
+  extends SharedProps, Omit<React.ComponentProps<typeof Link>, 'href' | 'className' | 'children'> {
   href: string;
   external?: boolean;
   onClick?: React.MouseEventHandler<HTMLAnchorElement>;
 }
 
-interface AsButtonProps extends SharedProps, Omit<React.ComponentProps<'button'>, 'type' | 'className' | 'children'> {
+interface AsButtonProps
+  extends SharedProps, Omit<React.ComponentProps<'button'>, 'type' | 'className' | 'children'> {
   href?: never;
   external?: never;
 }
@@ -73,6 +76,7 @@ function ClickableText({
   ...props
 }: ClickableTextProps) {
   const classes = cn(clickableTextVariants({ variant, size, active }), className);
+  const isNav = variant === 'nav';
 
   if ('href' in props && props.href !== undefined) {
     const { href, external, ...rest } = props as AsLinkProps;
@@ -81,6 +85,7 @@ function ClickableText({
         href={href}
         className={classes}
         data-ripple
+        {...(isNav ? { 'data-hover-color': '' } : {})}
         {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         {...rest}
       >
@@ -94,6 +99,7 @@ function ClickableText({
       type="button"
       className={classes}
       data-ripple
+      {...(isNav ? { 'data-hover-color': '' } : {})}
       {...(props as AsButtonProps)}
     >
       {children}

@@ -156,11 +156,11 @@ function StatCard({
   onSelect: () => void;
 }) {
   return (
-    <Card flat className="py-0 hover:border-border-strong h-full transition-colors" data-hover-color>
+    <Card flat className="hover:border-border-strong h-full py-0 transition-colors">
       <button
         type="button"
         onClick={onSelect}
-        className="flex h-full w-full flex-col rounded-md overflow-hidden p-4 text-left 2xl:p-5"
+        className="flex h-full w-full flex-col overflow-hidden rounded-md p-4 text-left 2xl:p-5"
       >
         <span className="flex items-start justify-between gap-2 2xl:gap-4">
           <span className="flex min-w-0 flex-col gap-1">
@@ -261,7 +261,9 @@ export function DashboardOverview() {
             aria-busy="true"
           >
             <span className="sr-only">{MESSAGES.common.loading}</span>
-            {STATS.map((stat) => (<StatCardSkeleton key={stat.key} />))}
+            {STATS.map((stat) => (
+              <StatCardSkeleton key={stat.key} />
+            ))}
           </div>
         ) : stats.error ? (
           <ErrorState message={stats.error} onRetry={() => void stats.refresh()} />

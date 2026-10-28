@@ -21,7 +21,7 @@ function Card({
       <div
         data-slot="card"
         className={cn(
-          'flex flex-col gap-6 rounded-md border border-border bg-card py-6 text-foreground',
+          'border-border bg-card text-foreground flex flex-col gap-6 rounded-md border py-6',
           className,
         )}
         {...props}
@@ -34,7 +34,7 @@ function Card({
   const CARD_SOLID_CLASS =
     'relative isolate overflow-hidden border border-border/40 bg-background shadow-sm dark:border-border/60 dark:bg-card';
   const CARD_SURFACE_CLASS =
-    'relative isolate overflow-hidden border border-border/40 bg-background/80 shadow-sm backdrop-blur-md transition-[border-color,box-shadow,background-color] duration-300 active:bg-background/90 active:shadow-md dark:border-border/60 dark:bg-card dark:active:border-border dark:active:bg-card/95 data-hover-color'
+    'relative isolate overflow-hidden border border-border/40 bg-background/80 shadow-sm backdrop-blur-md transition-[border-color,box-shadow,background-color] duration-300 active:bg-background/90 active:shadow-md dark:border-border/60 dark:bg-card dark:active:border-border dark:active:bg-card/95';
   const CARD_GLOW_CLASS =
     'pointer-events-none absolute top-0 right-0 h-32 w-32 -translate-y-1/2 translate-x-1/2 overflow-hidden opacity-75';
 
@@ -42,16 +42,14 @@ function Card({
     <div
       data-slot="card"
       className={cn(
-        'flex flex-col rounded-md py-6 text-foreground',
+        'text-foreground flex flex-col rounded-md py-6',
         variant === 'glow' ? CARD_SURFACE_CLASS : CARD_SOLID_CLASS,
         nested && 'backdrop-blur-none',
         className,
       )}
       {...props}
     >
-      {variant === 'glow' && !nested ? (
-        <div className={CARD_GLOW_CLASS} />
-      ) : null}
+      {variant === 'glow' && !nested ? <div className={CARD_GLOW_CLASS} /> : null}
       <div className="relative z-[1] flex flex-col gap-6">{children}</div>
     </div>
   );
@@ -74,7 +72,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card-title"
-      className={cn('leading-none font-semibold text-foreground', className)}
+      className={cn('text-foreground leading-none font-semibold', className)}
       {...props}
     />
   );
@@ -84,7 +82,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card-description"
-      className={cn('text-sm text-muted-foreground', className)}
+      className={cn('text-muted-foreground text-sm', className)}
       {...props}
     />
   );
@@ -94,41 +92,20 @@ function CardAction({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="card-action"
-      className={cn(
-        'col-start-2 row-span-2 row-start-1 self-start justify-self-end',
-        className,
-      )}
+      className={cn('col-start-2 row-span-2 row-start-1 self-start justify-self-end', className)}
       {...props}
     />
   );
 }
 
 function CardContent({ className, ...props }: React.ComponentProps<'div'>) {
-  return (
-    <div
-      data-slot="card-content"
-      className={cn('px-6', className)}
-      {...props}
-    />
-  );
+  return <div data-slot="card-content" className={cn('px-6', className)} {...props} />;
 }
 
 function CardFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
-    <div
-      data-slot="card-footer"
-      className={cn('flex items-center px-6', className)}
-      {...props}
-    />
+    <div data-slot="card-footer" className={cn('flex items-center px-6', className)} {...props} />
   );
 }
 
-export {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-};
+export { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle };

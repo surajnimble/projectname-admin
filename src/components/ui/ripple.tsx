@@ -25,7 +25,7 @@ function RippleElement({
         'pointer-events-none absolute top-0 left-0 rounded-full',
         'bg-[var(--ripple-color)] opacity-[var(--ripple-opacity)]',
         'transition-transform duration-[var(--ripple-speed)] ease-out',
-        'transform translate(-50%,-50%) scale(0)',
+        'translate(-50%,-50%) scale(0) transform',
         className,
       )}
       style={{
@@ -76,11 +76,7 @@ function Ripple({
   return (
     <div
       data-slot="ripple"
-      className={cn(
-        'relative isolate rounded-md select-none',
-        'before:pointer-events-none before:absolute before:inset-0 before:content-[""]',
-        className,
-      )}
+      className={cn('relative isolate overflow-hidden rounded-[inherit] select-none', className)}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
