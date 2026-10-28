@@ -1,4 +1,12 @@
 @import 'tailwindcss';
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.skeleton-animate {
+  animation: skeleton-pulse var(--skeleton-speed) infinite;
+}
 @import './tokens.css';
 @import './base.css';
 

@@ -67,7 +67,7 @@ const DEFAULT_RIPPLE_COLOR = 'var(--primary)';
 const DEFAULT_RIPPLE_OPACITY = 0.25;
 const DEFAULT_RIPPLE_SPEED = 1;
 const DEFAULT_HOVER_COLOR = 'var(--primary)';
-const DEFAULT_HOVER_OPACITY = 0.1;
+const DEFAULT_HOVER_OPACITY = 0.2;
 
 export function useThemeSettings() {
   const { setTheme } = useTheme();

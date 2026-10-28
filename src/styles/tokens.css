@@ -120,10 +120,25 @@
   --surface: var(--background);
   --surface-muted: var(--muted);
   --surface-raised: var(--card);
-  --skeleton: oklch(0.922 0 0);
-  --skeleton-color: var(--muted);
-  --skeleton-opacity: 0.5;
-  --skeleton-speed: 1.5s;
+  --skeleton-color: #a1a1aa;
+  --skeleton-opacity: 0.6;
+  --skeleton-speed: 1s;
+
+  /* Skeleton colors - Light theme */
+  --skeleton-light-bg: oklch(0.922 0 0);
+  --skeleton-light-color: #ffffff;
+  --skeleton-light-opacity: 0.6;
+
+  /* Skeleton colors - Dark theme */
+  --skeleton-dark-bg: #27272a;
+  --skeleton-dark-color: #ffffff;
+  --skeleton-dark-opacity: 0.6;
+
+    /* Skeleton colors - Dark theme overrides */
+  .dark {
+    --skeleton-color: var(--skeleton-dark-color);
+    --skeleton-opacity: var(--skeleton-dark-opacity);
+  }
   --hover: oklch(0.94 0 0);
   --overlay: rgb(9 9 11 / 0.5);
 
@@ -162,7 +177,7 @@
 
   /* ========== Hover Tokens ========== */
   --hover-color: var(--primary);
-  --hover-opacity: 0.1;
+  --hover-opacity: 0.2;
 
   /* ========== Spacing & Layout ========== */
   --app-header-height: 3.8125rem;
@@ -262,13 +277,13 @@
 
   /* ========== Hover Tokens ========== */
   --hover-color: var(--primary);
-  --hover-opacity: 0.1;
+  --hover-opacity: 0.2;
 
   --surface: var(--card);
   --surface-muted: #18181b;
   --surface-raised: var(--card);
   --skeleton: #27272a;
-  --skeleton-color: var(--muted);
+  --skeleton-color: #3f3f46;
   --skeleton-opacity: 0.5;
   --skeleton-speed: 1.5s;
   --hover: #18181b;

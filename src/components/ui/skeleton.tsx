@@ -7,7 +7,7 @@ function Skeleton({ className, ...props }: React.ComponentProps<'div'>) {
       className={cn(
         'rounded-md',
         'bg-[var(--skeleton-color)] opacity-[var(--skeleton-opacity)]',
-        'animate-[pulse_var(--skeleton-speed)_infinite]',
+        'skeleton-animate',
         className,
       )}
       {...props}

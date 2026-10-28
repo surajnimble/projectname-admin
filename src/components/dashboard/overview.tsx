@@ -156,11 +156,11 @@ function StatCard({
   onSelect: () => void;
 }) {
   return (
-    <Card className="hover:border-border-strong hover:bg-hover h-full transition-colors" data-hover-color>
+    <Card flat className="py-0 hover:border-border-strong h-full transition-colors" data-hover-color>
       <button
         type="button"
         onClick={onSelect}
-        className="flex h-full w-full flex-col rounded-lg p-4 text-left 2xl:p-5"
+        className="flex h-full w-full flex-col rounded-md overflow-hidden p-4 text-left 2xl:p-5"
       >
         <span className="flex items-start justify-between gap-2 2xl:gap-4">
           <span className="flex min-w-0 flex-col gap-1">
@@ -247,7 +247,7 @@ export function DashboardOverview() {
         }
         action={
           <Button variant="outline" size="sm" loading={isLoading} onClick={refresh}>
-            {!isLoading && <RefreshCw className="size-4" aria-hidden="true" />}
+            <RefreshCw className="size-4" aria-hidden="true" />
             {dashboard.refresh}
           </Button>
         }

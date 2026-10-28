@@ -66,7 +66,7 @@ function OptionCard({
         'flex items-center justify-between w-full text-left border border-border rounded-lg px-3 py-2',
         selected
           ? 'border-primary border-2 bg-primary dark:bg-primary/70 text-primary-foreground'
-          : 'hover:border-border hover:bg-hover',
+          : 'hover:border-border data-hover-color',
         className,
       )}
     >
@@ -85,7 +85,7 @@ function OptionCard({
             style={{ backgroundColor: primaryDot }}
           />
         )}
-        <span className="text-sm truncate leading-none">{label}</span>
+        <span className="text-sm min-w-0">{label}</span>
       </div>
       {selected && <span aria-hidden="true" className="text-primary-foreground font-bold">✓</span>}
     </Button>
