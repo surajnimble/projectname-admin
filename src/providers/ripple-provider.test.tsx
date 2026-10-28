@@ -199,6 +199,35 @@ describe('RippleProvider', () => {
     expect(layer()).toBeNull();
   });
 
+  it('removes the ripple when its button is hidden by an ancestor', () => {
+    const { button } = renderButton();
+
+    fireEvent.pointerDown(button, { button: 0, clientX: 20, clientY: 10, pointerId: 1 });
+    expect(layer()).not.toBeNull();
+
+    // An ancestor getting display:none gives the button a zero-size box.
+    vi.spyOn(button, 'getBoundingClientRect').mockReturnValue(
+      rect({ width: 0, height: 0, right: 0, bottom: 0 }),
+    );
+    vi.advanceTimersByTime(50);
+
+    expect(layer()).toBeNull();
+  });
+
+  it('removes the ripple when its button moves away from where it was pressed', () => {
+    const { button } = renderButton();
+
+    fireEvent.pointerDown(button, { button: 0, clientX: 20, clientY: 10, pointerId: 1 });
+    expect(layer()).not.toBeNull();
+
+    vi.spyOn(button, 'getBoundingClientRect').mockReturnValue(
+      rect({ top: 120, bottom: 160, y: 120 }),
+    );
+    vi.advanceTimersByTime(50);
+
+    expect(layer()).toBeNull();
+  });
+
   it('removes ripples when the route changes', () => {
     const { button, rerender } = renderButton();
 

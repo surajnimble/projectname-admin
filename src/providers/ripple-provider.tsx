@@ -17,10 +17,14 @@ interface ActiveRipple {
   quickTailMs: number;
   held: boolean;
   fading: boolean;
+  origin: { left: number; top: number; width: number; height: number };
+  dialog: Element | null;
+  fixed: boolean;
   holdTimer?: number;
   exitTimer?: number;
 }
 
+const DIALOG_SELECTOR = 'dialog[open], [role="dialog"]:not([data-state="closed"]), [aria-modal="true"]:not([data-state="closed"])';
 const resolveTarget = (target: EventTarget | null): Element | null => {
   if (!(target instanceof Element)) return null;
 
@@ -43,6 +47,53 @@ interface VisibleClip {
 const radiusValue = (value: string) => {
   const parsed = parseFloat(value);
   return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const MOVE_TOLERANCE_PX = 2;
+
+const isStale = (ripple: ActiveRipple) => {
+  const { element } = ripple;
+  const rect = element.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) return true;
+
+  if (
+    typeof element.checkVisibility === 'function' &&
+    !element.checkVisibility({ opacityProperty: true, visibilityProperty: true })
+  ) {
+    return true;
+  }
+
+  if (!ripple.dialog && typeof document.elementFromPoint === 'function') {
+    const x = Math.min(Math.max(rect.left + rect.width / 2, 0), window.innerWidth - 1);
+    const y = Math.min(Math.max(rect.top + rect.height / 2, 0), window.innerHeight - 1);
+    const top = document.elementFromPoint(x, y);
+    if (top && !element.contains(top) && !top.contains(element)) return true;
+  }
+
+  {
+    const { origin, dialog } = ripple;
+    let left: number;
+    let top: number;
+    if (dialog) {
+      if (!dialog.isConnected) return true;
+      const box = dialog.getBoundingClientRect();
+      left = rect.left - box.left;
+      top = rect.top - box.top;
+    } else {
+      left = rect.left + (ripple.fixed ? 0 : window.scrollX);
+      top = rect.top + (ripple.fixed ? 0 : window.scrollY);
+    }
+    if (
+      Math.abs(left - origin.left) > MOVE_TOLERANCE_PX ||
+      Math.abs(top - origin.top) > MOVE_TOLERANCE_PX ||
+      Math.abs(rect.width - origin.width) > MOVE_TOLERANCE_PX ||
+      Math.abs(rect.height - origin.height) > MOVE_TOLERANCE_PX
+    ) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
 const visibleClip = (element: Element, rect: DOMRect): VisibleClip => {
@@ -112,9 +163,7 @@ export function RippleProvider() {
     };
 
     const prune = () => {
-      const openDialog = document.querySelector(
-        'dialog[open], [role="dialog"][data-state="open"]',
-      );
+      const openDialog = document.querySelector(DIALOG_SELECTOR);
 
       ripples.forEach((ripple) => {
         if (!ripple.element.isConnected) {
@@ -128,7 +177,12 @@ export function RippleProvider() {
           !openDialog.contains(ripple.element) &&
           ripple.layer.parentElement !== openDialog;
 
-        if (style.display === 'none' || style.visibility === 'hidden' || coveredByDialog) {
+        if (
+          style.display === 'none' ||
+          style.visibility === 'hidden' ||
+          coveredByDialog ||
+          isStale(ripple)
+        ) {
           remove(ripple);
         }
       });
@@ -203,9 +257,7 @@ export function RippleProvider() {
       if (rect.width === 0 || rect.height === 0) return;
 
       const style = window.getComputedStyle(element);
-      const dialog = element.closest(
-        'dialog[open], [role="dialog"][data-state="open"]',
-      );
+      const dialog = element.closest(DIALOG_SELECTOR);
       const fixed = style.position === 'fixed' || style.position === 'sticky';
       const radius = style.borderRadius || '0px';
       const sizeScale = Math.min(
@@ -273,6 +325,21 @@ export function RippleProvider() {
         quickTailMs,
         held: false,
         fading: false,
+        fixed,
+        dialog,
+        origin: dialog
+          ? {
+              left: rect.left - dialog.getBoundingClientRect().left,
+              top: rect.top - dialog.getBoundingClientRect().top,
+              width: rect.width,
+              height: rect.height,
+            }
+          : {
+              left: rect.left + (fixed ? 0 : window.scrollX),
+              top: rect.top + (fixed ? 0 : window.scrollY),
+              width: rect.width,
+              height: rect.height,
+            },
       };
       ripples.add(ripple);
       ensureWatch();
@@ -317,6 +384,7 @@ export function RippleProvider() {
     };
 
     const onClick = (event: MouseEvent) => {
+      ensureWatch();
       if (event.detail !== 0) return;
 
       const element = resolveTarget(event.target);
