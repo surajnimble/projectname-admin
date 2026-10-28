@@ -10,8 +10,8 @@ import { Logo } from './logo';
 
 interface SidebarProps {
   onNavigate?: () => void;
-  sidebarOpen: boolean;
-  onToggleSidebar: () => void;
+  sidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
 }
 
 export function Sidebar({ onNavigate }: SidebarProps) {
