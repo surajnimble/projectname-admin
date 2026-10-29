@@ -58,7 +58,7 @@ describe('toAuthData', () => {
   });
 
   it('reads the staff permission list and defaults it to empty', () => {
-    expect(toAuthData({ permissionList: ['order:list', 7] }).permissionList).toEqual(['order:list']);
+    expect(toAuthData({ permissionList: ['order:list', 7] as unknown as string[] }).permissionList).toEqual(['order:list']);
     expect(toAuthData({}).permissionList).toEqual([]);
   });
 

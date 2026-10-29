@@ -9,7 +9,7 @@ export type { SessionUser } from '@/lib/api/contract';
 export const toEmptyData = (): EmptyData => emptyData();
 
 type RawUser = Partial<UserData> & { rolesList?: unknown; roles?: unknown; role?: unknown };
-type RawAuth = RawUser & Partial<Omit<AuthData, 'userData' | 'rolesList'>> & { userData?: RawUser };
+type RawAuth = RawUser & Partial<Omit<AuthData, 'userData' | 'rolesList'>> & { userData?: RawUser; permissionList?: unknown };
 
 export const toUserData = (raw: Partial<UserData> = {}): UserData => ({
   userId: raw.userId ?? '',
@@ -45,7 +45,7 @@ export const toAuthData = (raw: RawAuth = {}): AuthData => {
     twoFactorRequired: raw.twoFactorRequired ?? false,
     userData: toUserData(hasNestedUser ? raw.userData : raw),
     rolesList: pickRoles(raw),
-    permissionList: asStrings(raw.permissionList),
+  permissionList: asStrings(raw.permissionList),
   };
 };
 
