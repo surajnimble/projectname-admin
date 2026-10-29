@@ -5,6 +5,7 @@ import { toActivityLogList } from '@/types/activity';
 import { toProductPerformanceList } from '@/types/analytics';
 import { toAuthData, toEmptyData, toPermissionData, toSubAdmin, toSubAdminList } from '@/types/auth';
 import { toDashboardStats } from '@/types/dashboard';
+import { toOrderDetail, toOrderList } from '@/types/order';
 import { toPaymentList, toPaymentSummary } from '@/types/payment';
 import { toPayout, toPayoutList, toPayoutStatement } from '@/types/payout';
 import { toProductDetail, toProductList, toProductSummary } from '@/types/product';
@@ -39,6 +40,18 @@ export class ApiService {
 
   getActivityLogs(query: Pick<ApiRequest, 'page' | 'limit' | 'action'>) {
     return apiClient.get(API_URLS.getActivityLogs, { query, mapper: toActivityLogList });
+  }
+
+  getOrders(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'status' | 'paymentStatus' | 'sort'>) {
+    return apiClient.get(API_URLS.getAllOrders, { query, mapper: toOrderList });
+  }
+
+  getOrderDetails(orderId: string) {
+    return apiClient.get(API_URLS.getOrderDetails(orderId), { mapper: toOrderDetail });
+  }
+
+  updateOrderStatus(orderId: string, body: Pick<ApiRequest, 'status' | 'remark' | 'location'>) {
+    return apiClient.patch(API_URLS.updateOrderStatus(orderId), { body, mapper: toOrderDetail });
   }
 
   getPayments(query: Pick<ApiRequest, 'page' | 'limit'>) {

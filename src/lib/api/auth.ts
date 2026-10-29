@@ -16,4 +16,8 @@ export const toSessionUser = (data: AuthData): SessionUser => ({
   email: data.userData.email,
   phone: data.userData.phone,
   roles: data.rolesList,
+  permissions: data.permissionList,
 });
+
+export const hasPermission = (user: SessionUser | null, permission: string) =>
+  !!user && (user.roles.length === 0 || isSuperAdmin(user.roles) || user.permissions.includes(permission));

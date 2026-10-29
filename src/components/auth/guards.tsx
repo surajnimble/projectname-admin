@@ -2,8 +2,11 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, type ReactNode } from 'react';
+import { ErrorState } from '@/components/common/error-state';
 import { Spinner } from '@/components/ui/spinner';
 import { QUERY_PARAMS, ROUTES, STAFF_ROLES, type Role } from '@/constants';
+import { usePermission } from '@/hooks/use-permission';
+import { MESSAGES } from '@/messages';
 import { useAuth } from '@/providers/auth-provider';
 
 const safeNext = (value: string | null) => value && value.startsWith('/') && !value.startsWith('//') ? value : ROUTES.home;
@@ -57,4 +60,19 @@ export function RoleGuard({ roles = STAFF_ROLES, fallback = null, children }: Ro
   const userRoles = user?.roles ?? [];
   const allowed = userRoles.length === 0 || roles.some((role) => userRoles.includes(role));
   return <>{allowed ? children : fallback}</>;
+}
+
+interface PermissionGuardProps {
+  permission: string;
+  fallback?: ReactNode;
+  children: ReactNode;
+}
+
+export function PermissionGuard({
+  permission,
+  fallback = <ErrorState message={MESSAGES.errors.forbidden} />,
+  children,
+}: PermissionGuardProps) {
+  const { can } = usePermission();
+  return <>{can(permission) ? children : fallback}</>;
 }

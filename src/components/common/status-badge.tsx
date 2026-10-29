@@ -24,6 +24,22 @@ const PRODUCT_INTENTS: Record<string, BadgeIntent> = {
   ARCHIVED: 'danger',
 };
 
+const ORDER_INTENTS: Record<string, BadgeIntent> = {
+  PENDING: 'warning',
+  PENDING_TOKEN: 'warning',
+  CONFIRMED: 'info',
+  SHIPPED: 'info',
+  OUT_FOR_DELIVERY: 'info',
+  DELIVERED: 'success',
+  CANCELLED: 'danger',
+  RETURNED: 'danger',
+};
+
+export const orderStatusMeta = (status: string): StatusMeta => ({
+  label: MESSAGES.orders.statuses[status as keyof typeof MESSAGES.orders.statuses] ?? status,
+  intent: ORDER_INTENTS[status] ?? 'neutral',
+});
+
 export const vendorStatusMeta = (status: string): StatusMeta => ({
   label: MESSAGES.vendors.statuses[status as keyof typeof MESSAGES.vendors.statuses] ?? status,
   intent: VENDOR_INTENTS[status] ?? 'neutral',

@@ -45,6 +45,7 @@ export const toAuthData = (raw: RawAuth = {}): AuthData => {
     twoFactorRequired: raw.twoFactorRequired ?? false,
     userData: toUserData(hasNestedUser ? raw.userData : raw),
     rolesList: pickRoles(raw),
+    permissionList: asStrings(raw.permissionList),
   };
 };
 

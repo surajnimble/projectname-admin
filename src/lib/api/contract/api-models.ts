@@ -8,4 +8,5 @@ export interface SessionUser {
   email: string;
   phone: string;
   roles: string[];
+  permissions: string[];
 }

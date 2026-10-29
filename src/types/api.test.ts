@@ -57,6 +57,11 @@ describe('toAuthData', () => {
     expect(toAuthData({}).rolesList).toEqual([]);
   });
 
+  it('reads the staff permission list and defaults it to empty', () => {
+    expect(toAuthData({ permissionList: ['order:list', 7] }).permissionList).toEqual(['order:list']);
+    expect(toAuthData({}).permissionList).toEqual([]);
+  });
+
   it('maps a flat getMe payload to userData', () => {
     expect(toAuthData({ userId: 'u2', email: 'a@b.com' }).userData).toMatchObject({
       userId: 'u2',

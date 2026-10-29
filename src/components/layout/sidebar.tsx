@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ClickableText } from '@/components/ui/clickable-text';
 import { NAV_ITEMS, ROUTES, SITE } from '@/constants';
 import { MESSAGES } from '@/messages';
+import { usePermission } from '@/hooks/use-permission';
 import { useAuth } from '@/providers/auth-provider';
 import { Logo } from './logo';
 
@@ -18,10 +19,12 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOut } = useAuth();
+  const { can } = usePermission();
   const roles = user?.roles ?? [];
 
   const items = NAV_ITEMS.filter(
-    (item) => !item.roles || roles.length === 0 || item.roles.some((role) => roles.includes(role)),
+    (item) =>
+      (!item.roles || roles.length === 0 || item.roles.some((role) => roles.includes(role))) && can(item.permission),
   );
 
   return (

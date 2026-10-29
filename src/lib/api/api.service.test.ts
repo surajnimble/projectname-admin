@@ -4,6 +4,7 @@ import { clearSession, getAccessToken, setAccessToken } from '@/lib/api/session'
 import { toActivityLogList } from '@/types/activity';
 import { toProductPerformanceList } from '@/types/analytics';
 import { toDashboardStats } from '@/types/dashboard';
+import { toOrderList } from '@/types/order';
 import { toPaymentList } from '@/types/payment';
 import { toLowStockList } from '@/types/report';
 import { toVendor, toVendorList } from '@/types/vendor';
@@ -431,6 +432,31 @@ describe('ApiService', () => {
     });
   });
 
+  describe('orders', () => {
+    it('lists orders with the filters it is given', async () => {
+      fetchMock.mockResolvedValueOnce(respond(200, { status: true, message: 'ok', result: {} }));
+
+      await apiService.getOrders({ page: 2, limit: 10, status: 'SHIPPED', search: 'ORD' });
+
+      const url = String(fetchMock.mock.calls[0]?.[0]);
+      expect(url).toContain('/api/v1/orders/getAllOrders');
+      expect(url).toContain('page=2');
+      expect(url).toContain('status=SHIPPED');
+      expect(url).toContain('search=ORD');
+    });
+
+    it('updates the status with only the given fields', async () => {
+      fetchMock.mockResolvedValueOnce(respond(200, { status: true, message: 'ok', result: {} }));
+
+      await apiService.updateOrderStatus('o1', { status: 'SHIPPED', remark: 'Handed over' });
+
+      const [url, init] = fetchMock.mock.calls[0] ?? [];
+      expect(url).toBe('/api/v1/orders/updateStatus/o1');
+      expect(init?.method).toBe('PATCH');
+      expect(init?.body).toBe(JSON.stringify({ status: 'SHIPPED', remark: 'Handed over' }));
+    });
+  });
+
   describe('defaults', () => {
     it('never leaves a list payload undefined', async () => {
       fetchMock.mockResolvedValue(respond(200, { status: true, message: 'ok', result: {} }));
@@ -439,6 +465,7 @@ describe('ApiService', () => {
         toActivityLogList(),
       );
       expect((await apiService.getPayments({ page: 1, limit: 5 })).data).toEqual(toPaymentList());
+      expect((await apiService.getOrders({ page: 1, limit: 5 })).data).toEqual(toOrderList());
       expect((await apiService.getProductPerformance({ page: 1, limit: 5 })).data).toEqual(
         toProductPerformanceList(),
       );

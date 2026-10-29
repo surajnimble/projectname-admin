@@ -44,4 +44,6 @@ export class ApiRequest {
   reference?: string;
   notes?: string;
   permissions?: string[];
+  paymentStatus?: string;
+  location?: string;
 }

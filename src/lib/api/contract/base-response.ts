@@ -62,6 +62,7 @@ export interface AuthData {
   twoFactorRequired: boolean;
   userData: UserData;
   rolesList: string[];
+  permissionList: string[];
 }
 
 export interface DashboardStatsData {
@@ -399,3 +400,81 @@ export interface EmptyData {
 }
 
 export const emptyData = (): EmptyData => ({});
+
+export interface OrderCustomerData {
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+export interface OrderVendorData {
+  subOrderId: string;
+  vendorId: string;
+  status: string;
+  shopName: string;
+}
+
+export interface OrderSummaryData {
+  orderId: string;
+  orderNumber: string;
+  status: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  total: number;
+  itemCount: number;
+  isCancelled: boolean;
+  deliveredAt: string;
+  createdAt: string;
+  userData: OrderCustomerData;
+  vendorList: OrderVendorData[];
+}
+
+export type OrderListData = PageData<OrderSummaryData>;
+
+export interface OrderAddressData {
+  fullName: string;
+  phone: string;
+  line1: string;
+  line2: string;
+  landmark: string;
+  city: string;
+  state: string;
+  country: string;
+  pincode: string;
+}
+
+export interface OrderItemData {
+  orderItemId: string;
+  name: string;
+  sku: string;
+  image: string;
+  price: number;
+  qty: number;
+  total: number;
+}
+
+export interface OrderTimelineData {
+  timelineId: string;
+  status: string;
+  fromStatus: string;
+  remark: string;
+  location: string;
+  createdAt: string;
+}
+
+export interface OrderDetailData extends OrderSummaryData {
+  currency: string;
+  subtotal: number;
+  discount: number;
+  couponDiscount: number;
+  taxAmount: number;
+  shippingAmount: number;
+  walletAmount: number;
+  notes: string;
+  cancelReason: string;
+  updatedAt: string;
+  addressData: OrderAddressData;
+  itemList: OrderItemData[];
+  timelineList: OrderTimelineData[];
+}
