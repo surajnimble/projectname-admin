@@ -1,4 +1,11 @@
-import { CreditCard, LayoutDashboard, ShoppingCart, Store, Users, type LucideIcon } from 'lucide-react';
+import {
+  CreditCard,
+  LayoutDashboard,
+  ShoppingCart,
+  Store,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 import { MESSAGES } from '@/messages';
 
 export const SITE = {
@@ -205,8 +212,6 @@ export type OrderStatusFilter = (typeof ORDER_STATUSES)[keyof typeof ORDER_STATU
 
 export const SUB_ADMIN_PAGE_SIZE = 10;
 
-export const VENDOR_SKELETON_ROWS = 5;
-
 export const VENDOR_REASON_MAX_LENGTH = 500;
 
 export const VENDOR_COMMISSION_MIN = 0;
@@ -223,8 +228,6 @@ export const PRODUCT_STATUSES = {
 export type ProductStatus = (typeof PRODUCT_STATUSES)[keyof typeof PRODUCT_STATUSES];
 
 export const PRODUCT_PAGE_SIZE = 10;
-
-export const PRODUCT_SKELETON_ROWS = 5;
 
 export const VENDOR_STATUSES = {
   all: 'all',
@@ -282,9 +285,29 @@ export interface NavItem {
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Overview', href: ROUTES.home, icon: LayoutDashboard },
-  { label: MESSAGES.sections.vendors, href: ROUTES.vendors, icon: Store, permission: PERMISSIONS.vendorList },
-  { label: MESSAGES.sections.orders, href: ROUTES.orders, icon: ShoppingCart, permission: PERMISSIONS.orderList },
-  { label: MESSAGES.payments.title, href: ROUTES.payments, icon: CreditCard, permission: PERMISSIONS.paymentList },
+  {
+    label: MESSAGES.sections.vendors,
+    href: ROUTES.vendors,
+    icon: Store,
+    permission: PERMISSIONS.vendorList,
+  },
+  {
+    label: MESSAGES.sections.orders,
+    href: ROUTES.orders,
+    icon: ShoppingCart,
+    permission: PERMISSIONS.orderList,
+  },
+  {
+    label: MESSAGES.payments.title,
+    href: ROUTES.payments,
+    icon: CreditCard,
+    permission: PERMISSIONS.paymentList,
+  },
   { label: 'Components', href: ROUTES.componentsShowcase, icon: LayoutDashboard },
-  { label: MESSAGES.sections.subAdmins, href: ROUTES.subAdmins, icon: Users, roles: [ROLES.superAdmin] },
+  {
+    label: MESSAGES.sections.subAdmins,
+    href: ROUTES.subAdmins,
+    icon: Users,
+    roles: [ROLES.superAdmin],
+  },
 ];

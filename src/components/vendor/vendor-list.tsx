@@ -1,19 +1,17 @@
 'use client';
 
 import { RefreshCw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { EmptyState } from '@/components/common/empty-state';
-import { ErrorState } from '@/components/common/error-state';
+import { DataTable } from '@/components/common/data-table';
 import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
 import { Pagination } from '@/components/common/pagination';
-import { TableSkeleton } from '@/components/common/table-skeleton';
 import { VendorActionDialog } from '@/components/vendor/vendor-action-dialog';
-import { VendorFilters } from '@/components/vendor/vendor-filters';
-import { VendorTable } from '@/components/vendor/vendor-table';
+import { vendorColumns, VendorRowActions } from '@/components/vendor/vendor-columns';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
-import { VENDOR_PAGE_SIZE, VENDOR_SKELETON_ROWS, VENDOR_STATUSES, type VendorStatusFilter } from '@/constants';
+import { ROUTES, VENDOR_PAGE_SIZE, VENDOR_STATUSES, type VendorStatusFilter } from '@/constants';
 import { useVendors } from '@/hooks/use-vendors';
 import type { VendorAction } from '@/lib/api/vendor-actions';
 import type { VendorData } from '@/lib/api/contract';
@@ -42,6 +40,7 @@ const STATUS_FILTERS: readonly { value: VendorStatusFilter; label: string }[] = 
 ];
 
 export function VendorList() {
+  const router = useRouter();
   const {
     data,
     isLoading,
@@ -66,8 +65,7 @@ export function VendorList() {
     status: VENDOR_STATUSES.all,
     hasDocuments: false,
   });
-  const activeFilterCount =
-    (status === VENDOR_STATUSES.all ? 0 : 1) + (hasDocuments ? 1 : 0);
+  const activeFilterCount = (status === VENDOR_STATUSES.all ? 0 : 1) + (hasDocuments ? 1 : 0);
 
   const openFilters = () => {
     setDraft({ status, hasDocuments });
@@ -99,11 +97,23 @@ export function VendorList() {
   return (
     <div className="flex flex-col gap-4">
       <Card className="overflow-hidden">
-        <div className="border-border border-b p-4">
-          <VendorFilters
-            search={search}
-            filterCount={activeFilterCount}
-            action={
+        <DataTable
+          columns={vendorColumns}
+          rows={data.itemList}
+          rowKey={(vendor) => vendor.vendorId}
+          onRowClick={(vendor) => router.push(ROUTES.vendorDetails(vendor.vendorId))}
+          toolbar={{
+            search: {
+              value: search,
+              placeholder: vendors.searchPlaceholder,
+              onChange: setSearch,
+            },
+            filters: {
+              label: MESSAGES.common.filters,
+              count: activeFilterCount,
+              onOpen: openFilters,
+            },
+            actions: (
               <Button
                 variant="outline"
                 size="sm"
@@ -114,35 +124,31 @@ export function VendorList() {
                 <RefreshCw className="size-4" aria-hidden="true" />
                 {dashboard.refresh}
               </Button>
-            }
-            onSearchChange={setSearch}
-            onOpenFilters={openFilters}
-          />
-        </div>
-
-        {isLoading ? (
-          <TableSkeleton rows={VENDOR_SKELETON_ROWS} />
-        ) : error ? (
-          <div className="p-4">
-            <ErrorState message={error} onRetry={() => void refresh()} />
-          </div>
-        ) : data.itemList.length === 0 ? (
-          <div className="p-4">
-            <EmptyState title={vendors.emptyTitle} description={vendors.emptyBody} />
-          </div>
-        ) : (
-          <VendorTable
-            vendors={data.itemList}
-            onAction={(vendor, action) => setTarget({ vendor, action })}
-          />
-        )}
-
-        <Pagination
-          currentPage={data.currentPage || page}
-          totalPage={data.totalPage}
-          totalRecord={data.totalRecord}
-          limit={data.limit || VENDOR_PAGE_SIZE}
-          onPageChange={setPage}
+            ),
+          }}
+          actions={{
+            header: vendors.columns.actions,
+            render: (vendor) => (
+              <VendorRowActions
+                vendor={vendor}
+                onAction={(value, action) => setTarget({ vendor: value, action })}
+              />
+            ),
+          }}
+          isLoading={isLoading}
+          error={error}
+          onRetry={() => void refresh()}
+          emptyTitle={vendors.emptyTitle}
+          emptyDescription={vendors.emptyBody}
+          footer={
+            <Pagination
+              currentPage={data.currentPage || page}
+              totalPage={data.totalPage}
+              totalRecord={data.totalRecord}
+              limit={data.limit || VENDOR_PAGE_SIZE}
+              onPageChange={setPage}
+            />
+          }
         />
       </Card>
 

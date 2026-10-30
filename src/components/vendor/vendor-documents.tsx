@@ -1,29 +1,19 @@
 'use client';
 
-import { ExternalLink, RefreshCw, Search, SlidersHorizontal } from 'lucide-react';
-import Link from 'next/link';
-import { Fragment, useState } from 'react';
+import { ExternalLink, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
 import { Select, SelectItem } from '@/components/ui/select';
-import { StatusDot } from '@/components/ui/status-dot';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { EmptyState } from '@/components/common/empty-state';
-import { ErrorState } from '@/components/common/error-state';
+import { DataTable, type DataTableColumn } from '@/components/common/data-table';
+import { DataTableIdentity } from '@/components/common/data-table-media';
 import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
 import { Pagination } from '@/components/common/pagination';
 import { ROUTES } from '@/constants';
 import { useVendorDocuments, type DocumentFilter } from '@/hooks/use-vendor-documents';
+import type { VendorKycDocumentData } from '@/lib/api/contract';
 import { formatRelativeTime } from '@/lib/utils/datetime';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
@@ -41,6 +31,57 @@ const FILTERS: readonly { value: DocumentFilter; label: string }[] = [
 ];
 
 const DOC_TYPES = ['GST', 'PAN', 'AADHAAR', 'BANK_PROOF', 'ADDRESS_PROOF', 'OTHER'] as const;
+
+const documentColumns: readonly DataTableColumn<VendorKycDocumentData>[] = [
+  {
+    key: 'vendor',
+    header: vendors.columns.vendor,
+    cell: (document) => (
+      <DataTableIdentity
+        title={document.vendorData.shopName || vendors.shopFallback}
+        meta={document.remark || document.docType || vendors.dash}
+        href={
+          document.vendorData.vendorId
+            ? ROUTES.vendorDetails(document.vendorData.vendorId)
+            : undefined
+        }
+      />
+    ),
+  },
+  {
+    key: 'documentType',
+    header: vendors.columns.documentType,
+    hideBelow: 'sm',
+    cell: (document) => <span className="block truncate">{document.docType || vendors.dash}</span>,
+  },
+  {
+    key: 'documentNumber',
+    header: vendors.columns.documentNumber,
+    hideBelow: 'md',
+    cell: (document) => <span className="block truncate">{document.number || vendors.dash}</span>,
+  },
+  {
+    key: 'documentStatus',
+    header: vendors.columns.documentStatus,
+    align: 'center',
+    width: 'w-32',
+    cell: (document) => (
+      <Badge intent={document.isVerified ? 'success' : 'warning'}>
+        {document.isVerified ? vendors.documentsVerified : vendors.documentsPending}
+      </Badge>
+    ),
+  },
+  {
+    key: 'uploaded',
+    header: vendors.columns.uploaded,
+    hideBelow: 'lg',
+    cell: (document) => (
+      <span className="text-fg-muted block whitespace-nowrap">
+        {formatRelativeTime(document.createdAt)}
+      </span>
+    ),
+  },
+];
 
 export function VendorDocuments() {
   const {
@@ -70,8 +111,7 @@ export function VendorDocuments() {
     filter: 'all',
     docType: '',
   });
-  const activeFilterCount =
-    (filter === 'all' ? 0 : 1) + (docType === '' ? 0 : 1);
+  const activeFilterCount = (filter === 'all' ? 0 : 1) + (docType === '' ? 0 : 1);
 
   const openFilters = () => {
     setDraft({ filter, docType });
@@ -96,186 +136,102 @@ export function VendorDocuments() {
       remark || undefined,
     );
     if (!done) return;
-    showSuccess(
-      decision.mode === 'verify' ? vendors.documentVerified : vendors.documentRejected,
-    );
+    showSuccess(decision.mode === 'verify' ? vendors.documentVerified : vendors.documentRejected);
     setDecision(null);
   };
 
   return (
     <>
       <Card className="overflow-hidden">
-        <div className="border-border flex flex-wrap items-center gap-2 border-b p-4">
-          <div className="relative min-w-0 flex-1 sm:w-80 sm:flex-none lg:w-96">
-            <Search
-              className="text-fg-muted pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
-              aria-hidden="true"
+        <DataTable
+          columns={documentColumns}
+          rows={data.itemList}
+          rowKey={(document) => document.documentId}
+          toolbar={{
+            search: {
+              value: search,
+              placeholder: vendors.documentsSearchPlaceholder,
+              onChange: setSearch,
+            },
+            filters: {
+              label: MESSAGES.common.filters,
+              count: activeFilterCount,
+              onOpen: openFilters,
+            },
+            actions: (
+              <Button
+                variant="outline"
+                size="sm"
+                loading={isLoading}
+                onClick={() => void refresh()}
+                className="shrink-0"
+              >
+                <RefreshCw className="size-4" aria-hidden="true" />
+                {dashboard.refresh}
+              </Button>
+            ),
+          }}
+          actions={{
+            header: vendors.columns.actions,
+            render: (document) => {
+              const items: OptionsMenuItem[] = [
+                {
+                  label: vendors.verify,
+                  onSelect: () =>
+                    setDecision({
+                      documentId: document.documentId,
+                      mode: 'verify',
+                      shop: document.vendorData.shopName || vendors.shopFallback,
+                    }),
+                },
+                {
+                  label: vendors.reject,
+                  intent: 'danger',
+                  onSelect: () =>
+                    setDecision({
+                      documentId: document.documentId,
+                      mode: 'reject',
+                      shop: document.vendorData.shopName || vendors.shopFallback,
+                    }),
+                },
+              ];
+
+              return (
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  {document.fileUrl && (
+                    <a
+                      href={document.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-fg-muted data-hover-color inline-flex items-center gap-1 text-sm"
+                    >
+                      {vendors.openDocument}
+                      <ExternalLink className="size-4" aria-hidden="true" />
+                    </a>
+                  )}
+                  <OptionsMenu
+                    label={vendors.documentActionsLabel}
+                    items={items}
+                    className="flex justify-end"
+                  />
+                </div>
+              );
+            },
+          }}
+          isLoading={isLoading}
+          error={error}
+          onRetry={() => void refresh()}
+          emptyTitle={vendors.documentsEmptyTitle}
+          emptyDescription={vendors.documentsEmptyBody}
+          footer={
+            <Pagination
+              currentPage={data.currentPage || page}
+              totalPage={data.totalPage}
+              totalRecord={data.totalRecord}
+              limit={data.limit || 10}
+              onPageChange={setPage}
             />
-            <Input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={vendors.documentsSearchPlaceholder}
-              aria-label={MESSAGES.common.search}
-              className="pl-9"
-            />
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => openFilters()}
-            className="shrink-0"
-          >
-            <SlidersHorizontal className="size-4" aria-hidden="true" />
-            {MESSAGES.common.filters}
-            {activeFilterCount > 0 && (
-              <span className="bg-primary text-primary-fg flex size-5 items-center justify-center rounded-full text-xs">
-                {activeFilterCount}
-              </span>
-            )}
-          </Button>
-          <div className="w-full sm:ml-auto sm:w-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              loading={isLoading}
-              onClick={() => void refresh()}
-              className="shrink-0"
-            >
-              {!isLoading && <RefreshCw className="size-4" aria-hidden="true" />}
-              {dashboard.refresh}
-            </Button>
-          </div>
-        </div>
-
-        {isLoading ? (
-          <div className="px-4 py-6" role="status" aria-busy="true">
-            <span className="sr-only">{MESSAGES.common.loading}</span>
-          </div>
-        ) : error ? (
-          <div className="p-4">
-            <ErrorState message={error} onRetry={() => void refresh()} />
-          </div>
-        ) : data.itemList.length === 0 ? (
-          <div className="p-4">
-            <EmptyState title={vendors.documentsEmptyTitle} description={vendors.documentsEmptyBody} />
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{vendors.columns.vendor}</TableHead>
-                <TableHead className="hidden sm:table-cell">{vendors.columns.documentType}</TableHead>
-                <TableHead className="hidden md:table-cell">{vendors.columns.documentNumber}</TableHead>
-                <TableHead className="w-32 text-center">{vendors.columns.documentStatus}</TableHead>
-                <TableHead className="hidden lg:table-cell">{vendors.columns.uploaded}</TableHead>
-                <TableHead className="hidden text-right sm:table-cell">
-                  {vendors.columns.actions}
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.itemList.map((document) => {
-                const shop = document.vendorData.shopName || vendors.shopFallback;
-                const items: OptionsMenuItem[] = [
-                  {
-                    label: vendors.verify,
-                    onSelect: () =>
-                      setDecision({ documentId: document.documentId, mode: 'verify', shop }),
-                  },
-                  {
-                    label: vendors.reject,
-                    intent: 'danger',
-                    onSelect: () =>
-                      setDecision({ documentId: document.documentId, mode: 'reject', shop }),
-                  },
-                ];
-
-                return (
-                  <Fragment key={document.documentId}>
-                    <TableRow>
-                      <TableCell>
-                        {document.vendorData.vendorId ? (
-                          <Link
-                            href={ROUTES.vendorDetails(document.vendorData.vendorId)}
-                            className="text-primary block max-w-40 truncate font-medium hover:underline sm:max-w-56 lg:max-w-none"
-                          >
-                            {document.vendorData.shopName || vendors.shopFallback}
-                          </Link>
-                        ) : (
-                          <span className="block max-w-40 truncate font-medium sm:max-w-56 lg:max-w-none">
-                            {document.vendorData.shopName || vendors.shopFallback}
-                          </span>
-                        )}
-                        <span className="text-fg-muted block truncate text-xs">
-                          {document.docType || vendors.dash}
-                        </span>
-                        {document.remark && (
-                          <span className="text-fg-muted block truncate text-xs">
-                            {document.remark}
-                          </span>
-                        )}
-                        <div className="mt-1 sm:hidden">
-                          <OptionsMenu label={vendors.documentActionsLabel} items={items} />
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        {document.docType || vendors.dash}
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {document.number || vendors.dash}
-                      </TableCell>
-                      <TableCell className="w-32 text-center">
-                        <span className="sm:hidden">
-                          <StatusDot
-                            intent={document.isVerified ? 'success' : 'warning'}
-                            label={document.isVerified ? vendors.documentsVerified : vendors.documentsPending}
-                          />
-                        </span>
-                        <span className="hidden sm:inline">
-                          <Badge intent={document.isVerified ? 'success' : 'warning'}>
-                            {document.isVerified ? vendors.documentsVerified : vendors.documentsPending}
-                          </Badge>
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-fg-muted hidden whitespace-nowrap lg:table-cell">
-                        {formatRelativeTime(document.createdAt)}
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <div className="flex flex-wrap items-center justify-end gap-2">
-                          {document.fileUrl && (
-                            <a
-                              href={document.fileUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="text-fg-muted data-hover-color inline-flex items-center gap-1 text-sm"
-                            >
-                              {vendors.openDocument}
-                              <ExternalLink className="size-4" aria-hidden="true" />
-                            </a>
-                          )}
-                          <OptionsMenu
-                            label={vendors.documentActionsLabel}
-                            items={items}
-                            className="flex justify-end"
-                          />
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  </Fragment>
-                );
-              })}
-            </TableBody>
-          </Table>
-        )}
-
-        <Pagination
-          currentPage={data.currentPage || page}
-          totalPage={data.totalPage}
-          totalRecord={data.totalRecord}
-          limit={data.limit || 10}
-          onPageChange={setPage}
+          }
         />
       </Card>
 

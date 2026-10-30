@@ -7,22 +7,19 @@ import { useState } from 'react';
 import { EmptyState } from '@/components/common/empty-state';
 import { ErrorState } from '@/components/common/error-state';
 import { PageHeader } from '@/components/common/page-header';
-import { ProductActionDialog, type ProductDialogAction } from '@/components/product/product-action-dialog';
+import {
+  ProductActionDialog,
+  type ProductDialogAction,
+} from '@/components/product/product-action-dialog';
 import { Badge } from '@/components/ui/badge';
 import { DetailItem, PendingItem } from '@/components/common/detail-grid';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
 import { Skeleton } from '@/components/ui/skeleton';
-import { StatusDot } from '@/components/ui/status-dot';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { DataTable, type DataTableColumn } from '@/components/common/data-table';
+import { DataTableIdentity } from '@/components/common/data-table-media';
 import { PRODUCT_STATUSES, type ProductStatus } from '@/constants';
+import type { ProductVariantData } from '@/lib/api/contract';
 import { useProductDetail } from '@/hooks/use-product-detail';
 import { toProductSummary } from '@/types/product';
 import { formatCurrency } from '@/lib/utils';
@@ -46,13 +43,49 @@ const STATUS_INTENTS: Record<string, 'success' | 'warning' | 'neutral' | 'danger
   [PRODUCT_STATUSES.archived]: 'danger',
 };
 
-export function ProductDetails({
-  vendorId,
-  productId,
-}: {
-  vendorId: string;
-  productId: string;
-}) {
+const variantColumns: readonly DataTableColumn<ProductVariantData>[] = [
+  {
+    key: 'variant',
+    header: products.columns.variant,
+    cell: (variant) => <DataTableIdentity title={variant.title || variant.sku || products.dash} />,
+  },
+  {
+    key: 'sku',
+    header: products.columns.sku,
+    hideBelow: 'sm',
+    cell: (variant) => <span className="block truncate">{variant.sku || products.dash}</span>,
+  },
+  {
+    key: 'price',
+    header: products.columns.price,
+    align: 'right',
+    numeric: true,
+    cell: (variant) => (
+      <span className="block whitespace-nowrap">{formatCurrency(variant.price)}</span>
+    ),
+  },
+  {
+    key: 'stock',
+    header: products.columns.stock,
+    hideBelow: 'sm',
+    align: 'right',
+    numeric: true,
+    cell: (variant) => <span className="block">{variant.stock}</span>,
+  },
+  {
+    key: 'status',
+    header: products.columns.status,
+    align: 'center',
+    width: 'w-32',
+    cell: (variant) => (
+      <Badge intent={variant.isActive ? 'success' : 'neutral'}>
+        {variant.isActive ? products.statuses.ACTIVE : products.statuses.INACTIVE}
+      </Badge>
+    ),
+  },
+];
+
+export function ProductDetails({ vendorId, productId }: { vendorId: string; productId: string }) {
   const { product, isLoading, isPending, error, actionError, isActioning, runAction } =
     useProductDetail(productId, true);
   const [dialog, setDialog] = useState<ProductDialogAction | null>(null);
@@ -200,9 +233,7 @@ export function ProductDetails({
             <Badge intent={STATUS_INTENTS[status] ?? 'neutral'}>
               {STATUS_LABELS[status] ?? status}
             </Badge>
-            {product.isFeatured && (
-              <Badge intent="primary">{products.featured}</Badge>
-            )}
+            {product.isFeatured && <Badge intent="primary">{products.featured}</Badge>}
             <OptionsMenu label={products.rowActionsLabel} items={menuItems} />
           </div>
         }
@@ -225,7 +256,7 @@ export function ProductDetails({
       ) : (
         <div className="border-border bg-surface-muted/60 text-fg-muted flex aspect-[4/1] items-center justify-center rounded-lg border border-dashed">
           <div className="flex flex-col items-center gap-2">
-            <span className="bg-surface-muted/60 text-primary flex size-12 items-center justify-center rounded-lg border border-border">
+            <span className="bg-surface-muted/60 text-primary border-border flex size-12 items-center justify-center rounded-lg border">
               <Package className="size-5" aria-hidden="true" />
             </span>
             <span className="text-sm">{products.noImages}</span>
@@ -290,9 +321,7 @@ export function ProductDetails({
               <DetailItem label={products.columns.brand} value={product.brandData.name || '—'} />
               <DetailItem
                 label={products.columns.warranty}
-                value={
-                  product.warrantySummary || `${product.warrantyMonths} ${products.months}`
-                }
+                value={product.warrantySummary || `${product.warrantyMonths} ${products.months}`}
               />
               <DetailItem label={products.columns.condition} value={product.condition || '—'} />
             </>
@@ -352,37 +381,11 @@ export function ProductDetails({
           <CardHeader>
             <CardTitle>{products.variantsTitle}</CardTitle>
           </CardHeader>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{products.columns.variant}</TableHead>
-                <TableHead className="hidden sm:table-cell">{products.columns.sku}</TableHead>
-                <TableHead>{products.columns.price}</TableHead>
-                <TableHead className="hidden sm:table-cell">{products.columns.stock}</TableHead>
-                <TableHead>{products.columns.status}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {product.variantList.map((variant) => (
-                <TableRow key={variant.variantId}>
-                  <TableCell className="font-medium">
-                    {variant.title || variant.sku || products.dash}
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    {variant.sku || products.dash}
-                  </TableCell>
-                  <TableCell className="tabular-nums">{formatCurrency(variant.price)}</TableCell>
-                  <TableCell className="hidden tabular-nums sm:table-cell">{variant.stock}</TableCell>
-                  <TableCell>
-                    <StatusDot
-                      intent={variant.isActive ? 'success' : 'neutral'}
-                      label={variant.isActive ? products.statuses.ACTIVE : products.statuses.INACTIVE}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <DataTable
+            columns={variantColumns}
+            rows={product.variantList}
+            rowKey={(variant) => variant.variantId}
+          />
         </Card>
       )}
 
@@ -393,7 +396,10 @@ export function ProductDetails({
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             {product.reviewList.map((review) => (
-              <div key={review.reviewId} className="border-border flex flex-col gap-1 border-b pb-4 last:border-0">
+              <div
+                key={review.reviewId}
+                className="border-border flex flex-col gap-1 border-b pb-4 last:border-0"
+              >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-fg text-sm font-medium">
                     {review.userData.name || products.anonymousReviewer}

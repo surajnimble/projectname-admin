@@ -57,8 +57,8 @@ body {
     [role='tab'],
     [role='switch'],
     [role='radio'],
-    [data-ripple]:not([data-ripple='off']),
-    [data-hover-color]
+    [data-ripple]:not([data-ripple='off']):not(tr),
+    [data-hover-color]:not(tr)
   ):not([aria-disabled='true'])::before {
     content: '';
     position: absolute;
@@ -79,8 +79,8 @@ body {
     [role='tab'],
     [role='switch'],
     [role='radio'],
-    [data-ripple]:not([data-ripple='off']),
-    [data-hover-color]
+    [data-ripple]:not([data-ripple='off']):not(tr),
+    [data-hover-color]:not(tr)
   ):not([aria-disabled='true']):hover::before {
     opacity: var(--hover-opacity);
   }
@@ -94,10 +94,21 @@ body {
     [role='tab'],
     [role='switch'],
     [role='radio'],
-    [data-ripple]:not([data-ripple='off']),
-    [data-hover-color]
+    [data-ripple]:not([data-ripple='off']):not(tr),
+    [data-hover-color]:not(tr)
   ):not([aria-disabled='true']):active::before {
     opacity: calc(var(--hover-opacity) * 1.5);
+  }
+
+  :where(
+    tr[data-ripple]:not([data-ripple='off']),
+    tr[data-hover-color]
+  ):not([aria-disabled='true']):hover {
+    background-color: color-mix(
+      in srgb,
+      var(--hover-color) calc(var(--hover-opacity) * 100%),
+      transparent
+    );
   }
 }
 

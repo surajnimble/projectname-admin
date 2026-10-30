@@ -48,13 +48,13 @@ projectname-admin/
 │   │   │                    options-menu, select, status-dot, thumbnail, skeleton, spinner
 │   │   ├── common/          form-field, form-error, password-input, error-state,
 │   │   │                    empty-state, page-header, pagination, filter-sheet,
-│   │   │                    theme-toggle
+│   │   │                    data-table, data-table-media, theme-toggle
 │   │   ├── layout/          sidebar, header, mobile-nav, logo, api-status
 │   │   ├── auth/            login-form, guards
 │   │   └── dashboard/       overview
-│   │   └── vendor/         vendor-page, vendor-list, vendor-filters, vendor-table, vendor-details,
+│   │   └── vendor/         vendor-page, vendor-list, vendor-columns, vendor-details,
 │   │   │                    vendor-documents, vendor-action-dialog, vendor-document-dialog
-│   │   │                    product/         product-list, product-table, product-details, product-action-dialog
+│   │   │                    product/         product-list, product-columns, product-details, product-action-dialog
 │   │   │                                    product-detail-dialog
 │   ├── config/env.ts
 │   ├── constants.ts

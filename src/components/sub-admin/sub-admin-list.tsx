@@ -3,23 +3,13 @@
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
-import { EmptyState } from '@/components/common/empty-state';
-import { ErrorState } from '@/components/common/error-state';
+import { DataTable } from '@/components/common/data-table';
 import { Pagination } from '@/components/common/pagination';
-import { TableSkeleton } from '@/components/common/table-skeleton';
+import { SubAdminDialog } from '@/components/sub-admin/sub-admin-dialog';
+import { PermissionDialog } from '@/components/sub-admin/permission-dialog';
+import { subAdminColumns, SubAdminRowActions } from '@/components/sub-admin/sub-admin-columns';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { SubAdminDialog } from '@/components/sub-admin/sub-admin-dialog';
-import { SubAdminTable } from '@/components/sub-admin/sub-admin-table';
-import { PermissionDialog } from '@/components/sub-admin/permission-dialog';
 import { SUB_ADMIN_PAGE_SIZE } from '@/constants';
 import { useSubAdmins } from '@/hooks/use-sub-admins';
 import type { PermissionData, SubAdminData } from '@/lib/api/contract';
@@ -35,6 +25,11 @@ const SUCCESS_MESSAGES = {
   delete: subAdmins.deleted,
   toggle: subAdmins.toggled,
 };
+
+const STATUS_OPTIONS = [
+  { value: 'true', label: subAdmins.active },
+  { value: 'false', label: subAdmins.inactive },
+];
 
 export function SubAdminList() {
   const {
@@ -98,11 +93,10 @@ export function SubAdminList() {
   };
 
   const handleDelete = async () => {
-    if (!target) return;
-    const done = await deleteSubAdmin(target.userId);
+    if (!deletingId) return;
+    const done = await deleteSubAdmin(deletingId);
     if (done) showSuccess(SUCCESS_MESSAGES.delete);
     setDeletingId(null);
-    setTarget(null);
   };
 
   const handleToggle = async (subAdmin: SubAdminData) => {
@@ -118,12 +112,11 @@ export function SubAdminList() {
   const handleSavePermissions = async (permissions: string[]) => {
     if (!permissionTarget) return;
     const done = await updatePermissions(permissionTarget.userId, permissions);
-    if (done) {
-      showSuccess(SUCCESS_MESSAGES.update);
-      setPermissionDialogOpen(false);
-      setPermissionTarget(null);
-      await refresh();
-    }
+    if (!done) return;
+    showSuccess(SUCCESS_MESSAGES.update);
+    setPermissionDialogOpen(false);
+    setPermissionTarget(null);
+    await refresh();
   };
 
   return (
@@ -131,82 +124,83 @@ export function SubAdminList() {
       <PageHeader title={subAdmins.title} description={subAdmins.subtitle} />
 
       <Card className="overflow-hidden">
-        <div className="border-border border-b p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3">
-            <Input
-              type="text"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={subAdmins.searchPlaceholder}
-              className="max-w-sm shrink-0"
+        <DataTable
+          columns={subAdminColumns}
+          rows={data.itemList}
+          rowKey={(subAdmin) => subAdmin.userId}
+          toolbar={{
+            search: {
+              value: search,
+              placeholder: subAdmins.searchPlaceholder,
+              onChange: setSearch,
+            },
+            select: {
+              value: isActive,
+              ariaLabel: subAdmins.statusLabel,
+              placeholder: MESSAGES.common.viewAll,
+              options: STATUS_OPTIONS,
+              onChange: (value) => setIsActive(value),
+            },
+            actions: (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  loading={isLoading || isFetching}
+                  onClick={() => void refresh()}
+                  className="shrink-0"
+                >
+                  <RefreshCw className="size-4" aria-hidden="true" />
+                  {MESSAGES.dashboard.refresh}
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => {
+                    setMode('create');
+                    setTarget(null);
+                    setDialogOpen(true);
+                  }}
+                  className="shrink-0"
+                >
+                  {subAdmins.createTitle}
+                </Button>
+              </>
+            ),
+          }}
+          actions={{
+            header: subAdmins.columns.actions,
+            render: (subAdmin) => (
+              <SubAdminRowActions
+                subAdmin={subAdmin}
+                onEdit={(value) => {
+                  setMode('update');
+                  setTarget(value);
+                  setDialogOpen(true);
+                }}
+                onToggle={(value) => void handleToggle(value)}
+                onDelete={(value) => {
+                  setTarget(value);
+                  setDeletingId(value.userId);
+                }}
+                onEditPermissions={(value) => void handleEditPermissions(value)}
+              />
+            ),
+          }}
+          isLoading={isLoading}
+          error={error}
+          onRetry={() => void refresh()}
+          emptyTitle={subAdmins.emptyTitle}
+          emptyDescription={subAdmins.emptyBody}
+          footer={
+            <Pagination
+              currentPage={data.currentPage || page}
+              totalPage={data.totalPage}
+              totalRecord={data.totalRecord}
+              limit={data.limit || SUB_ADMIN_PAGE_SIZE}
+              onPageChange={changePage}
             />
-            <Select
-              value={isActive}
-              onValueChange={(value) => void setIsActive(value ?? '')}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder={MESSAGES.common.viewAll} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="true">{subAdmins.active}</SelectItem>
-                <SelectItem value="false">{subAdmins.inactive}</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-                variant="outline"
-                size="sm"
-                loading={isLoading || isFetching}
-                onClick={() => void refresh()}
-                className="shrink-0"
-              >
-                <RefreshCw className="size-4" aria-hidden="true" />
-                {MESSAGES.dashboard.refresh}
-              </Button>
-              <Button variant="primary" size="sm" onClick={() => {
-                setMode('create');
-                setTarget(null);
-                setDialogOpen(true);
-              }}>
-                {subAdmins.createTitle}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {isLoading ? (
-          <TableSkeleton rows={5} />
-        ) : error ? (
-          <div className="p-4">
-            <ErrorState message={error} onRetry={() => void refresh()} />
-          </div>
-        ) : data.itemList.length === 0 ? (
-          <div className="p-4">
-            <EmptyState title={subAdmins.emptyTitle} description={subAdmins.emptyBody} />
-          </div>
-        ) : (
-          <SubAdminTable
-            subAdmins={data.itemList}
-            onEdit={(subAdmin) => {
-              setMode('update');
-              setTarget(subAdmin);
-              setDialogOpen(true);
-            }}
-            onToggle={handleToggle}
-            onDelete={(subAdmin) => {
-              setTarget(subAdmin);
-              setDeletingId(subAdmin.userId);
-            }}
-            onEditPermissions={handleEditPermissions}
-          />
-        )}
-
-        <Pagination
-          currentPage={data.currentPage || page}
-          totalPage={data.totalPage}
-          totalRecord={data.totalRecord}
-          limit={data.limit || SUB_ADMIN_PAGE_SIZE}
-          onPageChange={changePage}
+          }
         />
       </Card>
 
@@ -220,9 +214,8 @@ export function SubAdminList() {
         onClose={() => {
           setDialogOpen(false);
           setTarget(null);
-          setMode('create');
         }}
-        onSubmit={handleSubmit}
+        onSubmit={(values) => void handleSubmit(values)}
       />
 
       <ConfirmDialog
@@ -231,11 +224,8 @@ export function SubAdminList() {
         description={subAdmins.confirmDeleteDescription}
         confirmLabel={subAdmins.delete}
         isSubmitting={isActioning}
-        onConfirm={handleDelete}
-        onClose={() => {
-          setDeletingId(null);
-          setTarget(null);
-        }}
+        onConfirm={() => void handleDelete()}
+        onClose={() => setDeletingId(null)}
       />
 
       <PermissionDialog
@@ -243,11 +233,8 @@ export function SubAdminList() {
         currentPermissions={permissionTarget?.permissions ?? []}
         allPermissions={allPermissions}
         isSubmitting={isActioning}
-        onClose={() => {
-          setPermissionDialogOpen(false);
-          setPermissionTarget(null);
-        }}
-        onSubmit={handleSavePermissions}
+        onClose={() => setPermissionDialogOpen(false)}
+        onSubmit={(permissions) => void handleSavePermissions(permissions)}
       />
     </div>
   );

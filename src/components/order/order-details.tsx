@@ -11,10 +11,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Thumbnail } from '@/components/ui/thumbnail';
+import { DataTable, type DataTableColumn } from '@/components/common/data-table';
+import { DataTableIdentity, DataTableMedia } from '@/components/common/data-table-media';
 import { PERMISSIONS, ROUTES } from '@/constants';
 import { useOrderDetail } from '@/hooks/use-order-detail';
+import type { OrderItemData } from '@/lib/api/contract';
 import { usePermission } from '@/hooks/use-permission';
 import { formatCurrency } from '@/lib/utils';
 import { formatRelativeTime } from '@/lib/utils/datetime';
@@ -24,11 +25,52 @@ import { OrderStatusDialog } from './order-status-dialog';
 
 const { orders } = MESSAGES;
 
+const orderItemColumns: readonly DataTableColumn<OrderItemData>[] = [
+  {
+    key: 'product',
+    header: orders.columns.product,
+    cell: (item) => (
+      <div className="flex items-center gap-3">
+        <DataTableMedia sources={item.image ? [item.image] : []} alt={item.name} />
+        <DataTableIdentity title={item.name} />
+      </div>
+    ),
+  },
+  {
+    key: 'sku',
+    header: orders.columns.sku,
+    hideBelow: 'sm',
+    cell: (item) => <span className="block truncate">{item.sku || orders.dash}</span>,
+  },
+  {
+    key: 'price',
+    header: orders.columns.price,
+    align: 'right',
+    numeric: true,
+    cell: (item) => <span className="block whitespace-nowrap">{formatCurrency(item.price)}</span>,
+  },
+  {
+    key: 'qty',
+    header: orders.columns.qty,
+    align: 'right',
+    numeric: true,
+    cell: (item) => <span className="block">{item.qty}</span>,
+  },
+  {
+    key: 'total',
+    header: orders.columns.total,
+    align: 'right',
+    numeric: true,
+    cell: (item) => <span className="block whitespace-nowrap">{formatCurrency(item.total)}</span>,
+  },
+];
+
 const show = (value: string) => value || orders.dash;
 
 export function OrderDetails({ orderId }: { orderId: string }) {
   const { can } = usePermission();
-  const { order, isLoading, error, actionError, isActioning, updateStatus, retry } = useOrderDetail(orderId);
+  const { order, isLoading, error, actionError, isActioning, updateStatus, retry } =
+    useOrderDetail(orderId);
   const [editing, setEditing] = useState(false);
 
   const handleUpdate = async (values: { status: string; remark: string; location: string }) => {
@@ -71,7 +113,9 @@ export function OrderDetails({ orderId }: { orderId: string }) {
           description={formatRelativeTime(order.createdAt)}
           action={
             <div className="flex flex-wrap items-center justify-end gap-2">
-              <Badge intent={orderStatusMeta(order.status).intent}>{orderStatusMeta(order.status).label}</Badge>
+              <Badge intent={orderStatusMeta(order.status).intent}>
+                {orderStatusMeta(order.status).label}
+              </Badge>
               {can(PERMISSIONS.orderUpdateStatus) && (
                 <Button size="sm" onClick={() => setEditing(true)}>
                   {orders.updateStatus}
@@ -93,9 +137,14 @@ export function OrderDetails({ orderId }: { orderId: string }) {
         <DetailItem label={orders.fields.wallet} value={formatCurrency(order.walletAmount)} />
         <DetailItem label={orders.fields.total} value={formatCurrency(order.total)} />
         {order.deliveredAt && (
-          <DetailItem label={orders.fields.delivered} value={formatRelativeTime(order.deliveredAt)} />
+          <DetailItem
+            label={orders.fields.delivered}
+            value={formatRelativeTime(order.deliveredAt)}
+          />
         )}
-        {order.cancelReason && <DetailItem label={orders.fields.cancelReason} value={order.cancelReason} />}
+        {order.cancelReason && (
+          <DetailItem label={orders.fields.cancelReason} value={order.cancelReason} />
+        )}
         {order.notes && <DetailItem label={orders.fields.notes} value={order.notes} />}
       </DetailCard>
 
@@ -115,39 +164,12 @@ export function OrderDetails({ orderId }: { orderId: string }) {
         <CardHeader>
           <CardTitle>{orders.sections.items}</CardTitle>
         </CardHeader>
-        {order.itemList.length === 0 ? (
-          <CardContent>
-            <p className="text-fg-muted text-sm">{orders.empty}</p>
-          </CardContent>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{orders.columns.product}</TableHead>
-                <TableHead className="hidden sm:table-cell">{orders.columns.sku}</TableHead>
-                <TableHead>{orders.columns.price}</TableHead>
-                <TableHead>{orders.columns.qty}</TableHead>
-                <TableHead className="text-right">{orders.columns.total}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {order.itemList.map((item) => (
-                <TableRow key={item.orderItemId}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Thumbnail src={item.image} alt={item.name} />
-                      <span className="font-medium">{item.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">{show(item.sku)}</TableCell>
-                  <TableCell className="tabular-nums">{formatCurrency(item.price)}</TableCell>
-                  <TableCell className="tabular-nums">{item.qty}</TableCell>
-                  <TableCell className="text-right tabular-nums">{formatCurrency(item.total)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
+        <DataTable
+          columns={orderItemColumns}
+          rows={order.itemList}
+          rowKey={(item) => item.orderItemId}
+          emptyTitle={orders.empty}
+        />
       </Card>
 
       <Card>
@@ -162,8 +184,12 @@ export function OrderDetails({ orderId }: { orderId: string }) {
               {order.timelineList.map((entry) => (
                 <li key={entry.timelineId} className="flex flex-col gap-0.5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge intent={orderStatusMeta(entry.status).intent}>{orderStatusMeta(entry.status).label}</Badge>
-                    <span className="text-fg-muted text-xs">{formatRelativeTime(entry.createdAt)}</span>
+                    <Badge intent={orderStatusMeta(entry.status).intent}>
+                      {orderStatusMeta(entry.status).label}
+                    </Badge>
+                    <span className="text-fg-muted text-xs">
+                      {formatRelativeTime(entry.createdAt)}
+                    </span>
                   </div>
                   {(entry.remark || entry.location) && (
                     <p className="text-fg-muted text-sm">

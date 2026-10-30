@@ -48,7 +48,8 @@ Non-negotiable. If a task seems to require breaking one, stop and ask.
 13. **Comments only when the why is not obvious** (a non-trivial constraint or gotcha). No narration, no section banners, no JSDoc that repeats the signature.
 14. **Accessibility is part of done:** semantic elements, labels, focus, keyboard.
 15. **Definition of done = `npm run verify` passes** (typecheck + lint + tokens + tests). Never claim a check you did not run.
-16. **Clickable table rows never use an absolute link overlay.** Never put `after:absolute after:inset-0` on a link inside a `<tr>`: mobile browsers ignore `position: relative` on table rows, so the overlay escapes and captures taps for the whole page. Use `onClick` + `router.push` on the row, with `stopPropagation()` on the name link and the actions cell (see `vendor-table.tsx` / `product-table.tsx`), and mark the row with `data-ripple=""` for the shared click effect.
+16. **Clickable table rows never use an absolute link overlay.** Never put `after:absolute after:inset-0` on a link inside a `<tr>`: mobile browsers ignore `position: relative` on table rows, so the overlay escapes and captures taps for the whole page. Use `onClick` + `router.push` on the row, with `stopPropagation()` on the name link and the actions cell (see `common/data-table.tsx`), and mark the row with `data-ripple=""` for the shared click effect.
+17. **Every list table is `common/data-table.tsx`.** Never hand-write a `<Table>` with its own header row: declare the columns once as `DataTableColumn<T>[]` and let the component render the header, the body, the toolbar and the loading/error/empty states. The header and the cells always come from the same column list, so they can never drift apart. Toolbar controls (`search`, `filters`, `select`, `actions`) are optional: pass only what the page needs and the rest stay hidden.
 
 ---
 
@@ -95,12 +96,12 @@ src/
     maintenance/
   components/
     ui/               button, input, textarea, label, card, badge, table, dialog, options-menu, select, status-dot, thumbnail, skeleton, spinner
-    common/           form-field, form-error, password-input, error-state, empty-state, page-header, pagination, filter-sheet, detail-grid, status-badge, table-skeleton, confirm-dialog, reason-dialog, theme-toggle
+    common/           form-field, form-error, password-input, error-state, empty-state, page-header, pagination, filter-sheet, detail-grid, status-badge, data-table, data-table-media, confirm-dialog, reason-dialog, theme-toggle
     layout/           sidebar, header, mobile-nav, logo, api-status
     auth/             login-form, guards (AuthGuard, GuestGuard, RoleGuard)
     dashboard/        overview
-    vendor/           vendor-page, vendor-list, vendor-filters, vendor-table, vendor-details, vendor-documents, vendor-action-dialog, vendor-document-dialog
-    product/          product-list, product-table, product-details, product-action-dialog
+    vendor/           vendor-page, vendor-list, vendor-columns, vendor-details, vendor-documents, vendor-action-dialog, vendor-document-dialog
+    product/          product-list, product-columns, product-details, product-action-dialog
     payment/          payment-list
   config/             env.ts
   constants.ts        ← every non-copy app constant (routes, roles, keys, timings, regex, nav items)
@@ -252,6 +253,7 @@ npm run verify      # typecheck + lint + tokens:check + test
 - Don't store tokens in `localStorage` / `sessionStorage`.
 - Don't add a library when one in §1 covers the need; ask first.
 - Don't create folders outside §4, or move/rename/reformat existing files "while you are there".
-- Don't make a row clickable with a stretched `after:absolute after:inset-0` link on a `<tr>` (mobile taps escape the row and every tap opens a detail page). Use the row `onClick` + `router.push` pattern in `vendor-table.tsx` / `product-table.tsx`.
+- Don't make a row clickable with a stretched `after:absolute after:inset-0` link on a `<tr>` (mobile taps escape the row and every tap opens a detail page). Use the row `onClick` + `router.push` pattern in `common/data-table.tsx`.
+- Don't hand-write a table header: list tables go through `common/data-table.tsx` with a column list.
 - Don't add comments that restate the code.
 - Don't commit or push unless asked.

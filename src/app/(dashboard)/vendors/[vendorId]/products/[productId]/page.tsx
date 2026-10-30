@@ -5,8 +5,8 @@ import { MESSAGES } from '@/messages';
 export const metadata: Metadata = { title: MESSAGES.products.title };
 
 export default async function ProductDetailsPage({
-  params,
-}: {
+                                                   params,
+                                                 }: {
   params: Promise<{ vendorId: string; productId: string }>;
 }) {
   const { vendorId, productId } = await params;

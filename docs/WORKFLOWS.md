@@ -60,7 +60,7 @@ A page that needs its own shell (different from `(dashboard)`) gets its own rout
 5. Layout: `PageHeader` → search/filters → table → pagination controls (`hasNext` / `hasPrevious`; `nextPage` / `previousPage` of `0` mean none).
 6. States: skeleton while loading (keep previous rows to avoid flashing), `ErrorState` with retry, `EmptyState` (different copy for "no data" and "no results").
 7. Never fetch "all" and paginate in the browser.
-8. Rows that open a detail page: `onClick` + `router.push` on `TableRow`, with `stopPropagation()` on the name link and the actions cell (`vendor-table.tsx` / `product-table.tsx`). Add `data-ripple=""` to the row so the global `RippleProvider` gives it the same press/click feedback as every other clickable element. Never use a stretched `after:absolute after:inset-0` link on a `<tr>` — mobile browsers ignore `position: relative` on table rows and the overlay captures taps for the whole page.
+8. Rows that open a detail page: `onClick` + `router.push` on `TableRow`, with `stopPropagation()` on the name link and the actions cell (`common/data-table.tsx`). Add `data-ripple=""` to the row so the global `RippleProvider` gives it the same press/click feedback as every other clickable element. Never use a stretched `after:absolute after:inset-0` link on a `<tr>` — mobile browsers ignore `position: relative` on table rows and the overlay captures taps for the whole page.
 
 ---
 
