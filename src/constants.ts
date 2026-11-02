@@ -49,6 +49,12 @@ export const ROUTES = {
   blogs: '/blogs',
   faqs: '/faqs',
   banners: '/banners',
+  /* ---------- Phase 4: Operations ---------- */
+  analytics: '/analytics',
+  activityLogs: '/activity-logs',
+  notifications: '/notifications',
+  reviews: '/reviews',
+  tickets: '/tickets',
 } as const;
 
 export const ROLES = {
@@ -429,5 +435,29 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: ROUTES.subAdmins,
     icon: Users,
     roles: [ROLES.superAdmin],
+  },
+  {
+    label: MESSAGES.sections.analytics,
+    href: ROUTES.analytics,
+    icon: LayoutDashboard,
+    permission: PERMISSIONS.analyticsView,
+  },
+  {
+    label: MESSAGES.sections.tickets,
+    href: ROUTES.tickets,
+    icon: Layout,
+    permission: PERMISSIONS.ticketList,
+  },
+  {
+    label: MESSAGES.sections.activity,
+    href: ROUTES.activityLogs,
+    icon: FileText,
+    permission: PERMISSIONS.activityLogView,
+  },
+  {
+    label: MESSAGES.sections.notifications,
+    href: ROUTES.notifications,
+    icon: Image,
+    permission: PERMISSIONS.notificationSend,
   },
 ];

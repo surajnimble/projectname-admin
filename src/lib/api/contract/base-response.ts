@@ -637,3 +637,278 @@ export interface BannerData {
 }
 
 export type BannerListData = PageData<BannerData>;
+
+/* ---------- Analytics ---------- */
+export interface AnalyticsOverviewData {
+  totalRevenue: number;
+  totalOrders: number;
+  totalCustomers: number;
+  totalProducts: number;
+  conversionRate: number;
+  avgOrderValue: number;
+}
+
+export interface AnalyticsVisitorData {
+  date: string;
+  visitors: number;
+  uniqueVisitors: number;
+  pageViews: number;
+}
+
+export interface AnalyticsPageViewData {
+  path: string;
+  title: string;
+  views: number;
+  uniqueViews: number;
+  bounceRate: number;
+}
+
+export interface AnalyticsTrafficSourceData {
+  source: string;
+  medium: string;
+  visits: number;
+  conversions: number;
+}
+
+export interface AnalyticsDeviceData {
+  device: string;
+  os: string;
+  browser: string;
+  visitors: number;
+}
+
+export interface AnalyticsGeoData {
+  country: string;
+  city: string;
+  visitors: number;
+  conversions: number;
+}
+
+export interface AnalyticsSessionData {
+  sessionId: string;
+  userId: string;
+  userName: string;
+  device: string;
+  country: string;
+  pagesViewed: number;
+  duration: number;
+  lastActivity: string;
+  isActive: boolean;
+}
+
+export type AnalyticsSessionListData = PageData<AnalyticsSessionData>;
+
+export interface AnalyticsFunnelStepData {
+  step: string;
+  label: string;
+  users: number;
+  conversionRate: number;
+  dropOff: number;
+}
+
+export interface AnalyticsConversionData {
+  date: string;
+  visitors: number;
+  conversions: number;
+  rate: number;
+  revenue: number;
+}
+
+export type AnalyticsRevenueReportData = PageData<AnalyticsConversionData>;
+
+export interface AnalyticsCrashData {
+  crashId: string;
+  appVersion: string;
+  os: string;
+  device: string;
+  error: string;
+  count: number;
+  lastOccurred: string;
+}
+
+export type AnalyticsCrashListData = PageData<AnalyticsCrashData>;
+
+export interface AnalyticsAppVersionData {
+  version: string;
+  users: number;
+  sessions: number;
+  crashes: number;
+  crashRate: number;
+}
+
+export type AnalyticsAppVersionListData = PageData<AnalyticsAppVersionData>;
+
+/* ---------- Notifications ---------- */
+export interface NotificationData {
+  notificationId: string;
+  userId: string;
+  userName: string;
+  type: string;
+  channel: string;
+  title: string;
+  body: string;
+  data: Record<string, unknown>;
+  isRead: boolean;
+  readAt: string;
+  createdAt: string;
+}
+
+export type NotificationListData = PageData<NotificationData>;
+
+export interface NotificationTemplateData {
+  templateId: string;
+  key: string;
+  name: string;
+  channel: string;
+  title: string;
+  body: string;
+  variables: string[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type NotificationTemplateListData = PageData<NotificationTemplateData>;
+
+export interface DeviceTokenData {
+  deviceId: string;
+  userId: string;
+  fcmToken: string;
+  platform: string;
+  lastSeenAt: string;
+}
+
+export type DeviceTokenListData = PageData<DeviceTokenData>;
+
+/* ---------- Reviews ---------- */
+export interface ReviewData {
+  reviewId: string;
+  productId: string;
+  productName: string;
+  vendorId: string;
+  vendorShopName: string;
+  userId: string;
+  userName: string;
+  rating: number;
+  title: string;
+  comment: string;
+  images: string[];
+  isVerified: boolean;
+  isPending: boolean;
+  isApproved: boolean;
+  isRejected: boolean;
+  vendorReply: string;
+  repliedAt: string;
+  repliedById: string;
+  helpfulCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ReviewListData = PageData<ReviewData>;
+
+export interface ReviewSummaryData {
+  productId: string;
+  averageRating: number;
+  totalCount: number;
+  verifiedCount: number;
+  distributionList: Array<{
+    rating: number;
+    count: number;
+    percentage: number;
+  }>;
+}
+
+/* ---------- Questions ---------- */
+export interface QuestionData {
+  questionId: string;
+  productId: string;
+  productName: string;
+  vendorId: string;
+  vendorShopName: string;
+  userId: string;
+  userName: string;
+  question: string;
+  isAnonymous: boolean;
+  isApproved: boolean;
+  answers: Array<{
+    answerId: string;
+    answer: string;
+    userId: string;
+    userName: string;
+    createdAt: string;
+    isApproved: boolean;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type QuestionListData = PageData<QuestionData>;
+
+/* ---------- Tickets ---------- */
+export interface TicketData {
+  ticketId: string;
+  ticketNumber: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userPhone: string;
+  categoryId: string;
+  categoryName: string;
+  subject: string;
+  description: string;
+  priority: string;
+  status: string;
+  assignedToId: string;
+  assignedToName: string;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt: string;
+  closedAt: string;
+}
+
+export type TicketListData = PageData<TicketData>;
+
+export interface TicketCategoryData {
+  categoryId: string;
+  name: string;
+  slug: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type TicketCategoryListData = PageData<TicketCategoryData>;
+
+export interface TicketMessageData {
+  messageId: string;
+  ticketId: string;
+  userId: string;
+  userName: string;
+  message: string;
+  isInternal: boolean;
+  createdAt: string;
+}
+
+export interface TicketNoteData {
+  noteId: string;
+  ticketId: string;
+  userId: string;
+  userName: string;
+  note: string;
+  createdAt: string;
+}
+
+/* ---------- Canned Responses ---------- */
+export interface CannedResponseData {
+  responseId: string;
+  title: string;
+  body: string;
+  isActive: boolean;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CannedResponseListData = PageData<CannedResponseData>;

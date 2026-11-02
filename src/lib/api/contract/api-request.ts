@@ -65,4 +65,26 @@ export class ApiRequest {
   linkUrl?: string;
   startAt?: string;
   endAt?: string;
+  isRead?: boolean;
+  deviceId?: string;
+  fcmToken?: string;
+  platform?: string;
+  isArchived?: boolean;
+  message?: string;
+  categoryId?: string;
+  priority?: string;
+  assignedToId?: string;
+  note?: string;
+  category?: string;
+  tag?: string;
+  userId?: string;
+  period?: string;
+  attachments?: string[];
+  lastReadAt?: string;
+  isInternal?: boolean;
+  minRating?: number;
+  maxRating?: number;
+  withImages?: boolean;
+  orderValue?: number;
+  couponId?: string;
 }

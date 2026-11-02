@@ -464,6 +464,422 @@ export class ApiService {
   deleteBanner(id: string) {
     return apiClient.delete(API_URLS.deleteBanner(id), { mapper: toEmptyData });
   }
+
+  /* ---------- Analytics ---------- */
+  getAnalyticsOverview(query: Pick<ApiRequest, 'period'>) {
+    return apiClient.get(API_URLS.getAnalyticsOverview, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsVisitors(query: Pick<ApiRequest, 'page' | 'limit' | 'days'>) {
+    return apiClient.get(API_URLS.getAnalyticsVisitors, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsUniqueVisitors(query: Pick<ApiRequest, 'page' | 'limit' | 'days'>) {
+    return apiClient.get(API_URLS.getAnalyticsUniqueVisitors, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsPageViews(query: Pick<ApiRequest, 'page' | 'limit' | 'days'>) {
+    return apiClient.get(API_URLS.getAnalyticsPageViews, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsTopPages(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsTopPages, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsTrafficSources(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsTrafficSources, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsDeviceBreakdown(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsDeviceBreakdown, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsGeoBreakdown(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsGeoBreakdown, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsSessions(query: Pick<ApiRequest, 'page' | 'limit' | 'search'>) {
+    return apiClient.get(API_URLS.getAnalyticsSessions, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsSessionDetail(sessionId: string) {
+    return apiClient.get(API_URLS.getAnalyticsSessionDetail(sessionId), { mapper: toEmptyData });
+  }
+
+  getAnalyticsFunnel(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsFunnel, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsConversions(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsConversions, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsRevenueReport(query: Pick<ApiRequest, 'page' | 'limit' | 'from' | 'to'>) {
+    return apiClient.get(API_URLS.getAnalyticsRevenueReport, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsProductPerformance(query: Pick<ApiRequest, 'page' | 'limit' | 'sort' | 'days'>) {
+    return apiClient.get(API_URLS.getAnalyticsProductPerformance, {
+      query,
+      mapper: toProductPerformanceList,
+    });
+  }
+
+  getAnalyticsVendorPerformance(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsVendorPerformance, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsCustomerCohorts(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsCustomerCohorts, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsAbandonedCarts(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsAbandonedCarts, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsSearchTerms(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsSearchTerms, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsZeroResultSearches(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsZeroResultSearches, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsRealtime() {
+    return apiClient.get(API_URLS.getAnalyticsRealtime, { mapper: toEmptyData });
+  }
+
+  getAnalyticsCrashes(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsCrashes, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsAppVersions(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsAppVersions, { query, mapper: toEmptyData });
+  }
+
+  exportAnalytics(query: Pick<ApiRequest, 'type' | 'from' | 'to'>) {
+    return apiClient.get(API_URLS.exportAnalytics, { query, mapper: toEmptyData });
+  }
+
+  getAnalyticsFunnels(query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getAnalyticsFunnels, { query, mapper: toEmptyData });
+  }
+
+  createAnalyticsFunnel(body: ApiRequest) {
+    return apiClient.post(API_URLS.createAnalyticsFunnel, { body, mapper: toEmptyData });
+  }
+
+  updateAnalyticsFunnel(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateAnalyticsFunnel(id), { body, mapper: toEmptyData });
+  }
+
+  /* ---------- Notifications ---------- */
+  getNotifications(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'type' | 'channel' | 'isRead'>) {
+    return apiClient.get(API_URLS.getNotifications, { query, mapper: toEmptyData });
+  }
+
+  getNotificationsUnreadCount() {
+    return apiClient.get(API_URLS.getNotificationsUnreadCount, { mapper: toEmptyData });
+  }
+
+  markNotificationRead(id: string) {
+    return apiClient.patch(API_URLS.markNotificationRead(id), { body: {}, mapper: toEmptyData });
+  }
+
+  markAllNotificationsRead() {
+    return apiClient.patch(API_URLS.markAllNotificationsRead, { body: {}, mapper: toEmptyData });
+  }
+
+  deleteNotification(id: string) {
+    return apiClient.delete(API_URLS.deleteNotification(id), { mapper: toEmptyData });
+  }
+
+  getNotificationPreferences() {
+    return apiClient.get(API_URLS.getNotificationPreferences, { mapper: toEmptyData });
+  }
+
+  updateNotificationPreferences(body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateNotificationPreferences, { body, mapper: toEmptyData });
+  }
+
+  registerDeviceToken(body: Pick<ApiRequest, 'deviceId' | 'fcmToken' | 'platform'>) {
+    return apiClient.post(API_URLS.registerDeviceToken, { body, mapper: toEmptyData });
+  }
+
+  unregisterDeviceToken(deviceId: string) {
+    return apiClient.post(API_URLS.unregisterDeviceToken, { body: { deviceId }, mapper: toEmptyData });
+  }
+
+  broadcastNotification(body: ApiRequest) {
+    return apiClient.post(API_URLS.broadcastNotification, { body, mapper: toEmptyData });
+  }
+
+  getNotificationTemplates() {
+    return apiClient.get(API_URLS.getNotificationTemplates, { mapper: toEmptyData });
+  }
+
+  createNotificationTemplate(body: ApiRequest) {
+    return apiClient.post(API_URLS.createNotificationTemplate, { body, mapper: toEmptyData });
+  }
+
+  updateNotificationTemplate(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateNotificationTemplate(id), { body, mapper: toEmptyData });
+  }
+
+  deleteNotificationTemplate(id: string) {
+    return apiClient.delete(API_URLS.deleteNotificationTemplate(id), { mapper: toEmptyData });
+  }
+
+  /* ---------- Chat ---------- */
+  getConversations(query: Pick<ApiRequest, 'page' | 'limit' | 'isArchived'>) {
+    return apiClient.get(API_URLS.getConversations, { query, mapper: toEmptyData });
+  }
+
+  getChatUnreadCount() {
+    return apiClient.get(API_URLS.getChatUnreadCount, { mapper: toEmptyData });
+  }
+
+  startConversation(body: Pick<ApiRequest, 'vendorId' | 'message'>) {
+    return apiClient.post(API_URLS.startConversation, { body, mapper: toEmptyData });
+  }
+
+  getMessages(conversationId: string, query: Pick<ApiRequest, 'page' | 'limit'>) {
+    return apiClient.get(API_URLS.getMessages(conversationId), { query, mapper: toEmptyData });
+  }
+
+  sendMessage(conversationId: string, body: Pick<ApiRequest, 'body' | 'attachments'>) {
+    return apiClient.post(API_URLS.sendMessage, { body: { conversationId, ...body }, mapper: toEmptyData });
+  }
+
+  markConversationRead(id: string, body: Pick<ApiRequest, 'lastReadAt'>) {
+    return apiClient.patch(API_URLS.markConversationRead(id), { body, mapper: toEmptyData });
+  }
+
+  deleteMessage(id: string) {
+    return apiClient.delete(API_URLS.deleteMessage(id), { mapper: toEmptyData });
+  }
+
+  blockUser(id: string, body: Pick<ApiRequest, 'reason'>) {
+    return apiClient.post(API_URLS.blockUser(id), { body, mapper: toEmptyData });
+  }
+
+  unblockUser(id: string) {
+    return apiClient.post(API_URLS.unblockUser(id), { body: {}, mapper: toEmptyData });
+  }
+
+  getBlockedUsers() {
+    return apiClient.get(API_URLS.getBlockedUsers, { mapper: toEmptyData });
+  }
+
+  /* ---------- Tickets ---------- */
+  getTicketCategories() {
+    return apiClient.get(API_URLS.getTicketCategories, { mapper: toEmptyData });
+  }
+
+  createTicketCategory(body: ApiRequest) {
+    return apiClient.post(API_URLS.createTicketCategory, { body, mapper: toEmptyData });
+  }
+
+  getTicketStats() {
+    return apiClient.get(API_URLS.getTicketStats, { mapper: toEmptyData });
+  }
+
+  createTicket(body: ApiRequest) {
+    return apiClient.post(API_URLS.createTicket, { body, mapper: toEmptyData });
+  }
+
+  getTickets(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'status' | 'priority' | 'categoryId' | 'assignedToId'>) {
+    return apiClient.get(API_URLS.getTickets, { query, mapper: toEmptyData });
+  }
+
+  getTicketById(id: string) {
+    return apiClient.get(API_URLS.getTicketById(id), { mapper: toEmptyData });
+  }
+
+  replyTicket(id: string, body: Pick<ApiRequest, 'message' | 'isInternal'>) {
+    return apiClient.post(API_URLS.replyTicket(id), { body, mapper: toEmptyData });
+  }
+
+  updateTicketStatus(id: string, body: Pick<ApiRequest, 'status' | 'remark'>) {
+    return apiClient.patch(API_URLS.updateTicketStatus(id), { body, mapper: toEmptyData });
+  }
+
+  assignTicket(id: string, body: Pick<ApiRequest, 'assignedToId'>) {
+    return apiClient.patch(API_URLS.assignTicket(id), { body, mapper: toEmptyData });
+  }
+
+  closeTicket(id: string) {
+    return apiClient.patch(API_URLS.closeTicket(id), { body: {}, mapper: toEmptyData });
+  }
+
+  deleteTicket(id: string) {
+    return apiClient.delete(API_URLS.deleteTicket(id), { mapper: toEmptyData });
+  }
+
+  addTicketNote(ticketId: string, body: Pick<ApiRequest, 'note'>) {
+    return apiClient.post(API_URLS.addTicketNote(ticketId), { body, mapper: toEmptyData });
+  }
+
+  getTicketNotes(ticketId: string) {
+    return apiClient.get(API_URLS.getTicketNotes(ticketId), { mapper: toEmptyData });
+  }
+
+  deleteTicketNote(ticketId: string, noteId: string) {
+    return apiClient.delete(API_URLS.deleteTicketNote(ticketId, noteId), { mapper: toEmptyData });
+  }
+
+  /* ---------- Canned Responses ---------- */
+  getCannedResponses(query: Pick<ApiRequest, 'page' | 'limit' | 'isActive'>) {
+    return apiClient.get(API_URLS.getCannedResponses, { query, mapper: toEmptyData });
+  }
+
+  createCannedResponse(body: Pick<ApiRequest, 'title' | 'body'>) {
+    return apiClient.post(API_URLS.createCannedResponse, { body, mapper: toEmptyData });
+  }
+
+  updateCannedResponse(id: string, body: Pick<ApiRequest, 'title' | 'body' | 'isActive'>) {
+    return apiClient.patch(API_URLS.updateCannedResponse(id), { body, mapper: toEmptyData });
+  }
+
+  deleteCannedResponse(id: string) {
+    return apiClient.delete(API_URLS.deleteCannedResponse(id), { mapper: toEmptyData });
+  }
+
+  /* ---------- Reviews ---------- */
+  getReviews(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'productId' | 'vendorId' | 'userId' | 'status' | 'minRating' | 'maxRating' | 'withImages'>) {
+    return apiClient.get(API_URLS.getReviews, { query, mapper: toEmptyData });
+  }
+
+  getReviewSummary(productId: string) {
+    return apiClient.get(API_URLS.getReviewSummary(productId), { mapper: toEmptyData });
+  }
+
+  createReview(body: ApiRequest) {
+    return apiClient.post(API_URLS.createReview, { body, mapper: toEmptyData });
+  }
+
+  updateReview(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateReview(id), { body, mapper: toEmptyData });
+  }
+
+  deleteReview(id: string) {
+    return apiClient.delete(API_URLS.deleteReview(id), { mapper: toEmptyData });
+  }
+
+  approveReview(id: string) {
+    return apiClient.patch(API_URLS.approveReview(id), { body: {}, mapper: toEmptyData });
+  }
+
+  rejectReview(id: string) {
+    return apiClient.patch(API_URLS.rejectReview(id), { body: {}, mapper: toEmptyData });
+  }
+
+  markReviewHelpful(id: string) {
+    return apiClient.post(API_URLS.markReviewHelpful(id), { body: {}, mapper: toEmptyData });
+  }
+
+  replyReview(id: string, body: Pick<ApiRequest, 'reply'>) {
+    return apiClient.post(API_URLS.replyReview(id), { body, mapper: toEmptyData });
+  }
+
+  /* ---------- Questions ---------- */
+  getQuestions(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'productId' | 'vendorId'>) {
+    return apiClient.get(API_URLS.getQuestions, { query, mapper: toEmptyData });
+  }
+
+  askQuestion(body: Pick<ApiRequest, 'productId' | 'question' | 'isAnonymous'>) {
+    return apiClient.post(API_URLS.askQuestion, { body, mapper: toEmptyData });
+  }
+
+  answerQuestion(id: string, body: Pick<ApiRequest, 'answer'>) {
+    return apiClient.post(API_URLS.answerQuestion(id), { body, mapper: toEmptyData });
+  }
+
+  approveQuestion(id: string) {
+    return apiClient.patch(API_URLS.approveQuestion(id), { body: {}, mapper: toEmptyData });
+  }
+
+  deleteQuestion(id: string) {
+    return apiClient.delete(API_URLS.deleteQuestion(id), { mapper: toEmptyData });
+  }
+
+  /* ---------- Coupons ---------- */
+  getCoupons(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'type' | 'status' | 'vendorId' | 'isActive' | 'from' | 'to'>) {
+    return apiClient.get(API_URLS.getCoupons, { query, mapper: toEmptyData });
+  }
+
+  createCoupon(body: ApiRequest) {
+    return apiClient.post(API_URLS.createCoupon, { body, mapper: toEmptyData });
+  }
+
+  updateCoupon(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateCoupon(id), { body, mapper: toEmptyData });
+  }
+
+  deleteCoupon(id: string) {
+    return apiClient.delete(API_URLS.deleteCoupon(id), { mapper: toEmptyData });
+  }
+
+  getCouponById(id: string) {
+    return apiClient.get(API_URLS.getCouponById(id), { mapper: toEmptyData });
+  }
+
+  applyCoupon(body: Pick<ApiRequest, 'code'>) {
+    return apiClient.post(API_URLS.applyCoupon, { body, mapper: toEmptyData });
+  }
+
+  getVendorCoupons(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'status' | 'isActive'>) {
+    return apiClient.get(API_URLS.getVendorCoupons, { query, mapper: toEmptyData });
+  }
+
+  createVendorCoupon(body: ApiRequest) {
+    return apiClient.post(API_URLS.createVendorCoupon, { body, mapper: toEmptyData });
+  }
+
+  updateVendorCoupon(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateVendorCoupon(id), { body, mapper: toEmptyData });
+  }
+
+  deleteVendorCoupon(id: string) {
+    return apiClient.delete(API_URLS.deleteVendorCoupon(id), { mapper: toEmptyData });
+  }
+
+  validateCoupon(body: Pick<ApiRequest, 'code' | 'orderValue'>) {
+    return apiClient.post(API_URLS.validateCoupon, { body, mapper: toEmptyData });
+  }
+
+  getCouponUsages(couponId: string, query: Pick<ApiRequest, 'page' | 'limit' | 'couponId' | 'userId' | 'orderId'>) {
+    return apiClient.get(API_URLS.getCouponUsages(couponId), { query, mapper: toEmptyData });
+  }
+
+  toggleCoupon(id: string, body: Pick<ApiRequest, 'isActive'>) {
+    return apiClient.patch(API_URLS.toggleCoupon(id), { body, mapper: toEmptyData });
+  }
+
+  /* ---------- Flash Sales ---------- */
+  getFlashSales(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'isActive'>) {
+    return apiClient.get(API_URLS.getFlashSales, { query, mapper: toEmptyData });
+  }
+
+  getLiveFlashSales() {
+    return apiClient.get(API_URLS.getLiveFlashSales, { mapper: toEmptyData });
+  }
+
+  getFlashSaleBySlug(slug: string) {
+    return apiClient.get(API_URLS.getFlashSaleBySlug(slug), { mapper: toEmptyData });
+  }
+
+  createFlashSale(body: ApiRequest) {
+    return apiClient.post(API_URLS.createFlashSale, { body, mapper: toEmptyData });
+  }
+
+  updateFlashSale(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateFlashSale(id), { body, mapper: toEmptyData });
+  }
+
+  deleteFlashSale(id: string) {
+    return apiClient.delete(API_URLS.deleteFlashSale(id), { mapper: toEmptyData });
+  }
 }
 
 export const apiService = new ApiService();

@@ -509,7 +509,7 @@ export function DataTable<T>({
       );
     }
 
-    if (rows.length === 0) {
+    if (!rows || rows.length === 0) {
       return (
         <div className="p-4">
           <EmptyState title={emptyTitle ?? ''} description={emptyDescription} />
