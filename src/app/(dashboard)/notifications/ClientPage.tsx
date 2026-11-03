@@ -396,7 +396,7 @@ export default function ClientNotificationsPage() {
               },
               {
                 key: 'status',
-                header: MESSAGES.notifications.status,
+                header: 'Status',
                 align: 'center',
                 cell: (row: any) => (
                   <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs border ${row.isActive ? 'border-success/20 text-success bg-success/10' : 'border-neutral/20 text-fg-muted bg-surface-muted'}`}>
@@ -415,7 +415,7 @@ export default function ClientNotificationsPage() {
                       onSelect: () => handleTemplateEdit(row),
                     },
                     {
-                      label: MESSAGES.notifications.delete,
+                      label: MESSAGES.common.delete,
                       intent: 'danger',
                       onSelect: () => deleteTemplate(row.templateId),
                     },

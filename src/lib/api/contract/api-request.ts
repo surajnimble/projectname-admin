@@ -81,10 +81,14 @@ export class ApiRequest {
   period?: string;
   attachments?: string[];
   lastReadAt?: string;
-  isInternal?: boolean;
   minRating?: number;
   maxRating?: number;
   withImages?: boolean;
   orderValue?: number;
   couponId?: string;
+  title?: string;
+  body?: string;
+  isInternal?: boolean;
+  code?: string;
+  [key: string]: any;
 }

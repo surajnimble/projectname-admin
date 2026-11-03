@@ -3,10 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { apiService } from '@/lib/api/api.service';
-import type { ApiRequest } from '@/lib/api/contract';
-
-const toNumber = (value: unknown): number =>
-  typeof value === 'number' && Number.isFinite(value) ? value : 0;
 
 export function useAnalytics() {
   const [overview, setOverview] = useState<any>({
@@ -100,7 +96,7 @@ export function useAnalytics() {
         ...query.filters,
       } as any);
       if (res.status) {
-        setVisitors(res.data.itemList || res.data);
+        setVisitors((res.data as any).itemList || (Array.isArray(res.data) ? res.data : []));
       } else {
         setError(res.message);
       }
@@ -149,7 +145,7 @@ export function useAnalytics() {
         ...query.filters,
       } as any);
       if (res.status) {
-        setProductPerformance(res.data.itemList || res.data);
+        setProductPerformance((res.data as any).itemList || (Array.isArray(res.data) ? res.data : []));
       } else {
         setError(res.message);
       }
@@ -167,7 +163,7 @@ export function useAnalytics() {
         ...query.filters,
       } as any);
       if (res.status) {
-        setUniqueVisitors(res.data.itemList || res.data);
+        setUniqueVisitors((res.data as any).itemList || (Array.isArray(res.data) ? res.data : []));
       } else {
         setError(res.message);
       }
@@ -185,7 +181,7 @@ export function useAnalytics() {
         ...query.filters,
       } as any);
       if (res.status) {
-        setPageViews(res.data.itemList || res.data);
+        setTopPages((res.data as any).itemList || (Array.isArray(res.data) ? res.data : []));
       } else {
         setError(res.message);
       }
@@ -203,7 +199,7 @@ export function useAnalytics() {
         ...query.filters,
       } as any);
       if (res.status) {
-        setTrafficSources(res.data.itemList || res.data);
+        setTrafficSources((res.data as any).itemList || (Array.isArray(res.data) ? res.data : []));
       } else {
         setError(res.message);
       }
@@ -221,7 +217,7 @@ export function useAnalytics() {
         ...query.filters,
       } as any);
       if (res.status) {
-        setDeviceBreakdown(res.data.itemList || res.data);
+        setDeviceBreakdown((res.data as any).itemList || (Array.isArray(res.data) ? res.data : []));
       } else {
         setError(res.message);
       }
@@ -239,7 +235,7 @@ export function useAnalytics() {
         ...query.filters,
       } as any);
       if (res.status) {
-        setGeoBreakdown(res.data.itemList || res.data);
+        setRevenueReport((res.data as any).itemList ? res.data : { ...revenueReport, itemList: Array.isArray(res.data) ? res.data : [] });
       } else {
         setError(res.message);
       }

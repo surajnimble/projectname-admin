@@ -10,6 +10,7 @@ import { orderStatusMeta } from '@/components/common/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DataTable, type DataTableColumn } from '@/components/common/data-table';
 import { DataTableIdentity, DataTableMedia } from '@/components/common/data-table-media';
@@ -79,10 +80,29 @@ const canConfirm = (status: string) =>
 
 export function OrderDetails({ orderId }: { orderId: string }) {
   const { can } = usePermission();
-  const { order, isLoading, error, actionError, isActioning, updateStatus, retry } =
-    useOrderDetail(orderId);
+  const {
+    order,
+    notes,
+    tags,
+    deliveryBoys,
+    isLoading,
+    error,
+    actionError,
+    isActioning,
+    updateStatus,
+    addNote,
+    removeNote,
+    addTag,
+    removeTag,
+    assignDeliveryBoy,
+    retry,
+  } = useOrderDetail(orderId);
   const [editing, setEditing] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [newNote, setNewNote] = useState('');
+  const [newTag, setNewTag] = useState('');
+  const [assigningSubOrder, setAssigningSubOrder] = useState<string | null>(null);
+  const [selectedDeliveryBoy, setSelectedDeliveryBoy] = useState('');
 
   const handleUpdate = async (values: { status: string; remark: string; location: string }) => {
     const done = await updateStatus(values);
@@ -101,6 +121,44 @@ export function OrderDetails({ orderId }: { orderId: string }) {
     setConfirming(false);
     if (!done) return;
     showSuccess(orders.statusUpdated);
+  };
+
+  const handleAddNote = async () => {
+    if (!newNote.trim()) return;
+    const done = await addNote(newNote.trim());
+    if (done) {
+      setNewNote('');
+      showSuccess(orders.noteAdded);
+    }
+  };
+
+  const handleRemoveNote = async (noteId: string) => {
+    const done = await removeNote(noteId);
+    if (done) showSuccess('Note removed.');
+  };
+
+  const handleAddTag = async () => {
+    if (!newTag.trim()) return;
+    const done = await addTag(newTag.trim());
+    if (done) {
+      setNewTag('');
+      showSuccess(orders.tagAdded);
+    }
+  };
+
+  const handleRemoveTag = async (tagId: string) => {
+    const done = await removeTag(tagId);
+    if (done) showSuccess(orders.tagRemoved);
+  };
+
+  const handleAssignDeliveryBoy = async (subOrderId: string) => {
+    if (!selectedDeliveryBoy) return;
+    const done = await assignDeliveryBoy(subOrderId, selectedDeliveryBoy);
+    if (done) {
+      setAssigningSubOrder(null);
+      setSelectedDeliveryBoy('');
+      showSuccess(orders.deliveryBoyAssigned);
+    }
   };
 
   if (error && !order.orderId) return <ErrorState message={error} onRetry={retry} />;
@@ -203,6 +261,164 @@ export function OrderDetails({ orderId }: { orderId: string }) {
             />
           ))}
         </DetailCard>
+      )}
+
+      {can(PERMISSIONS.orderUpdateStatus) && notes.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{orders.sections.notes}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <ul className="space-y-3">
+              {notes.map((note) => (
+                <li key={note.noteId} className="p-3 border border-border rounded-lg bg-surface-muted/50">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-medium text-fg">{note.userName}</p>
+                      <p className="text-sm text-fg-muted whitespace-pre-wrap">{note.note}</p>
+                      <span className="text-xs text-fg-muted">
+                        {formatRelativeTime(note.createdAt)}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void handleRemoveNote(note.noteId)}
+                      disabled={isActioning}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 flex gap-2">
+              <Input
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+                placeholder={orders.fields.notePlaceholder}
+                className="flex-1"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAddNote}
+                disabled={isActioning || !newNote.trim()}
+              >
+                {orders.fields.addNote}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {can(PERMISSIONS.orderUpdateStatus) && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{orders.sections.tags}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="flex flex-wrap gap-2">
+              {tags.length === 0 ? (
+                <p className="text-fg-muted text-sm">{orders.noTimeline}</p>
+              ) : (
+                tags.map((tag) => (
+                  <span
+                    key={tag.tagId}
+                    className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
+                      tag.color
+                        ?                     `border-${tag.color}/30 bg-${tag.color}/10 text-${tag.color}`
+                        : 'border-border text-fg-muted'
+                    }`}
+                  >
+                    {tag.name}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void handleRemoveTag(tag.tagId)}
+                      disabled={isActioning}
+                      className="ml-1 p-0.5"
+                    >
+                      ×
+                    </Button>
+                  </span>
+                ))
+              )}
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Input
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                placeholder={orders.fields.tagPlaceholder}
+                className="flex-1"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAddTag}
+                disabled={isActioning || !newTag.trim()}
+              >
+                {orders.fields.addTag}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {can(PERMISSIONS.orderUpdateStatus) && order.vendorList.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{orders.sections.delivery}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              {order.vendorList.map((vendor) => (
+                <div
+                  key={vendor.subOrderId}
+                  className="flex items-center justify-between p-3 border border-border rounded-lg bg-surface-muted/50"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-fg">{vendor.shopName}</p>
+                    <p className="text-xs text-fg-muted">{vendor.subOrderId}</p>
+                  </div>
+                  {assigningSubOrder === vendor.subOrderId ? (
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={selectedDeliveryBoy}
+                        onChange={(e) => setSelectedDeliveryBoy(e.target.value)}
+                        className="border border-input bg-background rounded-md px-2 py-1 text-sm text-fg focus:ring-2 focus:ring-ring focus:border-ring outline-none"
+                      >
+                        <option value="">{orders.fields.deliveryBoy}</option>
+                        {deliveryBoys.map((db) => (
+                          <option key={db.deliveryBoyId} value={db.deliveryBoyId}>
+                            {db.name}
+                          </option>
+                        ))}
+                      </select>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => void handleAssignDeliveryBoy(vendor.subOrderId)}
+                        disabled={!selectedDeliveryBoy || isActioning}
+                      >
+                        Assign
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAssigningSubOrder(vendor.subOrderId)}
+                      disabled={isActioning}
+                    >
+                      {orders.fields.assignDeliveryBoy}
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       <Card className="overflow-hidden">

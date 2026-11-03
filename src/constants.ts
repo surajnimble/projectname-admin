@@ -9,6 +9,10 @@ import {
   Layout,
   FileText,
   Image,
+  Settings,
+  Truck,
+  Activity,
+  Server,
   type LucideIcon,
 } from 'lucide-react';
 import { MESSAGES } from '@/messages';
@@ -30,12 +34,17 @@ export const ROUTES = {
   orderDetails: (orderId: string) => `/orders/${orderId}`,
   componentsShowcase: '/components-showcase',
   settings: '/settings',
+  auditLogs: '/audit-logs',
+  systemHealth: '/system',
   vendorDetails: (vendorId: string) => `/vendors/${vendorId}`,
   vendorProductDetails: (vendorId: string, productId: string) =>
     `/vendors/${vendorId}/products/${productId}`,
   subAdmins: '/sub-admins',
   productApprovals: '/product-approvals',
   customers: '/customers',
+  customerDetails: (userId: string) => `/customers/${userId}`,
+  deliveryBoys: '/delivery-boys',
+  coupons: '/coupons',
   returns: '/returns',
   payouts: '/payouts',
   /* ---------- Catalog ---------- */
@@ -217,6 +226,11 @@ export const CUSTOMER_PAGE_SIZE = 10;
 export const RETURNS_PAGE_SIZE = 10;
 
 export const PAYOUTS_PAGE_SIZE = 10;
+export const DELIVERY_BOY_PAGE_SIZE = 10;
+export const AUDIT_LOG_PAGE_SIZE = 10;
+export const FAILED_JOB_PAGE_SIZE = 10;
+export const COUPON_PAGE_SIZE = 10;
+export const SHIPPING_ZONE_PAGE_SIZE = 10;
 
 export const ORDER_STATUSES = {
   all: 'all',
@@ -365,6 +379,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     permission: PERMISSIONS.userList,
   },
   {
+    label: MESSAGES.sections.deliveryBoys,
+    href: ROUTES.deliveryBoys,
+    icon: Truck,
+    permission: PERMISSIONS.deliveryBoyManage,
+  },
+  {
     label: MESSAGES.sections.returns,
     href: ROUTES.returns,
     icon: ShoppingCart,
@@ -459,5 +479,29 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: ROUTES.notifications,
     icon: Image,
     permission: PERMISSIONS.notificationSend,
+  },
+  {
+    label: MESSAGES.sections.settings,
+    href: ROUTES.settings,
+    icon: Settings,
+    permission: PERMISSIONS.settingsView,
+  },
+  {
+    label: MESSAGES.sections.auditLogs,
+    href: ROUTES.auditLogs,
+    icon: Activity,
+    permission: PERMISSIONS.auditLogView,
+  },
+  {
+    label: MESSAGES.sections.systemHealth,
+    href: ROUTES.systemHealth,
+    icon: Server,
+    permission: PERMISSIONS.systemHealthView,
+  },
+  {
+    label: MESSAGES.sections.coupons,
+    href: ROUTES.coupons,
+    icon: Tag,
+    permission: PERMISSIONS.couponManage,
   },
 ];

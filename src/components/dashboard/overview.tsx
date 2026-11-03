@@ -136,6 +136,13 @@ const INTENT_TEXT_CLASSES: Record<StatIntent, string> = {
 };
 
 const STAT_ROUTES: Partial<Record<StatKey, string>> = {
+  totalOrders: ROUTES.orders,
+  totalUsers: ROUTES.customers,
+  totalProducts: ROUTES.productApprovals,
+  revenue30d: ROUTES.payments,
+  openTickets: ROUTES.tickets,
+  pendingReturns: ROUTES.returns,
+  pendingRefunds: ROUTES.payments,
   totalVendors: ROUTES.vendors,
   pendingVendors: ROUTES.vendors,
 };

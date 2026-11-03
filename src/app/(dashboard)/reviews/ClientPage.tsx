@@ -29,6 +29,7 @@ export default function ClientReviewsPage() {
     approveReview,
     rejectReview,
     replyReview,
+    isActioning,
   } = useReviews();
 
   const [dialogOpen, setDialogOpen] = useState(false);

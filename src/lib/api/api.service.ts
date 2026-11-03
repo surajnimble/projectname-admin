@@ -11,17 +11,26 @@ import { toPayout, toPayoutList, toPayoutStatement } from '@/types/payout';
 import { toProductDetail, toProductList, toProductSummary, toProductApproval, toProductApprovalList } from '@/types/product';
 import { toLowStockList } from '@/types/report';
 import { toReturn, toReturnList } from '@/types/return';
-import { toUserList } from '@/types/user';
+import { toUserList, toUserDetail } from '@/types/user';
 import { toCategoryList } from '@/types/catalog';
 import { toBrandList } from '@/types/catalog';
 import { toTagList } from '@/types/catalog';
 import { toAttributeList } from '@/types/catalog';
+import { toCouponList } from '@/types/coupon';
+import { toShippingZoneList } from '@/types/shipping';
+import { toAuditLogList } from '@/types/audit';
+import { toSystemHealth } from '@/types/system-health';
+import { toCronJobList } from '@/types/cron';
+import { toFailedJobList } from '@/types/failed-job';
 import { toCollectionList } from '@/types/catalog';
 import { toPageList } from '@/types/content';
 import { toBlogList } from '@/types/content';
 import { toFaqList } from '@/types/content';
 import { toBannerList } from '@/types/content';
 import { toKycDocument, toKycDocumentList, toVendor, toVendorList, toVendorRatings } from '@/types/vendor';
+import { toSettingList, toFeatureFlags, toMaintenanceStatus } from '@/types/settings';
+import { toOrderNoteList, toOrderTagList } from '@/types/order';
+import { toDeliveryBoyList } from '@/types/delivery-boy';
 
 export class ApiService {
   login(body: ApiRequest) {
@@ -312,6 +321,18 @@ export class ApiService {
     });
   }
 
+  getUserById(userId: string) {
+    return apiClient.get(API_URLS.getUserById(userId), { mapper: toUserDetail });
+  }
+
+  getUserActivity(userId: string, query: ApiRequest) {
+    return apiClient.get(API_URLS.getUserActivity(userId), { query, mapper: toActivityLogList });
+  }
+
+  getUserOrders(userId: string, query: ApiRequest) {
+    return apiClient.get(API_URLS.getUserOrders(userId), { query, mapper: toOrderList });
+  }
+
   /* ---------- Catalog: Categories ---------- */
   getCategories(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'parentId' | 'isActive'>) {
     return apiClient.get(API_URLS.getCategories, { query, mapper: toCategoryList });
@@ -466,82 +487,78 @@ export class ApiService {
   }
 
   /* ---------- Analytics ---------- */
-  getAnalyticsOverview(query: Pick<ApiRequest, 'period'>) {
+  getAnalyticsOverview(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsOverview, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsVisitors(query: Pick<ApiRequest, 'page' | 'limit' | 'days'>) {
+  getAnalyticsVisitors(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsVisitors, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsUniqueVisitors(query: Pick<ApiRequest, 'page' | 'limit' | 'days'>) {
+  getAnalyticsUniqueVisitors(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsUniqueVisitors, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsPageViews(query: Pick<ApiRequest, 'page' | 'limit' | 'days'>) {
+  getAnalyticsPageViews(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsPageViews, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsTopPages(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsTopPages(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsTopPages, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsTrafficSources(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsTrafficSources(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsTrafficSources, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsDeviceBreakdown(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsDeviceBreakdown(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsDeviceBreakdown, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsGeoBreakdown(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsGeoBreakdown(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsGeoBreakdown, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsSessions(query: Pick<ApiRequest, 'page' | 'limit' | 'search'>) {
+  getAnalyticsSessions(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsSessions, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsSessionDetail(sessionId: string) {
-    return apiClient.get(API_URLS.getAnalyticsSessionDetail(sessionId), { mapper: toEmptyData });
-  }
-
-  getAnalyticsFunnel(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsFunnel(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsFunnel, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsConversions(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsConversions(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsConversions, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsRevenueReport(query: Pick<ApiRequest, 'page' | 'limit' | 'from' | 'to'>) {
+  getAnalyticsRevenueReport(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsRevenueReport, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsProductPerformance(query: Pick<ApiRequest, 'page' | 'limit' | 'sort' | 'days'>) {
+  getAnalyticsProductPerformance(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsProductPerformance, {
       query,
       mapper: toProductPerformanceList,
     });
   }
 
-  getAnalyticsVendorPerformance(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsVendorPerformance(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsVendorPerformance, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsCustomerCohorts(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsCustomerCohorts(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsCustomerCohorts, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsAbandonedCarts(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsAbandonedCarts(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsAbandonedCarts, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsSearchTerms(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsSearchTerms(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsSearchTerms, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsZeroResultSearches(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsZeroResultSearches(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsZeroResultSearches, { query, mapper: toEmptyData });
   }
 
@@ -549,19 +566,19 @@ export class ApiService {
     return apiClient.get(API_URLS.getAnalyticsRealtime, { mapper: toEmptyData });
   }
 
-  getAnalyticsCrashes(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsCrashes(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsCrashes, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsAppVersions(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsAppVersions(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsAppVersions, { query, mapper: toEmptyData });
   }
 
-  exportAnalytics(query: Pick<ApiRequest, 'type' | 'from' | 'to'>) {
+  exportAnalytics(query: ApiRequest) {
     return apiClient.get(API_URLS.exportAnalytics, { query, mapper: toEmptyData });
   }
 
-  getAnalyticsFunnels(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getAnalyticsFunnels(query: ApiRequest) {
     return apiClient.get(API_URLS.getAnalyticsFunnels, { query, mapper: toEmptyData });
   }
 
@@ -574,7 +591,7 @@ export class ApiService {
   }
 
   /* ---------- Notifications ---------- */
-  getNotifications(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'type' | 'channel' | 'isRead'>) {
+  getNotifications(query: ApiRequest) {
     return apiClient.get(API_URLS.getNotifications, { query, mapper: toEmptyData });
   }
 
@@ -631,7 +648,7 @@ export class ApiService {
   }
 
   /* ---------- Chat ---------- */
-  getConversations(query: Pick<ApiRequest, 'page' | 'limit' | 'isArchived'>) {
+  getConversations(query: ApiRequest) {
     return apiClient.get(API_URLS.getConversations, { query, mapper: toEmptyData });
   }
 
@@ -639,19 +656,19 @@ export class ApiService {
     return apiClient.get(API_URLS.getChatUnreadCount, { mapper: toEmptyData });
   }
 
-  startConversation(body: Pick<ApiRequest, 'vendorId' | 'message'>) {
+  startConversation(body: ApiRequest) {
     return apiClient.post(API_URLS.startConversation, { body, mapper: toEmptyData });
   }
 
-  getMessages(conversationId: string, query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getMessages(conversationId: string, query: ApiRequest) {
     return apiClient.get(API_URLS.getMessages(conversationId), { query, mapper: toEmptyData });
   }
 
-  sendMessage(conversationId: string, body: Pick<ApiRequest, 'body' | 'attachments'>) {
+  sendMessage(conversationId: string, body: ApiRequest) {
     return apiClient.post(API_URLS.sendMessage, { body: { conversationId, ...body }, mapper: toEmptyData });
   }
 
-  markConversationRead(id: string, body: Pick<ApiRequest, 'lastReadAt'>) {
+  markConversationRead(id: string, body: ApiRequest) {
     return apiClient.patch(API_URLS.markConversationRead(id), { body, mapper: toEmptyData });
   }
 
@@ -659,7 +676,7 @@ export class ApiService {
     return apiClient.delete(API_URLS.deleteMessage(id), { mapper: toEmptyData });
   }
 
-  blockUser(id: string, body: Pick<ApiRequest, 'reason'>) {
+  blockUser(id: string, body: ApiRequest) {
     return apiClient.post(API_URLS.blockUser(id), { body, mapper: toEmptyData });
   }
 
@@ -688,7 +705,7 @@ export class ApiService {
     return apiClient.post(API_URLS.createTicket, { body, mapper: toEmptyData });
   }
 
-  getTickets(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'status' | 'priority' | 'categoryId' | 'assignedToId'>) {
+  getTickets(query: ApiRequest) {
     return apiClient.get(API_URLS.getTickets, { query, mapper: toEmptyData });
   }
 
@@ -696,15 +713,15 @@ export class ApiService {
     return apiClient.get(API_URLS.getTicketById(id), { mapper: toEmptyData });
   }
 
-  replyTicket(id: string, body: Pick<ApiRequest, 'message' | 'isInternal'>) {
+  replyTicket(id: string, body: ApiRequest) {
     return apiClient.post(API_URLS.replyTicket(id), { body, mapper: toEmptyData });
   }
 
-  updateTicketStatus(id: string, body: Pick<ApiRequest, 'status' | 'remark'>) {
+  updateTicketStatus(id: string, body: ApiRequest) {
     return apiClient.patch(API_URLS.updateTicketStatus(id), { body, mapper: toEmptyData });
   }
 
-  assignTicket(id: string, body: Pick<ApiRequest, 'assignedToId'>) {
+  assignTicket(id: string, body: ApiRequest) {
     return apiClient.patch(API_URLS.assignTicket(id), { body, mapper: toEmptyData });
   }
 
@@ -716,7 +733,7 @@ export class ApiService {
     return apiClient.delete(API_URLS.deleteTicket(id), { mapper: toEmptyData });
   }
 
-  addTicketNote(ticketId: string, body: Pick<ApiRequest, 'note'>) {
+  addTicketNote(ticketId: string, body: ApiRequest) {
     return apiClient.post(API_URLS.addTicketNote(ticketId), { body, mapper: toEmptyData });
   }
 
@@ -729,15 +746,15 @@ export class ApiService {
   }
 
   /* ---------- Canned Responses ---------- */
-  getCannedResponses(query: Pick<ApiRequest, 'page' | 'limit' | 'isActive'>) {
+  getCannedResponses(query: ApiRequest) {
     return apiClient.get(API_URLS.getCannedResponses, { query, mapper: toEmptyData });
   }
 
-  createCannedResponse(body: Pick<ApiRequest, 'title' | 'body'>) {
+  createCannedResponse(body: ApiRequest) {
     return apiClient.post(API_URLS.createCannedResponse, { body, mapper: toEmptyData });
   }
 
-  updateCannedResponse(id: string, body: Pick<ApiRequest, 'title' | 'body' | 'isActive'>) {
+  updateCannedResponse(id: string, body: ApiRequest) {
     return apiClient.patch(API_URLS.updateCannedResponse(id), { body, mapper: toEmptyData });
   }
 
@@ -746,7 +763,7 @@ export class ApiService {
   }
 
   /* ---------- Reviews ---------- */
-  getReviews(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'productId' | 'vendorId' | 'userId' | 'status' | 'minRating' | 'maxRating' | 'withImages'>) {
+  getReviews(query: ApiRequest) {
     return apiClient.get(API_URLS.getReviews, { query, mapper: toEmptyData });
   }
 
@@ -766,32 +783,32 @@ export class ApiService {
     return apiClient.delete(API_URLS.deleteReview(id), { mapper: toEmptyData });
   }
 
-  approveReview(id: string) {
-    return apiClient.patch(API_URLS.approveReview(id), { body: {}, mapper: toEmptyData });
+  approveReview(id: string, body?: ApiRequest) {
+    return apiClient.patch(API_URLS.approveReview(id), { body: body || {}, mapper: toEmptyData });
   }
 
-  rejectReview(id: string) {
-    return apiClient.patch(API_URLS.rejectReview(id), { body: {}, mapper: toEmptyData });
+  rejectReview(id: string, body?: ApiRequest) {
+    return apiClient.patch(API_URLS.rejectReview(id), { body: body || {}, mapper: toEmptyData });
   }
 
   markReviewHelpful(id: string) {
     return apiClient.post(API_URLS.markReviewHelpful(id), { body: {}, mapper: toEmptyData });
   }
 
-  replyReview(id: string, body: Pick<ApiRequest, 'reply'>) {
+  replyReview(id: string, body: ApiRequest) {
     return apiClient.post(API_URLS.replyReview(id), { body, mapper: toEmptyData });
   }
 
   /* ---------- Questions ---------- */
-  getQuestions(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'productId' | 'vendorId'>) {
+  getQuestions(query: ApiRequest) {
     return apiClient.get(API_URLS.getQuestions, { query, mapper: toEmptyData });
   }
 
-  askQuestion(body: Pick<ApiRequest, 'productId' | 'question' | 'isAnonymous'>) {
+  askQuestion(body: ApiRequest) {
     return apiClient.post(API_URLS.askQuestion, { body, mapper: toEmptyData });
   }
 
-  answerQuestion(id: string, body: Pick<ApiRequest, 'answer'>) {
+  answerQuestion(id: string, body: ApiRequest) {
     return apiClient.post(API_URLS.answerQuestion(id), { body, mapper: toEmptyData });
   }
 
@@ -804,60 +821,60 @@ export class ApiService {
   }
 
   /* ---------- Coupons ---------- */
-  getCoupons(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'type' | 'status' | 'vendorId' | 'isActive' | 'from' | 'to'>) {
-    return apiClient.get(API_URLS.getCoupons, { query, mapper: toEmptyData });
+  getCoupons(query: ApiRequest) {
+    return apiClient.get(API_URLS.getCoupons, { query, mapper: toCouponList });
   }
 
   createCoupon(body: ApiRequest) {
-    return apiClient.post(API_URLS.createCoupon, { body, mapper: toEmptyData });
+    return apiClient.post(API_URLS.createCoupon, { body, mapper: toCouponList });
   }
 
   updateCoupon(id: string, body: ApiRequest) {
-    return apiClient.patch(API_URLS.updateCoupon(id), { body, mapper: toEmptyData });
+    return apiClient.patch(API_URLS.updateCoupon(id), { body, mapper: toCouponList });
   }
 
   deleteCoupon(id: string) {
-    return apiClient.delete(API_URLS.deleteCoupon(id), { mapper: toEmptyData });
+    return apiClient.delete(API_URLS.deleteCoupon(id), { mapper: toCouponList });
   }
 
   getCouponById(id: string) {
-    return apiClient.get(API_URLS.getCouponById(id), { mapper: toEmptyData });
+    return apiClient.get(API_URLS.getCouponById(id), { mapper: toCouponList });
   }
 
-  applyCoupon(body: Pick<ApiRequest, 'code'>) {
-    return apiClient.post(API_URLS.applyCoupon, { body, mapper: toEmptyData });
+  applyCoupon(body: ApiRequest) {
+    return apiClient.post(API_URLS.applyCoupon, { body, mapper: toCouponList });
   }
 
-  getVendorCoupons(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'status' | 'isActive'>) {
-    return apiClient.get(API_URLS.getVendorCoupons, { query, mapper: toEmptyData });
+  getVendorCoupons(query: ApiRequest) {
+    return apiClient.get(API_URLS.getVendorCoupons, { query, mapper: toCouponList });
   }
 
   createVendorCoupon(body: ApiRequest) {
-    return apiClient.post(API_URLS.createVendorCoupon, { body, mapper: toEmptyData });
+    return apiClient.post(API_URLS.createVendorCoupon, { body, mapper: toCouponList });
   }
 
   updateVendorCoupon(id: string, body: ApiRequest) {
-    return apiClient.patch(API_URLS.updateVendorCoupon(id), { body, mapper: toEmptyData });
+    return apiClient.patch(API_URLS.updateVendorCoupon(id), { body, mapper: toCouponList });
   }
 
   deleteVendorCoupon(id: string) {
-    return apiClient.delete(API_URLS.deleteVendorCoupon(id), { mapper: toEmptyData });
+    return apiClient.delete(API_URLS.deleteVendorCoupon(id), { mapper: toCouponList });
   }
 
-  validateCoupon(body: Pick<ApiRequest, 'code' | 'orderValue'>) {
-    return apiClient.post(API_URLS.validateCoupon, { body, mapper: toEmptyData });
+  validateCoupon(body: ApiRequest) {
+    return apiClient.post(API_URLS.validateCoupon, { body, mapper: toCouponList });
   }
 
-  getCouponUsages(couponId: string, query: Pick<ApiRequest, 'page' | 'limit' | 'couponId' | 'userId' | 'orderId'>) {
-    return apiClient.get(API_URLS.getCouponUsages(couponId), { query, mapper: toEmptyData });
+  getCouponUsages(couponId: string, query: ApiRequest) {
+    return apiClient.get(API_URLS.getCouponUsages(couponId), { query, mapper: toCouponList });
   }
 
-  toggleCoupon(id: string, body: Pick<ApiRequest, 'isActive'>) {
-    return apiClient.patch(API_URLS.toggleCoupon(id), { body, mapper: toEmptyData });
+  toggleCoupon(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.toggleCoupon(id), { body, mapper: toCouponList });
   }
 
   /* ---------- Flash Sales ---------- */
-  getFlashSales(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'isActive'>) {
+  getFlashSales(query: ApiRequest) {
     return apiClient.get(API_URLS.getFlashSales, { query, mapper: toEmptyData });
   }
 
@@ -879,6 +896,186 @@ export class ApiService {
 
   deleteFlashSale(id: string) {
     return apiClient.delete(API_URLS.deleteFlashSale(id), { mapper: toEmptyData });
+  }
+
+  /* ---------- Order Notes ---------- */
+  getOrderNotes(orderId: string, query: ApiRequest) {
+    return apiClient.get(API_URLS.getOrderNotes(orderId), { query, mapper: toOrderNoteList });
+  }
+
+  addOrderNote(orderId: string, body: ApiRequest) {
+    return apiClient.post(API_URLS.addOrderNote(orderId), { body, mapper: toOrderNoteList });
+  }
+
+  removeOrderNote(orderId: string, noteId: string) {
+    return apiClient.delete(API_URLS.removeOrderNote(orderId, noteId), { mapper: toOrderNoteList });
+  }
+
+  /* ---------- Order Tags ---------- */
+  getOrderTags(orderId: string, query: ApiRequest) {
+    return apiClient.get(API_URLS.getOrderTags(orderId), { query, mapper: toOrderTagList });
+  }
+
+  addOrderTags(orderId: string, body: ApiRequest) {
+    return apiClient.post(API_URLS.addOrderTags(orderId), { body, mapper: toOrderTagList });
+  }
+
+  removeOrderTag(orderId: string, tagId: string) {
+    return apiClient.delete(API_URLS.removeOrderTag(orderId, tagId), { mapper: toOrderTagList });
+  }
+
+  /* ---------- Delivery Boys ---------- */
+  getDeliveryBoys(query: ApiRequest) {
+    return apiClient.get(API_URLS.getDeliveryBoys, { query, mapper: toDeliveryBoyList });
+  }
+
+  createDeliveryBoy(body: ApiRequest) {
+    return apiClient.post(API_URLS.createDeliveryBoy, { body, mapper: toDeliveryBoyList });
+  }
+
+  updateDeliveryBoy(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateDeliveryBoy(id), { body, mapper: toDeliveryBoyList });
+  }
+
+  deleteDeliveryBoy(id: string) {
+    return apiClient.delete(API_URLS.deleteDeliveryBoy(id), { mapper: toDeliveryBoyList });
+  }
+
+  toggleDeliveryBoyStatus(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.toggleDeliveryBoyStatus(id), { body, mapper: toDeliveryBoyList });
+  }
+
+  assignDeliveryBoy(subOrderId: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.assignDeliveryBoy(subOrderId), { body, mapper: toEmptyData });
+  }
+
+  /* ---------- Audit Logs & System Health ---------- */
+  getAuditLogs(query: ApiRequest) {
+    return apiClient.get(API_URLS.getAuditLogs, { query, mapper: toAuditLogList });
+  }
+
+  getSystemHealth() {
+    return apiClient.get(API_URLS.getSystemHealth, { mapper: toSystemHealth });
+  }
+
+  clearCache() {
+    return apiClient.post(API_URLS.clearCache, { mapper: toEmptyData });
+  }
+
+  getCronJobs() {
+    return apiClient.get(API_URLS.getCronJobs, { mapper: toCronJobList });
+  }
+
+  triggerJob(body: ApiRequest) {
+    return apiClient.post(API_URLS.triggerJob, { body, mapper: toEmptyData });
+  }
+
+  getFailedJobs(query: ApiRequest) {
+    return apiClient.get(API_URLS.getFailedJobs, { query, mapper: toFailedJobList });
+  }
+
+  retryFailedJob(id: string) {
+    return apiClient.post(API_URLS.retryFailedJob(id), { mapper: toFailedJobList });
+  }
+
+  resolveFailedJob(id: string) {
+    return apiClient.post(API_URLS.resolveFailedJob(id), { mapper: toFailedJobList });
+  }
+
+  deleteFailedJob(id: string) {
+    return apiClient.delete(API_URLS.deleteFailedJob(id), { mapper: toFailedJobList });
+  }
+
+  /* ---------- Shipping Zones ---------- */
+  getShippingZones(query: ApiRequest) {
+    return apiClient.get(API_URLS.getShippingZones, { query, mapper: toShippingZoneList });
+  }
+
+  createShippingZone(body: ApiRequest) {
+    return apiClient.post(API_URLS.createShippingZone, { body, mapper: toShippingZoneList });
+  }
+
+  updateShippingZone(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateShippingZone(id), { body, mapper: toShippingZoneList });
+  }
+
+  deleteShippingZone(id: string) {
+    return apiClient.delete(API_URLS.deleteShippingZone(id), { mapper: toShippingZoneList });
+  }
+
+  toggleShippingZone(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.toggleShippingZone(id), { body, mapper: toShippingZoneList });
+  }
+
+  /* ---------- Shipping Methods ---------- */
+  getShippingMethods(query: ApiRequest) {
+    return apiClient.get(API_URLS.getShippingMethods, { query, mapper: toShippingZoneList });
+  }
+
+  createShippingMethod(body: ApiRequest) {
+    return apiClient.post(API_URLS.createShippingMethod, { body, mapper: toShippingZoneList });
+  }
+
+  updateShippingMethod(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateShippingMethod(id), { body, mapper: toShippingZoneList });
+  }
+
+  deleteShippingMethod(id: string) {
+    return apiClient.delete(API_URLS.deleteShippingMethod(id), { mapper: toShippingZoneList });
+  }
+
+  /* ---------- Shipping Partners ---------- */
+  getShippingPartners(query: ApiRequest) {
+    return apiClient.get(API_URLS.getShippingPartners, { query, mapper: toShippingZoneList });
+  }
+
+  createShippingPartner(body: ApiRequest) {
+    return apiClient.post(API_URLS.createShippingPartner, { body, mapper: toShippingZoneList });
+  }
+
+  updateShippingPartner(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateShippingPartner(id), { body, mapper: toShippingZoneList });
+  }
+
+  deleteShippingPartner(id: string) {
+    return apiClient.delete(API_URLS.deleteShippingPartner(id), { mapper: toShippingZoneList });
+  }
+
+  /* ---------- Settings ---------- */
+  getSettings(query: ApiRequest) {
+    return apiClient.get(API_URLS.getSettings, { query, mapper: toSettingList });
+  }
+
+  updateSetting(body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateSetting, { body, mapper: toEmptyData });
+  }
+
+  bulkUpdateSettings(body: ApiRequest) {
+    return apiClient.post(API_URLS.bulkUpdateSettings, { body, mapper: toEmptyData });
+  }
+
+  getSettingsByCategory(category: string, query: ApiRequest) {
+    return apiClient.get(API_URLS.getSettingsByCategory(category), { query, mapper: toSettingList });
+  }
+
+  resetSettings() {
+    return apiClient.post(API_URLS.resetSettings, { mapper: toEmptyData });
+  }
+
+  getFeatureFlags() {
+    return apiClient.get(API_URLS.getFeatureFlags, { mapper: toFeatureFlags });
+  }
+
+  toggleFeature(body: ApiRequest) {
+    return apiClient.patch(API_URLS.toggleFeature, { body, mapper: toEmptyData });
+  }
+
+  getMaintenanceStatus() {
+    return apiClient.get(API_URLS.getMaintenanceStatus, { mapper: toMaintenanceStatus });
+  }
+
+  updateMaintenance(body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateMaintenance, { body, mapper: toEmptyData });
   }
 }
 

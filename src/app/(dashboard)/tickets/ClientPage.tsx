@@ -158,12 +158,12 @@ export default function ClientTicketsPage() {
             onSelect: () => handleAssign(row.ticketId),
           },
           {
-            label: row.status === 'CLOSED' ? 'Reopen' : 'Close',
-            intent: row.status === 'CLOSED' ? 'success' : 'danger',
+            label: row.status === 'CLOSED' ? MESSAGES.tickets.reopen : MESSAGES.tickets.close,
+            intent: row.status === 'CLOSED' ? 'default' : 'danger',
             onSelect: () => handleClose(row.ticketId),
           },
           {
-            label: MESSAGES.tickets.delete,
+            label: MESSAGES.common.delete,
             intent: 'danger',
             onSelect: () => deleteTicket(row.ticketId),
           },
@@ -223,11 +223,11 @@ export default function ClientTicketsPage() {
                   },
                   {
                     label: row.status === 'CLOSED' ? 'Reopen' : 'Close',
-                    intent: row.status === 'CLOSED' ? 'success' : 'danger',
+                    intent: row.status === 'CLOSED' ? 'default' : 'danger',
                     onSelect: () => handleClose(row.ticketId),
                   },
                   {
-                    label: MESSAGES.tickets.delete,
+                    label: MESSAGES.common.delete,
                     intent: 'danger',
                     onSelect: () => deleteTicket(row.ticketId),
                   },

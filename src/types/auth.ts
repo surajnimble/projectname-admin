@@ -16,9 +16,16 @@ export const toUserData = (raw: Partial<UserData> = {}): UserData => ({
   name: raw.name ?? '',
   email: raw.email ?? '',
   phone: raw.phone ?? '',
+  avatarUrl: raw.avatarUrl ?? '',
+  role: raw.role ?? '',
   isActive: raw.isActive ?? false,
   isEmailVerified: raw.isEmailVerified ?? false,
   isPhoneVerified: raw.isPhoneVerified ?? false,
+  isTwoFactorEnabled: raw.isTwoFactorEnabled ?? false,
+  loyaltyTier: raw.loyaltyTier ?? '',
+  lastLoginAt: raw.lastLoginAt ?? '',
+  createdAt: raw.createdAt ?? '',
+  updatedAt: raw.updatedAt ?? '',
 });
 
 const asStrings = (value: unknown): string[] =>

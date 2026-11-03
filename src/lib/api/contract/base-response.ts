@@ -33,9 +33,16 @@ export interface UserData {
   name: string;
   email: string;
   phone: string;
+  avatarUrl: string;
+  role: string;
   isActive: boolean;
   isEmailVerified: boolean;
   isPhoneVerified: boolean;
+  isTwoFactorEnabled: boolean;
+  loyaltyTier: string;
+  lastLoginAt: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface SubAdminData {
@@ -912,3 +919,204 @@ export interface CannedResponseData {
 }
 
 export type CannedResponseListData = PageData<CannedResponseData>;
+
+/* ---------- Settings ---------- */
+export interface SettingData {
+  settingId: string;
+  key: string;
+  value: string | number | boolean;
+  category: string;
+  isPublic: boolean;
+  updatedBy: string;
+  updatedAt: string;
+}
+
+export type SettingListData = PageData<SettingData>;
+
+export interface FeatureFlagsData {
+  [key: string]: boolean;
+}
+
+export interface MaintenanceStatusData {
+  enabled: boolean;
+  message: string;
+  allowedIps: string[];
+}
+
+/* ---------- Order Notes ---------- */
+export interface OrderNoteData {
+  noteId: string;
+  orderId: string;
+  userId: string;
+  userName: string;
+  note: string;
+  createdAt: string;
+}
+
+export type OrderNoteListData = PageData<OrderNoteData>;
+
+/* ---------- Order Tags ---------- */
+export interface OrderTagData {
+  tagId: string;
+  orderId: string;
+  name: string;
+  color: string;
+  createdAt: string;
+}
+
+export type OrderTagListData = PageData<OrderTagData>;
+
+/* ---------- Delivery Boys ---------- */
+export interface DeliveryBoyData {
+  deliveryBoyId: string;
+  name: string;
+  phone: string;
+  email: string;
+  status: string;
+  isActive: boolean;
+  currentOrderCount: number;
+  maxOrders: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type DeliveryBoyListData = PageData<DeliveryBoyData>;
+
+/* ---------- Audit Logs ---------- */
+export interface AuditLogData {
+  auditLogId: string;
+  userId: string;
+  action: string;
+  entity: string;
+  entityId: string;
+  meta: Record<string, unknown>;
+  ip: string;
+  deviceId: string;
+  createdAt: string;
+  userData: ActivityLogUserData;
+}
+
+export type AuditLogListData = PageData<AuditLogData>;
+
+/* ---------- System Health ---------- */
+export interface SystemHealthDatabaseData {
+  ok: boolean;
+  latencyMs: number;
+}
+
+export interface SystemHealthData {
+  status: string;
+  database: SystemHealthDatabaseData;
+  uptimeSeconds: number;
+  memoryMb: number;
+  nodeVersion: string;
+  checkedAt: string;
+}
+
+/* ---------- Cron Jobs ---------- */
+export interface CronJobData {
+  name: string;
+  queue: string;
+  job: string;
+  cron: string;
+  description: string;
+  nextRunAt: string;
+  isRegistered: boolean;
+}
+
+export type CronJobListData = PageData<CronJobData>;
+
+/* ---------- Failed Jobs ---------- */
+export interface FailedJobData {
+  failedJobId: string;
+  jobName: string;
+  queue: string;
+  attempt: number;
+  maxAttempts: number;
+  lastError: string;
+  failedAt: string;
+  status: string;
+}
+
+export type FailedJobListData = PageData<FailedJobData>;
+
+export interface FailedJobStatsData {
+  pendingCount: number;
+  resolvedCount: number;
+  abandonedCount: number;
+}
+
+/* ---------- Customer Detail ---------- */
+export interface AddressData {
+  addressId: string;
+  fullName: string;
+  phone: string;
+  line1: string;
+  line2: string;
+  landmark: string;
+  city: string;
+  state: string;
+  country: string;
+  pincode: string;
+  isDefault: boolean;
+}
+
+export interface SocialProviderData {
+  provider: string;
+  providerId: string;
+}
+
+export interface UserStatsData {
+  orderCount: number;
+  reviewCount: number;
+  addressCount: number;
+}
+
+export interface UserDetailData {
+  role: string;
+  userData: UserData;
+  vendorData: Record<string, unknown>;
+  addressList: AddressData[];
+  socialProviderList: SocialProviderData[];
+  statsData: UserStatsData;
+}
+
+/* ---------- Coupons ---------- */
+export interface CouponData {
+  couponId: string;
+  code: string;
+  title: string;
+  description: string;
+  type: string;
+  value: number;
+  minOrderValue: number;
+  maxDiscount: number;
+  usageLimit: number;
+  usedCount: number;
+  startsAt: string;
+  expiresAt: string;
+  isActive: boolean;
+  applicableTo: string;
+  applicableVendors: string[];
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CouponListData = PageData<CouponData>;
+
+/* ---------- Shipping Zones ---------- */
+export interface ShippingZoneData {
+  zoneId: string;
+  name: string;
+  description: string;
+  countries: string[];
+  states: string[];
+  cities: string[];
+  pincodes: string[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ShippingZoneListData = PageData<ShippingZoneData>;

@@ -4,7 +4,9 @@ import type {
   OrderDetailData,
   OrderItemData,
   OrderListData,
+  OrderNoteListData,
   OrderSummaryData,
+  OrderTagListData,
   OrderTimelineData,
   OrderVendorData,
 } from '@/lib/api/contract';
@@ -107,4 +109,53 @@ export const toOrderDetail = (raw: Raw = {}): OrderDetailData => ({
   addressData: toAddress(isObject(raw.addressData) ? raw.addressData : {}),
   itemList: toObjects(raw.itemList).map(toItem),
   timelineList: toObjects(raw.timelineList).map(toTimeline),
+});
+
+type RawOrderNoteList = Partial<Record<keyof Omit<OrderNoteListData, 'itemList'>, unknown>> & {
+  noteList?: unknown;
+};
+
+export const toOrderNoteList = (raw: RawOrderNoteList = {}): OrderNoteListData => ({
+  totalRecord: toNumber(raw.totalRecord),
+  totalPage: toNumber(raw.totalPage),
+  currentPage: toNumber(raw.currentPage),
+  limit: toNumber(raw.limit),
+  hasNext: raw.hasNext === true,
+  hasPrevious: raw.hasPrevious === true,
+  nextPage: toNumber(raw.nextPage),
+  previousPage: toNumber(raw.previousPage),
+  itemList: Array.isArray(raw.noteList)
+    ? raw.noteList.filter(isObject).map((item) => ({
+        noteId: toString(item.noteId),
+        orderId: toString(item.orderId),
+        userId: toString(item.userId),
+        userName: toString(item.userName),
+        note: toString(item.note),
+        createdAt: toString(item.createdAt),
+      }))
+    : [],
+});
+
+type RawOrderTagList = Partial<Record<keyof Omit<OrderTagListData, 'itemList'>, unknown>> & {
+  orderTagList?: unknown;
+};
+
+export const toOrderTagList = (raw: RawOrderTagList = {}): OrderTagListData => ({
+  totalRecord: toNumber(raw.totalRecord),
+  totalPage: toNumber(raw.totalPage),
+  currentPage: toNumber(raw.currentPage),
+  limit: toNumber(raw.limit),
+  hasNext: raw.hasNext === true,
+  hasPrevious: raw.hasPrevious === true,
+  nextPage: toNumber(raw.nextPage),
+  previousPage: toNumber(raw.previousPage),
+  itemList: Array.isArray(raw.orderTagList)
+    ? raw.orderTagList.filter(isObject).map((item) => ({
+        tagId: toString(item.tagId),
+        orderId: toString(item.orderId),
+        name: toString(item.name),
+        color: toString(item.color),
+        createdAt: toString(item.createdAt),
+      }))
+    : [],
 });

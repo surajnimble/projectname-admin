@@ -56,7 +56,7 @@ export function useReviews() {
   }, [query]);
 
   const approveReview = useCallback(
-    async (id: string) => {
+    async (id: string): Promise<boolean> => {
       setIsActioning(true);
       setActionError('');
       try {
@@ -84,11 +84,11 @@ export function useReviews() {
   );
 
   const rejectReview = useCallback(
-    async (id: string, reason: string) => {
+    async (id: string, reason?: string): Promise<boolean> => {
       setIsActioning(true);
       setActionError('');
       try {
-        const res = await apiService.rejectReview(id, { reason });
+        const res = await apiService.rejectReview(id, reason ? { reason } : {});
         if (res.status) {
           setData((prev: any) => ({
             ...prev,
@@ -96,11 +96,14 @@ export function useReviews() {
               r.reviewId === id ? { ...r, isRejected: true, isApproved: false, status: 'REJECTED' } : r,
             ),
           }));
+          return true;
         } else {
           setActionError(res.message);
+          return false;
         }
       } catch {
         setActionError('Failed to reject');
+        return false;
       } finally {
         setIsActioning(false);
       }

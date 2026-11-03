@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
 import { StatusBadge } from '@/components/common/status-badge';
-import { useReviews } from '@/hooks/use-reviews';
+import { useQuestions } from '@/hooks/use-questions';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
 
@@ -29,7 +29,8 @@ export default function ClientQuestionsPage() {
     approveQuestion,
     deleteQuestion,
     answerQuestion,
-  } = useReviews();
+    isActioning,
+  } = useQuestions();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<'approve' | 'delete' | 'answer'>('approve');
@@ -38,7 +39,8 @@ export default function ClientQuestionsPage() {
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [answerText, setAnswerText] = useState('');
 
-  const activeFilterCount = (search ? 1 : 0) + (filters.status !== 'all' ? 1 : 0);
+  const filterStatus = filters.status || 'all';
+  const activeFilterCount = (search ? 1 : 0) + (filterStatus !== 'all' ? 1 : 0);
 
   const handleApprove = (id: string) => {
     setQuestionId(id);
@@ -81,7 +83,7 @@ export default function ClientQuestionsPage() {
   const columns = [
     {
       key: 'question',
-      header: 'Question',
+      header: MESSAGES.questions.question,
       cell: (row: any) => <span className="font-medium">{row.question}</span>,
     },
     {
@@ -100,7 +102,7 @@ export default function ClientQuestionsPage() {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: MESSAGES.reviews.columns.status,
       align: 'center',
       hideBelow: 'lg',
       width: 'w-32',
@@ -174,22 +176,20 @@ export default function ClientQuestionsPage() {
               render: (row: any) => {
                 const items: OptionsMenuItem[] = [
                   {
-                    label: row.isApproved ? 'Reject' : 'Approve',
+                    label: row.isApproved ? MESSAGES.common.reject : MESSAGES.common.approve,
                     onSelect: row.isApproved ? () => deleteQuestion(row.questionId) : () => handleApprove(row.questionId),
                   },
                   {
-                    label: 'Answer',
+                    label: MESSAGES.questions.answer,
                     onSelect: () => handleAnswer(row.questionId),
                   },
                   {
-                    label: 'Delete',
+                    label: MESSAGES.common.delete,
                     intent: 'danger',
                     onSelect: () => handleDelete(row.questionId),
                   },
                 ];
-                return (
-                  <OptionsMenu label={MESSAGES.common.actions} items={items} className="flex justify-end" />
-                );
+                return <OptionsMenu label={MESSAGES.common.actions} items={items} className="flex justify-end" />;
               },
             }}
             isLoading={isLoading}
