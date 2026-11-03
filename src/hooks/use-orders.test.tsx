@@ -19,7 +19,7 @@ const list = toOrderList({
   totalPage: 1,
   currentPage: 1,
   limit: ORDER_PAGE_SIZE,
-  itemList: [{ orderId: 'o1', orderNumber: 'ORD-1', status: 'PENDING' }],
+  orderList: [{ orderId: 'o1', orderNumber: 'ORD-1', status: 'PENDING' }],
 });
 
 describe('useOrders', () => {

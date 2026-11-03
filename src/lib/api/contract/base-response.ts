@@ -777,6 +777,10 @@ export interface NotificationTemplateData {
 
 export type NotificationTemplateListData = PageData<NotificationTemplateData>;
 
+export interface NotificationUnreadCountData {
+  unreadCount: number;
+}
+
 export interface DeviceTokenData {
   deviceId: string;
   userId: string;

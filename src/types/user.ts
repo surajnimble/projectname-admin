@@ -38,7 +38,11 @@ export const toUser = (raw: RawUser = {}): UserData => ({
   updatedAt: toString(raw.updatedAt),
 });
 
-export const toUserList = (raw: Partial<UserListData> = {}): UserListData => ({
+type RawUserList = Partial<Record<keyof Omit<UserListData, 'itemList'>, unknown>> & {
+  userList?: unknown;
+};
+
+export const toUserList = (raw: RawUserList = {}): UserListData => ({
   totalRecord: toNumber(raw.totalRecord),
   totalPage: toNumber(raw.totalPage),
   currentPage: toNumber(raw.currentPage),
@@ -47,7 +51,9 @@ export const toUserList = (raw: Partial<UserListData> = {}): UserListData => ({
   hasPrevious: raw.hasPrevious === true,
   nextPage: toNumber(raw.nextPage),
   previousPage: toNumber(raw.previousPage),
-  itemList: Array.isArray(raw.itemList) ? raw.itemList.filter(Boolean).map(toUser) : [],
+  itemList: Array.isArray(raw.userList)
+    ? raw.userList.filter(isObject).map((item) => toUser(item as Record<string, unknown>))
+    : [],
 });
 
 type RawUserDetail = Record<string, unknown> & {

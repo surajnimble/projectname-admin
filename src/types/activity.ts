@@ -5,7 +5,7 @@ type RawActivityLog = Partial<Record<keyof Omit<ActivityLogData, 'userData'>, un
   userData?: RawActivityLogUser;
 };
 type RawActivityLogList = Partial<Record<keyof Omit<ActivityLogListData, 'itemList'>, unknown>> & {
-  itemList?: unknown;
+  activityLogList?: unknown;
 };
 
 const toNumber = (value: unknown): number =>
@@ -49,7 +49,7 @@ export const toActivityLogList = (raw: RawActivityLogList = {}): ActivityLogList
   hasPrevious: raw.hasPrevious === true,
   nextPage: toNumber(raw.nextPage),
   previousPage: toNumber(raw.previousPage),
-  itemList: Array.isArray(raw.itemList)
-    ? raw.itemList.filter(isObject).map((item) => toActivityLog(item))
+  itemList: Array.isArray(raw.activityLogList)
+    ? raw.activityLogList.filter(isObject).map((item) => toActivityLog(item as Record<string, unknown>))
     : [],
 });

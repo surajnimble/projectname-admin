@@ -193,7 +193,7 @@ describe('ApiService', () => {
         respond(200, {
           status: true,
           message: 'ok',
-          result: { totalRecord: 1, currentPage: 1, limit: 6, itemList: [{ activityLogId: 'a1' }] },
+          result: { totalRecord: 1, currentPage: 1, limit: 6, activityLogList: [{ activityLogId: 'a1' }] },
         }),
       );
 
@@ -214,7 +214,7 @@ describe('ApiService', () => {
             totalRecord: 1,
             currentPage: 1,
             limit: 5,
-            itemList: [{ paymentId: 'pay1', amount: 2480, status: 'PAID' }],
+            paymentList: [{ paymentId: 'pay1', amount: 2480, status: 'PAID' }],
           },
         }),
       );

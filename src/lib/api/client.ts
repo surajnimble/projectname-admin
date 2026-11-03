@@ -8,7 +8,7 @@ import { clearSession, getAccessToken, setAccessToken } from './session';
 import { showError } from '../utils/toast';
 
 type Method = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-type Query = Record<string, string | number | boolean | undefined | null>;
+type Query = Record<string, unknown>;
 
 export interface RequestOptions<T> {
   mapper: Mapper<T>;
@@ -54,6 +54,11 @@ function refreshAccessToken(): Promise<boolean> {
     refreshing = null;
   });
   return refreshing;
+}
+
+function sanitizeMessage(message: string): string {
+  if (!message) return message;
+  return message.replace(/\s*Error Code\s*\([^)]+\)\s*$/i, '').trim();
 }
 
 async function execute<T>(
@@ -113,7 +118,11 @@ async function execute<T>(
   }
 
   if (!response.status && response.message) {
-    showError(response.message);
+    showError(sanitizeMessage(response.message));
+  }
+
+  if (response.message) {
+    response.message = sanitizeMessage(response.message);
   }
 
   return response;

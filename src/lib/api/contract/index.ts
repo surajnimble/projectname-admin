@@ -13,14 +13,11 @@ export type {
   AnalyticsDeviceData,
   AnalyticsGeoData,
   AnalyticsSessionData,
-  AnalyticsSessionListData,
   AnalyticsFunnelStepData,
   AnalyticsConversionData,
   AnalyticsRevenueReportData,
   AnalyticsCrashData,
-  AnalyticsCrashListData,
   AnalyticsAppVersionData,
-  AnalyticsAppVersionListData,
   AuthData,
   BannerData,
   BannerListData,
@@ -47,6 +44,7 @@ export type {
   NotificationListData,
   NotificationTemplateData,
   NotificationTemplateListData,
+  NotificationUnreadCountData,
   OrderAddressData,
   OrderCustomerData,
   OrderDetailData,
@@ -132,3 +130,14 @@ export type {
   ShippingZoneListData,
 } from './base-response';
 export type { SessionUser } from './api-models';
+export type {
+  AnalyticsVisitorListData,
+  AnalyticsPageItemListData,
+  AnalyticsTrafficListData,
+  AnalyticsDeviceListData,
+  AnalyticsGeoListData,
+  AnalyticsConversionListData,
+  AnalyticsCrashListData,
+  AnalyticsAppVersionListData,
+  AnalyticsSessionListData,
+} from './api-models';

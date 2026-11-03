@@ -5,7 +5,7 @@ type RawPaymentSummary = Partial<Record<keyof Omit<PaymentSummaryData, 'orderDat
   orderData?: RawPaymentOrder;
 };
 type RawPaymentList = Partial<Record<keyof Omit<PaymentListData, 'itemList'>, unknown>> & {
-  itemList?: unknown;
+  paymentList?: unknown;
 };
 
 const toNumber = (value: unknown): number =>
@@ -48,7 +48,7 @@ export const toPaymentList = (raw: RawPaymentList = {}): PaymentListData => ({
   hasPrevious: raw.hasPrevious === true,
   nextPage: toNumber(raw.nextPage),
   previousPage: toNumber(raw.previousPage),
-  itemList: Array.isArray(raw.itemList)
-    ? raw.itemList.filter(isObject).map((item) => toPaymentSummary(item))
+  itemList: Array.isArray(raw.paymentList)
+    ? raw.paymentList.filter(isObject).map((item) => toPaymentSummary(item as Record<string, unknown>))
     : [],
 });

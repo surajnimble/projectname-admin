@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { PermissionGuard } from '@/components/auth/guards';
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
+import type { DataTableColumn } from '@/components/common/data-table';
 import { Pagination } from '@/components/common/pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -12,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
 import { Badge } from '@/components/ui/badge';
 import { StatusBadge, productStatusMeta } from '@/components/common/status-badge';
+import type { NotificationListData, NotificationTemplateListData } from '@/lib/api/contract';
 import { useNotifications } from '@/hooks/use-notifications';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
@@ -89,7 +91,7 @@ export default function ClientNotificationsPage() {
     setTemplateDialogOpen(true);
   };
 
-  const handleTemplateEdit = (item: any) => {
+  const handleTemplateEdit = (item: NotificationTemplateListData['itemList'][number]) => {
     setTemplateDialogMode('edit');
     setEditingTemplateId(item.templateId);
     setTemplateDialogOpen(true);
@@ -125,32 +127,32 @@ export default function ClientNotificationsPage() {
 
   const activeFilterCount = (search ? 1 : 0) + (filterStatus !== 'all' ? 1 : 0);
 
-  const columns = [
+  const columns: DataTableColumn<NotificationListData['itemList'][number]>[] = [
     {
       key: 'notification',
       header: 'Notification',
-      cell: (row: any) => <span className="font-medium">{row.title}</span>,
+      cell: (row) => <span className="font-medium">{row.title}</span>,
     },
     {
       key: 'title',
       header: 'Title',
-      cell: (row: any) => <span className="text-sm truncate">{row.title}</span>,
+      cell: (row) => <span className="text-sm truncate">{row.title}</span>,
     },
     {
       key: 'type',
       header: 'Type',
-      cell: (row: any) => <span className="text-xs capitalize">{row.type}</span>,
+      cell: (row) => <span className="text-xs capitalize">{row.type}</span>,
     },
     {
       key: 'channel',
       header: 'Channel',
-      cell: (row: any) => <span className="text-xs capitalize">{row.channel}</span>,
+      cell: (row) => <span className="text-xs capitalize">{row.channel}</span>,
     },
     {
       key: 'status',
       header: 'Status',
       align: 'center',
-      cell: (row: any) => (
+      cell: (row) => (
         <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs border ${row.isRead ? 'border-success/20 text-success bg-success/10' : 'border-neutral/20 text-fg-muted bg-surface-muted'}`}>
           {row.isRead ? MESSAGES.notifications.statuses.read : MESSAGES.notifications.statuses.unread}
         </span>
@@ -159,13 +161,13 @@ export default function ClientNotificationsPage() {
     {
       key: 'created',
       header: 'Created',
-      cell: (row: any) => <span className="text-sm">{row.createdAt}</span>,
+      cell: (row) => <span className="text-sm">{row.createdAt}</span>,
     },
     {
       key: 'actions',
       header: MESSAGES.common.actions,
       align: 'center',
-      cell: (row: any) => {
+      cell: (row) => {
         const items: OptionsMenuItem[] = [
           {
             label: row.isRead ? 'Mark Unread' : 'Mark Read',
@@ -182,7 +184,7 @@ export default function ClientNotificationsPage() {
         );
       },
     },
-  ] as const;
+  ];
 
   return (
     <div className="flex flex-col gap-4">
@@ -211,7 +213,7 @@ export default function ClientNotificationsPage() {
           <DataTable
             columns={columns}
             rows={data.itemList}
-            rowKey={(row: any) => row.notificationId}
+            rowKey={(row) => row.notificationId}
             toolbar={{
               search: {
                 value: search,
@@ -236,7 +238,7 @@ export default function ClientNotificationsPage() {
             }}
             actions={{
               header: MESSAGES.common.actions,
-              render: (row: any) => {
+              render: (row) => {
                 const items: OptionsMenuItem[] = [
                   {
                     label: row.isRead ? 'Mark Unread' : 'Mark Read',
@@ -382,23 +384,23 @@ export default function ClientNotificationsPage() {
               {
                 key: 'name',
                 header: MESSAGES.notifications.templateTitle,
-                cell: (row: any) => <span className="font-medium">{row.name}</span>,
+                cell: (row: NotificationTemplateListData['itemList'][number]) => <span className="font-medium">{row.name}</span>,
               },
               {
                 key: 'key',
                 header: MESSAGES.notifications.templateKeyLabel,
-                cell: (row: any) => <span className="text-sm truncate">{row.key}</span>,
+                cell: (row: NotificationTemplateListData['itemList'][number]) => <span className="text-sm truncate">{row.key}</span>,
               },
               {
                 key: 'channel',
                 header: MESSAGES.notifications.channelLabel,
-                cell: (row: any) => <span className="text-sm capitalize">{row.channel}</span>,
+                cell: (row: NotificationTemplateListData['itemList'][number]) => <span className="text-sm capitalize">{row.channel}</span>,
               },
               {
                 key: 'status',
                 header: 'Status',
                 align: 'center',
-                cell: (row: any) => (
+                cell: (row: NotificationTemplateListData['itemList'][number]) => (
                   <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs border ${row.isActive ? 'border-success/20 text-success bg-success/10' : 'border-neutral/20 text-fg-muted bg-surface-muted'}`}>
                     {row.isActive ? 'Active' : 'Inactive'}
                   </span>
@@ -408,7 +410,7 @@ export default function ClientNotificationsPage() {
                 key: 'actions',
                 header: MESSAGES.common.actions,
                 align: 'center',
-                cell: (row: any) => {
+                cell: (row: NotificationTemplateListData['itemList'][number]) => {
                   const items: OptionsMenuItem[] = [
                     {
                       label: 'Edit',
@@ -427,7 +429,7 @@ export default function ClientNotificationsPage() {
               },
             ]}
             rows={templates.itemList}
-            rowKey={(row: any) => row.templateId}
+            rowKey={(row) => row.templateId}
             emptyTitle={MESSAGES.notifications.empty}
             emptyDescription={MESSAGES.notifications.emptyFiltered}
             footer={

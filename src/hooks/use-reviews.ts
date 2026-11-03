@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { apiService } from '@/lib/api/api.service';
-import type { ApiRequest } from '@/lib/api/contract';
+import type { ApiRequest, QuestionListData, ReviewListData } from '@/lib/api/contract';
 
 const toNumber = (value: unknown): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : 0;
 
 export function useReviews() {
-  const [data, setData] = useState<any>({
+  const [data, setData] = useState<ReviewListData>({
     totalRecord: 0,
     totalPage: 0,
     currentPage: 1,
@@ -42,7 +42,7 @@ export function useReviews() {
         limit: 10,
         ...(query.search ? { search: query.search } : {}),
         ...query.filters,
-      } as any);
+      });
       if (res.status) {
         setData(res.data);
       } else {
@@ -62,9 +62,9 @@ export function useReviews() {
       try {
         const res = await apiService.approveReview(id);
         if (res.status) {
-          setData((prev: any) => ({
+          setData((prev: ReviewListData) => ({
             ...prev,
-            itemList: prev.itemList.map((r: any) =>
+            itemList: prev.itemList.map((r: ReviewListData['itemList'][number]) =>
               r.reviewId === id ? { ...r, isApproved: true, isRejected: false, status: 'APPROVED' } : r,
             ),
           }));
@@ -90,9 +90,9 @@ export function useReviews() {
       try {
         const res = await apiService.rejectReview(id, reason ? { reason } : {});
         if (res.status) {
-          setData((prev: any) => ({
+          setData((prev: ReviewListData) => ({
             ...prev,
-            itemList: prev.itemList.map((r: any) =>
+            itemList: prev.itemList.map((r: ReviewListData['itemList'][number]) =>
               r.reviewId === id ? { ...r, isRejected: true, isApproved: false, status: 'REJECTED' } : r,
             ),
           }));
@@ -133,7 +133,9 @@ export function useReviews() {
   );
 
   useEffect(() => {
-    void fetchReviews();
+    void (async () => {
+      await fetchReviews();
+    })();
   }, [query, fetchReviews]);
 
   const setSearch = useCallback((value: string) => {
@@ -174,7 +176,7 @@ export function useReviews() {
 }
 
 export function useQuestions() {
-  const [data, setData] = useState<any>({
+  const [data, setData] = useState<QuestionListData>({
     totalRecord: 0,
     totalPage: 0,
     currentPage: 1,
@@ -207,7 +209,7 @@ export function useQuestions() {
         limit: 10,
         ...(query.search ? { search: query.search } : {}),
         ...query.filters,
-      } as any);
+      });
       if (res.status) {
         setData(res.data);
       } else {
@@ -227,9 +229,9 @@ export function useQuestions() {
       try {
         const res = await apiService.approveQuestion(id);
         if (res.status) {
-          setData((prev: any) => ({
+          setData((prev: QuestionListData) => ({
             ...prev,
-            itemList: prev.itemList.map((q: any) =>
+            itemList: prev.itemList.map((q: QuestionListData['itemList'][number]) =>
               q.questionId === id ? { ...q, isApproved: true } : q,
             ),
           }));
@@ -255,9 +257,9 @@ export function useQuestions() {
       try {
         const res = await apiService.deleteQuestion(id);
         if (res.status) {
-          setData((prev: any) => ({
+          setData((prev: QuestionListData) => ({
             ...prev,
-            itemList: prev.itemList.filter((q: any) => q.questionId !== id),
+            itemList: prev.itemList.filter((q: QuestionListData['itemList'][number]) => q.questionId !== id),
             totalRecord: Math.max(0, prev.totalRecord - 1),
           }));
         } else {
@@ -294,7 +296,9 @@ export function useQuestions() {
   );
 
   useEffect(() => {
-    void fetchQuestions();
+    void (async () => {
+      await fetchQuestions();
+    })();
   }, [query, fetchQuestions]);
 
   const setSearch = useCallback((value: string) => {

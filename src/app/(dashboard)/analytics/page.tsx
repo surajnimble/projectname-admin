@@ -1,8 +1,15 @@
 import type { Metadata } from 'next';
-import ClientAnalyticsPage from './ClientPage';
+import { PermissionGuard } from '@/components/auth/guards';
+import { AnalyticsPage } from '@/components/analytics/analytics-page';
+import { PERMISSIONS } from '@/constants';
+import { MESSAGES } from '@/messages';
 
-export const metadata: Metadata = { title: 'Analytics' };
+export const metadata: Metadata = { title: MESSAGES.analytics.title };
 
-export default function AnalyticsPage() {
-  return <ClientAnalyticsPage />;
+export default function AnalyticsPageShell() {
+  return (
+    <PermissionGuard permission={PERMISSIONS.analyticsView}>
+      <AnalyticsPage />
+    </PermissionGuard>
+  );
 }

@@ -12,7 +12,7 @@ describe('toOrderList', () => {
   it('maps order rows with the customer and vendors', () => {
     const list = toOrderList({
       totalRecord: 1,
-      itemList: [
+      orderList: [
         {
           orderId: 'o1',
           orderNumber: 'ORD-1',

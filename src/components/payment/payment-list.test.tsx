@@ -25,7 +25,7 @@ const list = toPaymentList({
   totalRecord: 1,
   currentPage: 1,
   limit: 10,
-  itemList: [
+  paymentList: [
     {
       paymentId: 'pay1',
       orderId: 'o1',

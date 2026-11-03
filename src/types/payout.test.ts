@@ -32,7 +32,7 @@ describe('toPayoutList', () => {
       totalRecord: 1,
       currentPage: 1,
       limit: 5,
-      itemList: [{ payoutId: 'p1' }, null],
+      payoutList: [{ payoutId: 'p1' }, null],
     });
 
     expect(list.totalRecord).toBe(1);
@@ -40,7 +40,7 @@ describe('toPayoutList', () => {
     expect(list.itemList[0]?.payoutId).toBe('p1');
   });
 
-  it('returns an empty list when itemList is missing', () => {
+  it('returns an empty list when payoutList is missing', () => {
     expect(toPayoutList({ totalRecord: 2 }).itemList).toEqual([]);
   });
 });

@@ -1,11 +1,28 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { apiService } from '@/lib/api/api.service';
+import { toAnalyticsOverview } from '@/types/analytics';
+import type {
+  AnalyticsConversionData,
+  AnalyticsCrashData,
+  AnalyticsDeviceData,
+  AnalyticsFunnelStepData,
+  AnalyticsGeoData,
+  AnalyticsOverviewData,
+  AnalyticsPageViewData,
+  AnalyticsSessionData,
+  AnalyticsSessionListData,
+  AnalyticsTrafficSourceData,
+  AnalyticsVisitorData,
+  AnalyticsAppVersionData,
+  PageData,
+  ProductPerformanceData,
+} from '@/lib/api/contract';
 
 export function useAnalytics() {
-  const [overview, setOverview] = useState<any>({
+  const [overview, setOverview] = useState<AnalyticsOverviewData>({
     totalRevenue: 0,
     totalOrders: 0,
     totalCustomers: 0,
@@ -13,15 +30,15 @@ export function useAnalytics() {
     conversionRate: 0,
     avgOrderValue: 0,
   });
-  const [visitors, setVisitors] = useState<any[]>([]);
-  const [uniqueVisitors, setUniqueVisitors] = useState<any[]>([]);
-  const [pageViews, setPageViews] = useState<any[]>([]);
-  const [topPages, setTopPages] = useState<any[]>([]);
-  const [trafficSources, setTrafficSources] = useState<any[]>([]);
-  const [deviceBreakdown, setDeviceBreakdown] = useState<any[]>([]);
-  const [geoBreakdown, setGeoBreakdown] = useState<any[]>([]);
-  const [sessions, setSessions] = useState<any[]>([]);
-  const [sessionsList, setSessionsList] = useState<any>({
+  const [visitors, setVisitors] = useState<AnalyticsVisitorData[]>([]);
+  const [uniqueVisitors, setUniqueVisitors] = useState<AnalyticsVisitorData[]>([]);
+  const [pageViews, setPageViews] = useState<AnalyticsPageViewData[]>([]);
+  const [topPages, setTopPages] = useState<AnalyticsPageViewData[]>([]);
+  const [trafficSources, setTrafficSources] = useState<AnalyticsTrafficSourceData[]>([]);
+  const [deviceBreakdown, setDeviceBreakdown] = useState<AnalyticsDeviceData[]>([]);
+  const [geoBreakdown, setGeoBreakdown] = useState<AnalyticsGeoData[]>([]);
+  const [sessions, setSessions] = useState<AnalyticsSessionData[]>([]);
+  const [sessionsList, setSessionsList] = useState<AnalyticsSessionListData>({
     totalRecord: 0,
     totalPage: 0,
     currentPage: 1,
@@ -32,9 +49,9 @@ export function useAnalytics() {
     previousPage: 0,
     itemList: [],
   });
-  const [funnel, setFunnel] = useState<any[]>([]);
-  const [conversions, setConversions] = useState<any[]>([]);
-  const [revenueReport, setRevenueReport] = useState<any>({
+  const [funnel, setFunnel] = useState<AnalyticsFunnelStepData[]>([]);
+  const [conversions, setConversions] = useState<AnalyticsConversionData[]>([]);
+  const [revenueReport, setRevenueReport] = useState<PageData<AnalyticsConversionData>>({
     totalRecord: 0,
     totalPage: 0,
     currentPage: 1,
@@ -45,16 +62,16 @@ export function useAnalytics() {
     previousPage: 0,
     itemList: [],
   });
-  const [productPerformance, setProductPerformance] = useState<any[]>([]);
-  const [vendorPerformance, setVendorPerformance] = useState<any[]>([]);
-  const [customerCohorts, setCustomerCohorts] = useState<any[]>([]);
-  const [abandonedCarts, setAbandonedCarts] = useState<any[]>([]);
-  const [searchTerms, setSearchTerms] = useState<any[]>([]);
-  const [zeroResultSearches, setZeroResultSearches] = useState<any[]>([]);
-  const [realtime, setRealtime] = useState<any>(null);
-  const [crashes, setCrashes] = useState<any[]>([]);
-  const [appVersions, setAppVersions] = useState<any[]>([]);
-  const [funnelList, setFunnelList] = useState<any[]>([]);
+  const [productPerformance, setProductPerformance] = useState<ProductPerformanceData[]>([]);
+  const [vendorPerformance, setVendorPerformance] = useState<ProductPerformanceData[]>([]);
+  const [customerCohorts, setCustomerCohorts] = useState<ProductPerformanceData[]>([]);
+  const [abandonedCarts, setAbandonedCarts] = useState<ProductPerformanceData[]>([]);
+  const [searchTerms, setSearchTerms] = useState<ProductPerformanceData[]>([]);
+  const [zeroResultSearches, setZeroResultSearches] = useState<ProductPerformanceData[]>([]);
+  const [realtime, setRealtime] = useState<AnalyticsOverviewData>(toAnalyticsOverview());
+  const [crashes, setCrashes] = useState<AnalyticsCrashData[]>([]);
+  const [appVersions, setAppVersions] = useState<AnalyticsAppVersionData[]>([]);
+  const [funnelList, setFunnelList] = useState<AnalyticsFunnelStepData[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -76,7 +93,7 @@ export function useAnalytics() {
         limit: 10,
         ...(query.search ? { search: query.search } : {}),
         ...query.filters,
-      } as any);
+      });
       if (res.status) {
         setOverview(res.data);
       } else {
@@ -94,9 +111,9 @@ export function useAnalytics() {
         limit: 10,
         ...(query.search ? { search: query.search } : {}),
         ...query.filters,
-      } as any);
+      });
       if (res.status) {
-        setVisitors((res.data as any).itemList || (Array.isArray(res.data) ? res.data : []));
+        setVisitors(res.data.itemList);
       } else {
         setError(res.message);
       }
@@ -112,7 +129,7 @@ export function useAnalytics() {
         limit: 10,
         ...(query.search ? { search: query.search } : {}),
         ...query.filters,
-      } as any);
+      });
       if (res.status) {
         setSessionsList(res.data);
       } else {
@@ -143,9 +160,9 @@ export function useAnalytics() {
         limit: 10,
         ...(query.search ? { search: query.search } : {}),
         ...query.filters,
-      } as any);
+      });
       if (res.status) {
-        setProductPerformance((res.data as any).itemList || (Array.isArray(res.data) ? res.data : []));
+        setProductPerformance(res.data.itemList);
       } else {
         setError(res.message);
       }
@@ -161,9 +178,9 @@ export function useAnalytics() {
         limit: 10,
         ...(query.search ? { search: query.search } : {}),
         ...query.filters,
-      } as any);
+      });
       if (res.status) {
-        setUniqueVisitors((res.data as any).itemList || (Array.isArray(res.data) ? res.data : []));
+        setUniqueVisitors(res.data.itemList);
       } else {
         setError(res.message);
       }
@@ -179,9 +196,9 @@ export function useAnalytics() {
         limit: 10,
         ...(query.search ? { search: query.search } : {}),
         ...query.filters,
-      } as any);
+      });
       if (res.status) {
-        setTopPages((res.data as any).itemList || (Array.isArray(res.data) ? res.data : []));
+        setTopPages(res.data.itemList);
       } else {
         setError(res.message);
       }
@@ -197,9 +214,9 @@ export function useAnalytics() {
         limit: 10,
         ...(query.search ? { search: query.search } : {}),
         ...query.filters,
-      } as any);
+      });
       if (res.status) {
-        setTrafficSources((res.data as any).itemList || (Array.isArray(res.data) ? res.data : []));
+        setTrafficSources(res.data.itemList);
       } else {
         setError(res.message);
       }
@@ -215,9 +232,9 @@ export function useAnalytics() {
         limit: 10,
         ...(query.search ? { search: query.search } : {}),
         ...query.filters,
-      } as any);
+      });
       if (res.status) {
-        setDeviceBreakdown((res.data as any).itemList || (Array.isArray(res.data) ? res.data : []));
+        setDeviceBreakdown(res.data.itemList);
       } else {
         setError(res.message);
       }
@@ -233,9 +250,9 @@ export function useAnalytics() {
         limit: 10,
         ...(query.search ? { search: query.search } : {}),
         ...query.filters,
-      } as any);
+      });
       if (res.status) {
-        setRevenueReport((res.data as any).itemList ? res.data : { ...revenueReport, itemList: Array.isArray(res.data) ? res.data : [] });
+        setGeoBreakdown(res.data.itemList);
       } else {
         setError(res.message);
       }

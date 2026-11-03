@@ -43,7 +43,11 @@ export const toReview = (raw: unknown = {}): ReviewData => {
   };
 };
 
-export const toReviewList = (raw: Partial<ReviewListData> = {}): ReviewListData => ({
+type RawReviewList = Partial<ReviewListData> & {
+  reviewList?: unknown;
+};
+
+export const toReviewList = (raw: RawReviewList = {}): ReviewListData => ({
   totalRecord: toNumber(raw.totalRecord),
   totalPage: toNumber(raw.totalPage),
   currentPage: toNumber(raw.currentPage),
@@ -52,8 +56,8 @@ export const toReviewList = (raw: Partial<ReviewListData> = {}): ReviewListData 
   hasPrevious: raw.hasPrevious === true,
   nextPage: toNumber(raw.nextPage),
   previousPage: toNumber(raw.previousPage),
-  itemList: Array.isArray(raw.itemList)
-    ? raw.itemList.filter(isObject).map((item) => toReview(item))
+  itemList: Array.isArray(raw.reviewList)
+    ? raw.reviewList.filter(isObject).map((item) => toReview(item))
     : [],
 });
 
@@ -101,7 +105,11 @@ export const toQuestion = (raw: unknown = {}): QuestionData => {
   };
 };
 
-export const toQuestionList = (raw: Partial<QuestionListData> = {}): QuestionListData => ({
+type RawQuestionList = Partial<QuestionListData> & {
+  questionList?: unknown;
+};
+
+export const toQuestionList = (raw: RawQuestionList = {}): QuestionListData => ({
   totalRecord: toNumber(raw.totalRecord),
   totalPage: toNumber(raw.totalPage),
   currentPage: toNumber(raw.currentPage),
@@ -110,7 +118,7 @@ export const toQuestionList = (raw: Partial<QuestionListData> = {}): QuestionLis
   hasPrevious: raw.hasPrevious === true,
   nextPage: toNumber(raw.nextPage),
   previousPage: toNumber(raw.previousPage),
-  itemList: Array.isArray(raw.itemList)
-    ? raw.itemList.filter(isObject).map((item) => toQuestion(item))
+  itemList: Array.isArray(raw.questionList)
+    ? raw.questionList.filter(isObject).map((item) => toQuestion(item))
     : [],
 });

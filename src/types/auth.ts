@@ -76,7 +76,7 @@ export const toPermissionData = (raw: Partial<Record<keyof PermissionData, unkno
 
 export const toSubAdminList = (
   raw: Partial<Record<keyof Omit<SubAdminListData, 'itemList'>, unknown>> & {
-    itemList?: unknown;
+    subAdminList?: unknown;
   } = {},
 ): SubAdminListData => ({
   totalRecord: typeof raw.totalRecord === 'number' ? raw.totalRecord : 0,
@@ -87,7 +87,7 @@ export const toSubAdminList = (
   hasPrevious: raw.hasPrevious === true,
   nextPage: typeof raw.nextPage === 'number' ? raw.nextPage : 0,
   previousPage: typeof raw.previousPage === 'number' ? raw.previousPage : 0,
-  itemList: Array.isArray(raw.itemList)
-    ? raw.itemList.filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null).map((item) => toSubAdmin(item))
+  itemList: Array.isArray(raw.subAdminList)
+    ? raw.subAdminList.filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null).map((item) => toSubAdmin(item))
     : [],
 });

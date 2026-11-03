@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { apiService } from '@/lib/api/api.service';
-import type { ApiRequest } from '@/lib/api/contract';
+import type { ApiRequest, NotificationListData, NotificationTemplateListData, NotificationUnreadCountData } from '@/lib/api/contract';
 
 const toNumber = (value: unknown): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : 0;
 
 export function useNotifications() {
-  const [data, setData] = useState<any>({
+  const [data, setData] = useState<NotificationListData>({
     totalRecord: 0,
     totalPage: 0,
     currentPage: 1,
@@ -20,7 +20,7 @@ export function useNotifications() {
     previousPage: 0,
     itemList: [],
   });
-  const [templates, setTemplates] = useState<any>({
+  const [templates, setTemplates] = useState<NotificationTemplateListData>({
     totalRecord: 0,
     totalPage: 0,
     currentPage: 1,
@@ -54,9 +54,9 @@ export function useNotifications() {
         limit: 10,
         ...(query.search ? { search: query.search } : {}),
         ...query.filters,
-      } as any);
+      });
       if (res.status) {
-        setData(res.data);
+        setData(res.data as unknown as NotificationListData);
       } else {
         setError(res.message);
       }
@@ -71,7 +71,7 @@ export function useNotifications() {
     try {
       const res = await apiService.getNotificationTemplates();
       if (res.status) {
-        setTemplates(res.data);
+        setTemplates(res.data as unknown as NotificationTemplateListData);
       } else {
         setError(res.message);
       }
@@ -84,7 +84,7 @@ export function useNotifications() {
     try {
       const res = await apiService.getNotificationsUnreadCount();
       if (res.status) {
-        setUnreadCount(toNumber(res.data.unreadCount));
+        setUnreadCount(res.data.unreadCount);
       }
     } catch {
       // ignore
@@ -98,13 +98,13 @@ export function useNotifications() {
       try {
         const res = await apiService.markNotificationRead(id);
         if (res.status) {
-          setData((prev: any) => ({
+          setData((prev: NotificationListData) => ({
             ...prev,
-            itemList: prev.itemList.map((n: any) =>
+            itemList: prev.itemList.map((n: NotificationListData['itemList'][number]) =>
               n.notificationId === id ? { ...n, isRead: true } : n,
             ),
           }));
-          setUnreadCount((prev: any) => Math.max(0, prev - 1));
+          setUnreadCount((prev: number) => Math.max(0, prev - 1));
         } else {
           setActionError(res.message);
         }
@@ -123,9 +123,9 @@ export function useNotifications() {
     try {
       const res = await apiService.markAllNotificationsRead();
       if (res.status) {
-        setData((prev: any) => ({
+        setData((prev: NotificationListData) => ({
           ...prev,
-          itemList: prev.itemList.map((n: any) => ({ ...n, isRead: true })),
+          itemList: prev.itemList.map((n: NotificationListData['itemList'][number]) => ({ ...n, isRead: true })),
         }));
         setUnreadCount(0);
       } else {
@@ -145,9 +145,9 @@ export function useNotifications() {
       try {
         const res = await apiService.deleteNotification(id);
         if (res.status) {
-          setData((prev: any) => ({
+          setData((prev: NotificationListData) => ({
             ...prev,
-            itemList: prev.itemList.filter((n: any) => n.notificationId !== id),
+            itemList: prev.itemList.filter((n: NotificationListData['itemList'][number]) => n.notificationId !== id),
             totalRecord: Math.max(0, prev.totalRecord - 1),
           }));
         } else {
@@ -167,7 +167,7 @@ export function useNotifications() {
       setIsActioning(true);
       setActionError('');
       try {
-        const res = await apiService.broadcastNotification(body as any);
+        const res = await apiService.broadcastNotification(body);
         if (res.status) {
           return true;
         }
@@ -188,7 +188,7 @@ export function useNotifications() {
       setIsActioning(true);
       setActionError('');
       try {
-        const res = await apiService.createNotificationTemplate(body as any);
+        const res = await apiService.createNotificationTemplate(body);
         if (res.status) {
           await fetchTemplates();
           return true;
@@ -210,7 +210,7 @@ export function useNotifications() {
       setIsActioning(true);
       setActionError('');
       try {
-        const res = await apiService.updateNotificationTemplate(id, body as any);
+        const res = await apiService.updateNotificationTemplate(id, body);
         if (res.status) {
           await fetchTemplates();
           return true;
@@ -250,9 +250,11 @@ export function useNotifications() {
   );
 
   useEffect(() => {
-    void fetchNotifications();
-    void fetchTemplates();
-    void fetchUnreadCount();
+    void (async () => {
+      await fetchNotifications();
+      await fetchTemplates();
+      await fetchUnreadCount();
+    })();
   }, [query, fetchNotifications, fetchTemplates, fetchUnreadCount]);
 
   const setSearch = useCallback((value: string) => {

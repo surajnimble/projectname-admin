@@ -14,7 +14,7 @@ const list = toActivityLogList({
   totalRecord: 1,
   currentPage: 1,
   limit: DASHBOARD_WIDGET_LIMIT,
-  itemList: [
+  activityLogList: [
     {
       activityLogId: 'a1',
       action: ORDER_PLACED_ACTION,

@@ -9,7 +9,7 @@ type RawPayout = Partial<Record<keyof PayoutData, unknown>> & {
   };
 };
 type RawPayoutList = Partial<Record<keyof Omit<PayoutListData, 'itemList'>, unknown>> & {
-  itemList?: unknown;
+  payoutList?: unknown;
 };
 
 const toNumber = (value: unknown): number =>
@@ -55,8 +55,8 @@ export const toPayoutList = (raw: RawPayoutList = {}): PayoutListData => ({
   hasPrevious: raw.hasPrevious === true,
   nextPage: toNumber(raw.nextPage),
   previousPage: toNumber(raw.previousPage),
-  itemList: Array.isArray(raw.itemList)
-    ? raw.itemList.filter(isObject).map((item) => toPayout(item))
+  itemList: Array.isArray(raw.payoutList)
+    ? raw.payoutList.filter(isObject).map((item) => toPayout(item as Record<string, unknown>))
     : [],
 });
 

@@ -8,7 +8,7 @@ const createdAt = '2026-10-21T10:00:00.000Z';
 const renderItems = (itemList: unknown[]) => {
   const { container } = render(
     <RecentActivity
-      items={toActivityLogList({ itemList }).itemList}
+      items={toActivityLogList({ activityLogList: itemList }).itemList}
       isLoading={false}
       error=""
       hasMore={false}

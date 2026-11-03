@@ -41,7 +41,11 @@ export const toTicket = (raw: unknown = {}): TicketData => {
   };
 };
 
-export const toTicketList = (raw: Partial<TicketListData> = {}): TicketListData => ({
+type RawTicketList = Partial<TicketListData> & {
+  ticketList?: unknown;
+};
+
+export const toTicketList = (raw: RawTicketList = {}): TicketListData => ({
   totalRecord: toNumber(raw.totalRecord),
   totalPage: toNumber(raw.totalPage),
   currentPage: toNumber(raw.currentPage),
@@ -50,8 +54,8 @@ export const toTicketList = (raw: Partial<TicketListData> = {}): TicketListData 
   hasPrevious: raw.hasPrevious === true,
   nextPage: toNumber(raw.nextPage),
   previousPage: toNumber(raw.previousPage),
-  itemList: Array.isArray(raw.itemList)
-    ? raw.itemList.filter(isObject).map((item) => toTicket(item))
+  itemList: Array.isArray(raw.ticketList)
+    ? raw.ticketList.filter(isObject).map((item) => toTicket(item))
     : [],
 });
 
@@ -68,8 +72,12 @@ export const toTicketCategory = (raw: unknown = {}): TicketCategoryData => {
   };
 };
 
+type RawTicketCategoryList = Partial<TicketCategoryListData> & {
+  ticketCategoryList?: unknown;
+};
+
 export const toTicketCategoryList = (
-  raw: Partial<TicketCategoryListData> = {},
+  raw: RawTicketCategoryList = {},
 ): TicketCategoryListData => ({
   totalRecord: toNumber(raw.totalRecord),
   totalPage: toNumber(raw.totalPage),
@@ -79,8 +87,8 @@ export const toTicketCategoryList = (
   hasPrevious: raw.hasPrevious === true,
   nextPage: toNumber(raw.nextPage),
   previousPage: toNumber(raw.previousPage),
-  itemList: Array.isArray(raw.itemList)
-    ? raw.itemList.filter(isObject).map((item) => toTicketCategory(item))
+  itemList: Array.isArray(raw.ticketCategoryList)
+    ? raw.ticketCategoryList.filter(isObject).map((item) => toTicketCategory(item))
     : [],
 });
 

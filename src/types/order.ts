@@ -12,6 +12,9 @@ import type {
 } from '@/lib/api/contract';
 
 type Raw = Record<string, unknown>;
+type RawOrderList = Partial<Record<keyof Omit<OrderListData, 'itemList'>, unknown>> & {
+  orderList?: unknown;
+};
 
 const toNumber = (value: unknown): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : 0;
@@ -82,7 +85,7 @@ export const toOrderSummary = (raw: Raw = {}): OrderSummaryData => ({
   vendorList: toObjects(raw.vendorList).map(toVendor),
 });
 
-export const toOrderList = (raw: Raw = {}): OrderListData => ({
+export const toOrderList = (raw: RawOrderList = {}): OrderListData => ({
   totalRecord: toNumber(raw.totalRecord),
   totalPage: toNumber(raw.totalPage),
   currentPage: toNumber(raw.currentPage),
@@ -91,7 +94,7 @@ export const toOrderList = (raw: Raw = {}): OrderListData => ({
   hasPrevious: raw.hasPrevious === true,
   nextPage: toNumber(raw.nextPage),
   previousPage: toNumber(raw.previousPage),
-  itemList: toObjects(raw.itemList).map(toOrderSummary),
+  itemList: toObjects(raw.orderList).map(toOrderSummary),
 });
 
 export const toOrderDetail = (raw: Raw = {}): OrderDetailData => ({

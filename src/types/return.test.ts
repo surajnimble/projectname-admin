@@ -32,7 +32,7 @@ describe('toReturnList', () => {
       totalRecord: 1,
       currentPage: 1,
       limit: 5,
-      itemList: [{ returnId: 'r1' }, null],
+      returnList: [{ returnId: 'r1' }, null],
     });
 
     expect(list.totalRecord).toBe(1);
@@ -40,7 +40,7 @@ describe('toReturnList', () => {
     expect(list.itemList[0]?.returnId).toBe('r1');
   });
 
-  it('returns an empty list when itemList is missing', () => {
+  it('returns an empty list when returnList is missing', () => {
     expect(toReturnList({ totalRecord: 2 }).itemList).toEqual([]);
   });
 });

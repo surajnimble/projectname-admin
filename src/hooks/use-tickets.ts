@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { apiService } from '@/lib/api/api.service';
-import type { ApiRequest } from '@/lib/api/contract';
+import type { ApiRequest, TicketCategoryListData, TicketListData } from '@/lib/api/contract';
 
 const toNumber = (value: unknown): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : 0;
 
 export function useTickets() {
-  const [data, setData] = useState<any>({
+  const [data, setData] = useState<TicketListData>({
     totalRecord: 0,
     totalPage: 0,
     currentPage: 1,
@@ -20,7 +20,7 @@ export function useTickets() {
     previousPage: 0,
     itemList: [],
   });
-  const [categories, setCategories] = useState<any>({
+  const [categories, setCategories] = useState<TicketCategoryListData>({
     totalRecord: 0,
     totalPage: 0,
     currentPage: 1,
@@ -53,9 +53,9 @@ export function useTickets() {
         limit: 10,
         ...(query.search ? { search: query.search } : {}),
         ...query.filters,
-      } as any);
+      });
       if (res.status) {
-        setData(res.data);
+        setData(res.data as unknown as TicketListData);
       } else {
         setError(res.message);
       }
@@ -70,7 +70,7 @@ export function useTickets() {
     try {
       const res = await apiService.getTicketCategories();
       if (res.status) {
-        setCategories(res.data);
+        setCategories(res.data as unknown as TicketCategoryListData);
       } else {
         setError(res.message);
       }
@@ -84,7 +84,7 @@ export function useTickets() {
       setIsActioning(true);
       setActionError('');
       try {
-        const res = await apiService.createTicket(body as any);
+        const res = await apiService.createTicket(body);
         if (res.status) {
           await fetchTickets();
           return true;
@@ -171,9 +171,9 @@ export function useTickets() {
       try {
         const res = await apiService.closeTicket(id);
         if (res.status) {
-          setData((prev: any) => ({
+          setData((prev: TicketListData) => ({
             ...prev,
-            itemList: prev.itemList.map((t: any) =>
+            itemList: prev.itemList.map((t: TicketListData['itemList'][number]) =>
               t.ticketId === id ? { ...t, status: 'CLOSED' } : t,
             ),
           }));
@@ -196,9 +196,9 @@ export function useTickets() {
       try {
         const res = await apiService.deleteTicket(id);
         if (res.status) {
-          setData((prev: any) => ({
+          setData((prev: TicketListData) => ({
             ...prev,
-            itemList: prev.itemList.filter((t: any) => t.ticketId !== id),
+            itemList: prev.itemList.filter((t: TicketListData['itemList'][number]) => t.ticketId !== id),
             totalRecord: Math.max(0, prev.totalRecord - 1),
           }));
         } else {
@@ -214,8 +214,10 @@ export function useTickets() {
   );
 
   useEffect(() => {
-    void fetchTickets();
-    void fetchCategories();
+    void (async () => {
+      await fetchTickets();
+      await fetchCategories();
+    })();
   }, [query, fetchTickets, fetchCategories]);
 
   const setSearch = useCallback((value: string) => {

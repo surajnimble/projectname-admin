@@ -1,8 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { PermissionGuard } from '@/components/auth/guards';
-import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
 import { Pagination } from '@/components/common/pagination';
 import { Button } from '@/components/ui/button';
@@ -11,30 +10,28 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { apiService } from '@/lib/api/api.service';
-import type { ApiRequest } from '@/types/api';
+import { useSettings } from '@/hooks/use-settings';
 import type { SettingListData } from '@/lib/api/contract';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
 
 export default function ClientSettingsPage() {
-  const [data, setData] = useState<SettingListData>(() => ({
-    totalRecord: 0,
-    totalPage: 0,
-    currentPage: 1,
-    limit: 50,
-    hasNext: false,
-    hasPrevious: false,
-    nextPage: 0,
-    previousPage: 0,
-    itemList: [],
-  }));
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('all');
-  const [isActioning, setIsActioning] = useState(false);
+  const {
+    data,
+    isLoading,
+    error,
+    page,
+    search,
+    category,
+    setPage,
+    setSearch,
+    setCategory,
+    refresh,
+    isActioning,
+    fetchSettings,
+    updateSetting,
+    resetSettings,
+  } = useSettings();
   const [editOpen, setEditOpen] = useState(false);
   const [editingSetting, setEditingSetting] = useState<SettingListData['itemList'][number] | null>(null);
   const [editKey, setEditKey] = useState('');
@@ -54,29 +51,6 @@ export default function ClientSettingsPage() {
     { key: 'analytics', label: MESSAGES.settings.categories.analytics },
   ];
 
-  const fetchSettings = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const query: ApiRequest = { page, limit: 50 };
-      if (search) query.search = search;
-      if (category !== 'all') query.category = category;
-      const res = await apiService.getSettings(query);
-      if (res.status) {
-        setData(res.data);
-      } else {
-        setError(res.message);
-      }
-    } catch {
-      setError('Failed to load settings');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [page, search, category]);
-
-  useEffect(() => {
-    void fetchSettings();
-  }, [fetchSettings]);
-
   const handleEdit = (setting: SettingListData['itemList'][number]) => {
     setEditingSetting(setting);
     setEditKey(setting.key);
@@ -86,39 +60,23 @@ export default function ClientSettingsPage() {
 
   const handleSave = async () => {
     if (!editingSetting || !editKey) return;
-    setIsActioning(true);
-    try {
-      const res = await apiService.updateSetting({ key: editKey, value: editValue });
-      if (res.status) {
-        setEditOpen(false);
-        setEditingSetting(null);
-        setEditKey('');
-        setEditValue('');
-        await fetchSettings();
-      } else {
-        setError(res.message);
-      }
-    } catch {
-      setError('Failed to update setting');
-    } finally {
-      setIsActioning(false);
+    const ok = await updateSetting(editKey, editValue);
+    if (ok) {
+      setEditOpen(false);
+      setEditingSetting(null);
+      setEditKey('');
+      setEditValue('');
     }
   };
 
-  const resetSettings = async () => {
+  const handleReset = async () => {
     if (!window.confirm(MESSAGES.settings.resetConfirm)) return;
-    setIsActioning(true);
-    try {
-      const res = await apiService.resetSettings();
-      if (res.status) {
-        await fetchSettings();
-      } else {
-        setError(res.message);
-      }
-    } catch {
-      setError('Failed to reset settings');
-    } finally {
-      setIsActioning(false);
+    const ok = await resetSettings();
+    if (ok) {
+      setEditOpen(false);
+      setEditingSetting(null);
+      setEditKey('');
+      setEditValue('');
     }
   };
 
@@ -326,48 +284,8 @@ export default function ClientSettingsPage() {
 }
 
 function FeatureFlagsTab() {
-  const [flags, setFlags] = useState<Record<string, boolean>>({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
-
-  const fetchFlags = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const res = await apiService.getFeatureFlags();
-      if (res.status) {
-        setFlags(res.data);
-      } else {
-        setError(res.message);
-      }
-    } catch {
-      setError('Failed to load feature flags');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void fetchFlags();
-  }, [fetchFlags]);
-
-  const toggleFlag = async (key: string, current: boolean) => {
-    const next = !current;
-    setFlags((prev) => ({ ...prev, [key]: next }));
-    setIsSaving(true);
-    try {
-      const res = await apiService.toggleFeature({ key, value: next });
-      if (!res.status) {
-        setFlags((prev) => ({ ...prev, [key]: current }));
-        setError(res.message);
-      }
-    } catch {
-      setFlags((prev) => ({ ...prev, [key]: current }));
-      setError('Failed to toggle feature');
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  const { flags, isLoading, error, refresh, fetchFlags, toggleFlag, isActioning } = useSettings();
+  const isSaving = isActioning;
 
   const flagEntries = Object.entries(flags).sort(([a], [b]) => a.localeCompare(b));
 
@@ -379,7 +297,7 @@ function FeatureFlagsTab() {
     return (
       <div className="p-8 text-center text-destructive">
         {error}
-        <Button variant="outline" size="sm" onClick={() => void fetchFlags()} className="mt-4">{MESSAGES.common.retry}</Button>
+        <Button variant="outline" size="sm" onClick={() => void refresh()} className="mt-4">{MESSAGES.common.retry}</Button>
       </div>
     );
   }
@@ -404,61 +322,33 @@ function FeatureFlagsTab() {
 }
 
 function MaintenanceTab() {
-  const [status, setStatus] = useState<{ enabled: boolean; message: string; allowedIps: string[] }>({
-    enabled: false,
-    message: '',
-    allowedIps: [],
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
+  const { status, isLoading, error, refresh, fetchStatus, saveMaintenance, isActioning } = useSettings();
+  const isSaving = isActioning;
   const [editOpen, setEditOpen] = useState(false);
   const [maintEnabled, setMaintEnabled] = useState(false);
   const [maintMessage, setMaintMessage] = useState('');
   const [maintIps, setMaintIps] = useState('');
 
-  const fetchStatus = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const res = await apiService.getMaintenanceStatus();
-      if (res.status) {
-        setStatus(res.data);
-        setMaintEnabled(res.data.enabled);
-        setMaintMessage(res.data.message);
-        setMaintIps(res.data.allowedIps.join(', '));
-      } else {
-        setError(res.message);
-      }
-    } catch {
-      setError('Failed to load maintenance status');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  if (isLoading) {
+    return <div className="p-8 text-center">Loading…</div>;
+  }
 
-  useEffect(() => {
-    void fetchStatus();
-  }, [fetchStatus]);
+  if (error) {
+    return (
+      <div className="p-8 text-center text-destructive">
+        {error}
+        <Button variant="outline" size="sm" onClick={() => void refresh()} className="mt-4">{MESSAGES.common.retry}</Button>
+      </div>
+    );
+  }
 
-  const saveMaintenance = async () => {
-    setIsSaving(true);
-    try {
-      const res = await apiService.updateMaintenance({
-        enabled: maintEnabled,
-        message: maintMessage,
-        allowedIps: maintIps.split(',').map((ip) => ip.trim()).filter(Boolean),
-      });
-      if (res.status) {
-        setEditOpen(false);
-        await fetchStatus();
-      } else {
-        setError(res.message);
-      }
-    } catch {
-      setError('Failed to update maintenance');
-    } finally {
-      setIsSaving(false);
-    }
+  const handleSave = async () => {
+    const ok = await saveMaintenance({
+      enabled: maintEnabled,
+      message: maintMessage,
+      allowedIps: maintIps.split(',').map((ip) => ip.trim()).filter(Boolean),
+    });
+    if (ok) setEditOpen(false);
   };
 
   if (isLoading) {
@@ -469,7 +359,7 @@ function MaintenanceTab() {
     return (
       <div className="p-8 text-center text-destructive">
         {error}
-        <Button variant="outline" size="sm" onClick={() => void fetchStatus()} className="mt-4">{MESSAGES.common.retry}</Button>
+        <Button variant="outline" size="sm" onClick={() => void refresh()} className="mt-4">{MESSAGES.common.retry}</Button>
       </div>
     );
   }
@@ -495,7 +385,7 @@ function MaintenanceTab() {
           </div>
           <div className="flex justify-end gap-2 mt-6">
             <Button variant="outline" size="sm" onClick={() => setEditOpen(false)}>{MESSAGES.common.cancel}</Button>
-            <Button variant="primary" size="sm" onClick={saveMaintenance} disabled={isSaving}>{MESSAGES.settings.save}</Button>
+            <Button variant="primary" size="sm" onClick={handleSave} disabled={isSaving}>{MESSAGES.settings.save}</Button>
           </div>
         </div>
       </Card>

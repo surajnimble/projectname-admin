@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { PermissionGuard } from '@/components/auth/guards';
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
+import type { DataTableColumn } from '@/components/common/data-table';
 import { Pagination } from '@/components/common/pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
 import { StatusBadge } from '@/components/common/status-badge';
+import type { ReviewListData } from '@/lib/api/contract';
 import { useReviews } from '@/hooks/use-reviews';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
@@ -88,25 +90,25 @@ export default function ClientReviewsPage() {
     if (ok) setDialogOpen(false);
   };
 
-  const columns = [
+  const columns: DataTableColumn<ReviewListData['itemList'][number]>[] = [
     {
       key: 'review',
       header: 'Review',
-      cell: (row: any) => <span className="font-medium">{row.title || row.comment?.slice(0, 50)}</span>,
+      cell: (row) => <span className="font-medium">{row.title || row.comment?.slice(0, 50)}</span>,
     },
     {
       key: 'product',
       header: 'Product',
       hideBelow: 'lg',
       width: 'w-40',
-      cell: (row: any) => <span className="text-sm truncate">{row.productName}</span>,
+      cell: (row) => <span className="text-sm truncate">{row.productName}</span>,
     },
     {
       key: 'customer',
       header: 'Customer',
       hideBelow: 'xl',
       width: 'w-40',
-      cell: (row: any) => <span className="text-sm truncate">{row.userName}</span>,
+      cell: (row) => <span className="text-sm truncate">{row.userName}</span>,
     },
     {
       key: 'rating',
@@ -114,7 +116,7 @@ export default function ClientReviewsPage() {
       align: 'center',
       hideBelow: 'lg',
       width: 'w-24',
-      cell: (row: any) => (
+      cell: (row) => (
         <span className="flex items-center gap-1">
           {[1, 2, 3, 4, 5].map((star) => (
             <span key={star} className={`text-xs ${star <= row.rating ? 'text-warning' : 'text-fg-muted'}`}>
@@ -128,7 +130,7 @@ export default function ClientReviewsPage() {
       key: 'status',
       header: 'Status',
       align: 'center',
-      cell: (row: any) => (
+      cell: (row) => (
         <StatusBadge
           meta={{
             label: row.isApproved ? 'Approved' : row.isRejected ? 'Rejected' : 'Pending',
@@ -141,7 +143,7 @@ export default function ClientReviewsPage() {
       key: 'actions',
       header: MESSAGES.common.actions,
       align: 'center',
-      cell: (row: any) => {
+      cell: (row) => {
         const items: OptionsMenuItem[] = [
           {
             label: row.isApproved ? 'Reject' : 'Approve',
@@ -162,7 +164,7 @@ export default function ClientReviewsPage() {
         );
       },
     },
-  ] as const;
+  ];
 
   return (
     <div className="flex flex-col gap-4">
@@ -175,7 +177,7 @@ export default function ClientReviewsPage() {
           <DataTable
             columns={columns}
             rows={data.itemList}
-            rowKey={(row: any) => row.reviewId}
+            rowKey={(row) => row.reviewId}
             toolbar={{
               search: {
                 value: search,
@@ -195,7 +197,7 @@ export default function ClientReviewsPage() {
             }}
             actions={{
               header: MESSAGES.common.actions,
-              render: (row: any) => {
+              render: (row) => {
                 const items: OptionsMenuItem[] = [
                   {
                     label: row.isApproved ? 'Reject' : 'Approve',

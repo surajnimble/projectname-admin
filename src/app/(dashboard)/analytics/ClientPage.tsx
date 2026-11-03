@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { PermissionGuard } from '@/components/auth/guards';
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
+import type { DataTableColumn } from '@/components/common/data-table';
 import { Pagination } from '@/components/common/pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -132,8 +133,8 @@ export default function ClientAnalyticsPage() {
               ))}
             </div>
             <div className="flex justify-between text-xs text-fg-muted mt-2">
-              {visitors.length > 0 ? visitors[0].date : '-'}
-              {visitors.length > 0 ? visitors[visitors.length - 1].date : '-'}
+              {visitors.length > 0 ? visitors[0]?.date : '-'}
+              {visitors.length > 0 ? visitors[visitors.length - 1]?.date : '-'}
             </div>
           </Card>
 
@@ -147,28 +148,28 @@ export default function ClientAnalyticsPage() {
                 {
                   key: 'source',
                   header: 'Source',
-                  cell: (row: any) => <span className="font-medium">{row.source}</span>,
+                  cell: (row) => <span className="font-medium">{row.source}</span>,
                 },
                 {
                   key: 'medium',
                   header: 'Medium',
-                  cell: (row: any) => <span className="text-sm">{row.medium}</span>,
+                  cell: (row) => <span className="text-sm">{row.medium}</span>,
                 },
                 {
                   key: 'visits',
                   header: 'Visits',
                   align: 'right',
-                  cell: (row: any) => <span className="text-sm">{row.visits}</span>,
+                  cell: (row) => <span className="text-sm">{row.visits}</span>,
                 },
                 {
                   key: 'conversions',
                   header: 'Conversions',
                   align: 'right',
-                  cell: (row: any) => <span className="text-sm">{row.conversions}</span>,
+                  cell: (row) => <span className="text-sm">{row.conversions}</span>,
                 },
               ]}
               rows={trafficSources}
-              rowKey={(row: any) => row.source}
+              rowKey={(row) => row.source}
               emptyTitle={MESSAGES.analytics.empty}
             />
           </Card>
@@ -183,22 +184,22 @@ export default function ClientAnalyticsPage() {
                 {
                   key: 'device',
                   header: 'Device',
-                  cell: (row: any) => <span className="font-medium">{row.device}</span>,
+                  cell: (row) => <span className="font-medium">{row.device}</span>,
                 },
                 {
                   key: 'os',
                   header: 'OS',
-                  cell: (row: any) => <span className="text-sm">{row.os}</span>,
+                  cell: (row) => <span className="text-sm">{row.os}</span>,
                 },
                 {
                   key: 'visitors',
                   header: 'Visitors',
                   align: 'right',
-                  cell: (row: any) => <span className="text-sm">{row.visitors}</span>,
+                  cell: (row) => <span className="text-sm">{row.visitors}</span>,
                 },
               ]}
               rows={deviceBreakdown}
-              rowKey={(row: any) => row.device}
+              rowKey={(row) => row.device}
               emptyTitle={MESSAGES.analytics.empty}
             />
           </Card>
@@ -228,7 +229,7 @@ export default function ClientAnalyticsPage() {
               {
                 key: 'session',
                 header: 'Session',
-                cell: (row: any) => (
+                cell: (row) => (
                   <div className="flex items-center gap-2">
                     <span className="w-6 h-6 rounded-full {row.isActive ? 'bg-success/20 text-success' : 'bg-surface-muted text-fg-muted'} flex items-center justify-center text-xs font-bold">
                       {row.userName?.slice(0, 2).toUpperCase()}
@@ -240,32 +241,32 @@ export default function ClientAnalyticsPage() {
               {
                 key: 'device',
                 header: 'Device',
-                cell: (row: any) => (
+                cell: (row) => (
                   <span className="text-sm">{row.device}</span>
                 ),
               },
               {
                 key: 'country',
                 header: 'Country',
-                cell: (row: any) => <span className="text-sm">{row.country}</span>,
+                cell: (row) => <span className="text-sm">{row.country}</span>,
               },
               {
                 key: 'pages',
                 header: 'Pages',
                 align: 'right',
-                cell: (row: any) => <span className="text-sm">{row.pagesViewed}</span>,
+                cell: (row) => <span className="text-sm">{row.pagesViewed}</span>,
               },
               {
                 key: 'duration',
                 header: 'Duration',
                 align: 'right',
-                cell: (row: any) => <span className="text-sm">{Math.floor(row.duration / 60)}m {row.duration % 60}s</span>,
+                cell: (row) => <span className="text-sm">{Math.floor(row.duration / 60)}m {row.duration % 60}s</span>,
               },
               {
                 key: 'status',
                 header: 'Status',
                 align: 'center',
-                cell: (row: any) => (
+                cell: (row) => (
                   <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs border ${row.isActive ? 'border-success/20 text-success bg-success/10' : 'border-neutral/20 text-fg-muted bg-surface-muted'}`}>
                     {row.isActive ? 'Active' : 'Idle'}
                   </span>
@@ -273,7 +274,7 @@ export default function ClientAnalyticsPage() {
               },
             ]}
             rows={sessions}
-            rowKey={(row: any) => row.sessionId}
+            rowKey={(row) => row.sessionId}
             toolbar={{
               search: {
                 value: search,

@@ -15,7 +15,7 @@ const list = toActivityLogList({
   totalPage: 1,
   currentPage: 1,
   limit: RECENT_ACTIVITY_LIMIT,
-  itemList: [
+  activityLogList: [
     {
       activityLogId: 'a1',
       action: 'LOGIN',

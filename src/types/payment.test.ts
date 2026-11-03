@@ -47,7 +47,7 @@ describe('toPaymentList', () => {
       totalRecord: 1,
       currentPage: 1,
       limit: 5,
-      itemList: [{ paymentId: 'pay1' }, null],
+      paymentList: [{ paymentId: 'pay1' }, null],
     });
 
     expect(list.totalRecord).toBe(1);

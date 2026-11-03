@@ -3,34 +3,41 @@ import { apiClient } from './client';
 import type { ApiRequest } from '@/types/api';
 import { toActivityLogList } from '@/types/activity';
 import { toProductPerformanceList } from '@/types/analytics';
+import {
+  toAnalyticsOverview,
+  toAppVersionList,
+  toConversionList,
+  toCrashList,
+  toDeviceList,
+  toGeoList,
+  toPageItemList,
+  toSessionList,
+  toTrafficList,
+  toVisitorList,
+} from '@/types/analytics';
 import { toAuthData, toEmptyData, toPermissionData, toSubAdmin, toSubAdminList } from '@/types/auth';
-import { toDashboardStats } from '@/types/dashboard';
-import { toOrderDetail, toOrderList } from '@/types/order';
+import { toCategoryList, toAttributeList, toBrandList, toTagList, toCollectionList } from '@/types/catalog';
+import { toBannerList, toBlogList, toFaqList, toPageList } from '@/types/content';
+import { toCouponList } from '@/types/coupon';
+import { toDeliveryBoyList } from '@/types/delivery-boy';
+import { toOrderDetail, toOrderList, toOrderNoteList, toOrderTagList } from '@/types/order';
 import { toPaymentList, toPaymentSummary } from '@/types/payment';
 import { toPayout, toPayoutList, toPayoutStatement } from '@/types/payout';
 import { toProductDetail, toProductList, toProductSummary, toProductApproval, toProductApprovalList } from '@/types/product';
 import { toLowStockList } from '@/types/report';
+import { toReviewList, toQuestionList, toReviewSummary } from '@/types/review';
 import { toReturn, toReturnList } from '@/types/return';
-import { toUserList, toUserDetail } from '@/types/user';
-import { toCategoryList } from '@/types/catalog';
-import { toBrandList } from '@/types/catalog';
-import { toTagList } from '@/types/catalog';
-import { toAttributeList } from '@/types/catalog';
-import { toCouponList } from '@/types/coupon';
+import { toSettingList, toFeatureFlags, toMaintenanceStatus } from '@/types/settings';
 import { toShippingZoneList } from '@/types/shipping';
-import { toAuditLogList } from '@/types/audit';
 import { toSystemHealth } from '@/types/system-health';
+import { toAuditLogList } from '@/types/audit';
 import { toCronJobList } from '@/types/cron';
 import { toFailedJobList } from '@/types/failed-job';
-import { toCollectionList } from '@/types/catalog';
-import { toPageList } from '@/types/content';
-import { toBlogList } from '@/types/content';
-import { toFaqList } from '@/types/content';
-import { toBannerList } from '@/types/content';
-import { toKycDocument, toKycDocumentList, toVendor, toVendorList, toVendorRatings } from '@/types/vendor';
-import { toSettingList, toFeatureFlags, toMaintenanceStatus } from '@/types/settings';
-import { toOrderNoteList, toOrderTagList } from '@/types/order';
-import { toDeliveryBoyList } from '@/types/delivery-boy';
+import { toUserList, toUserDetail } from '@/types/user';
+import { toVendor, toVendorList, toVendorRatings, toKycDocument, toKycDocumentList } from '@/types/vendor';
+import { toNotificationList, toNotificationTemplateList, toNotificationUnreadCount } from '@/types/notification';
+import { toTicketList, toTicketCategoryList } from '@/types/ticket';
+import { toDashboardStats } from '@/types/dashboard';
 
 export class ApiService {
   login(body: ApiRequest) {
@@ -488,39 +495,39 @@ export class ApiService {
 
   /* ---------- Analytics ---------- */
   getAnalyticsOverview(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsOverview, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsOverview, { query, mapper: toAnalyticsOverview });
   }
 
   getAnalyticsVisitors(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsVisitors, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsVisitors, { query, mapper: toVisitorList });
   }
 
   getAnalyticsUniqueVisitors(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsUniqueVisitors, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsUniqueVisitors, { query, mapper: toVisitorList });
   }
 
   getAnalyticsPageViews(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsPageViews, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsPageViews, { query, mapper: toPageItemList });
   }
 
   getAnalyticsTopPages(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsTopPages, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsTopPages, { query, mapper: toPageItemList });
   }
 
   getAnalyticsTrafficSources(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsTrafficSources, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsTrafficSources, { query, mapper: toTrafficList });
   }
 
   getAnalyticsDeviceBreakdown(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsDeviceBreakdown, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsDeviceBreakdown, { query, mapper: toDeviceList });
   }
 
   getAnalyticsGeoBreakdown(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsGeoBreakdown, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsGeoBreakdown, { query, mapper: toGeoList });
   }
 
   getAnalyticsSessions(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsSessions, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsSessions, { query, mapper: toSessionList });
   }
 
   getAnalyticsFunnel(query: ApiRequest) {
@@ -528,11 +535,11 @@ export class ApiService {
   }
 
   getAnalyticsConversions(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsConversions, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsConversions, { query, mapper: toConversionList });
   }
 
   getAnalyticsRevenueReport(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsRevenueReport, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsRevenueReport, { query, mapper: toConversionList });
   }
 
   getAnalyticsProductPerformance(query: ApiRequest) {
@@ -563,15 +570,15 @@ export class ApiService {
   }
 
   getAnalyticsRealtime() {
-    return apiClient.get(API_URLS.getAnalyticsRealtime, { mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsRealtime, { mapper: toAnalyticsOverview });
   }
 
   getAnalyticsCrashes(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsCrashes, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsCrashes, { query, mapper: toCrashList });
   }
 
   getAnalyticsAppVersions(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsAppVersions, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsAppVersions, { query, mapper: toAppVersionList });
   }
 
   exportAnalytics(query: ApiRequest) {
@@ -592,11 +599,11 @@ export class ApiService {
 
   /* ---------- Notifications ---------- */
   getNotifications(query: ApiRequest) {
-    return apiClient.get(API_URLS.getNotifications, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getNotifications, { query, mapper: toNotificationList });
   }
 
   getNotificationsUnreadCount() {
-    return apiClient.get(API_URLS.getNotificationsUnreadCount, { mapper: toEmptyData });
+    return apiClient.get(API_URLS.getNotificationsUnreadCount, { mapper: toNotificationUnreadCount });
   }
 
   markNotificationRead(id: string) {
@@ -690,7 +697,7 @@ export class ApiService {
 
   /* ---------- Tickets ---------- */
   getTicketCategories() {
-    return apiClient.get(API_URLS.getTicketCategories, { mapper: toEmptyData });
+    return apiClient.get(API_URLS.getTicketCategories, { mapper: toTicketCategoryList });
   }
 
   createTicketCategory(body: ApiRequest) {
@@ -706,7 +713,7 @@ export class ApiService {
   }
 
   getTickets(query: ApiRequest) {
-    return apiClient.get(API_URLS.getTickets, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getTickets, { query, mapper: toTicketList });
   }
 
   getTicketById(id: string) {
@@ -764,11 +771,11 @@ export class ApiService {
 
   /* ---------- Reviews ---------- */
   getReviews(query: ApiRequest) {
-    return apiClient.get(API_URLS.getReviews, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getReviews, { query, mapper: toReviewList });
   }
 
   getReviewSummary(productId: string) {
-    return apiClient.get(API_URLS.getReviewSummary(productId), { mapper: toEmptyData });
+    return apiClient.get(API_URLS.getReviewSummary(productId), { mapper: toReviewSummary });
   }
 
   createReview(body: ApiRequest) {
@@ -801,7 +808,7 @@ export class ApiService {
 
   /* ---------- Questions ---------- */
   getQuestions(query: ApiRequest) {
-    return apiClient.get(API_URLS.getQuestions, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getQuestions, { query, mapper: toQuestionList });
   }
 
   askQuestion(body: ApiRequest) {

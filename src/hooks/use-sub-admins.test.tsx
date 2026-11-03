@@ -19,7 +19,7 @@ const list = toSubAdminList({
   totalPage: 1,
   currentPage: 1,
   limit: SUB_ADMIN_PAGE_SIZE,
-  itemList: [
+  subAdminList: [
     {
       userId: 'u1',
       name: 'Active Admin',

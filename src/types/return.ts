@@ -5,7 +5,7 @@ type RawReturn = Partial<Record<keyof Omit<ReturnRequestData, 'itemList' | 'vend
   itemList?: unknown;
 };
 type RawReturnList = Partial<Record<keyof Omit<ReturnListData, 'itemList'>, unknown>> & {
-  itemList?: unknown;
+  returnList?: unknown;
 };
 
 const toNumber = (value: unknown): number =>
@@ -62,7 +62,7 @@ export const toReturnList = (raw: RawReturnList = {}): ReturnListData => ({
   hasPrevious: raw.hasPrevious === true,
   nextPage: toNumber(raw.nextPage),
   previousPage: toNumber(raw.previousPage),
-  itemList: Array.isArray(raw.itemList)
-    ? raw.itemList.filter(isObject).map((item) => toReturn(item))
+  itemList: Array.isArray(raw.returnList)
+    ? raw.returnList.filter(isObject).map((item) => toReturn(item as Record<string, unknown>))
     : [],
 });

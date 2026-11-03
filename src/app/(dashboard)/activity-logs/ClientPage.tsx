@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { PermissionGuard } from '@/components/auth/guards';
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
+import type { DataTableColumn } from '@/components/common/data-table';
 import { Pagination } from '@/components/common/pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
 import { StatusBadge } from '@/components/common/status-badge';
+import type { OrderListData } from '@/lib/api/contract';
 import { useOrders } from '@/hooks/use-orders';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
@@ -26,32 +28,32 @@ export default function ClientActivityLogsPage() {
     refresh,
   } = useOrders();
 
-  const columns = [
+  const columns: DataTableColumn<OrderListData['itemList'][number]>[] = [
     {
       key: 'activity',
       header: 'Activity',
-      cell: (row: any) => <span className="font-medium">{row.orderNumber || row.orderId}</span>,
+      cell: (row) => <span className="font-medium">{row.orderNumber || row.orderId}</span>,
     },
     {
       key: 'entity',
       header: 'Entity',
       hideBelow: 'lg',
       width: 'w-32',
-      cell: (row: any) => <span className="text-sm truncate">{row.paymentMethod}</span>,
+      cell: (row) => <span className="text-sm truncate">{row.paymentMethod}</span>,
     },
     {
       key: 'user',
       header: 'Staff',
       hideBelow: 'xl',
       width: 'w-40',
-      cell: (row: any) => <span className="text-sm truncate">{row.userData?.name || row.userData?.email}</span>,
+      cell: (row) => <span className="text-sm truncate">{row.userData?.name || row.userData?.email}</span>,
     },
     {
       key: 'created',
       header: 'Created',
-      cell: (row: any) => <span className="text-sm">{row.createdAt}</span>,
+      cell: (row) => <span className="text-sm">{row.createdAt}</span>,
     },
-  ] as const;
+  ];
 
   return (
     <div className="flex flex-col gap-4">
@@ -64,7 +66,7 @@ export default function ClientActivityLogsPage() {
           <DataTable
             columns={columns}
             rows={data.itemList}
-            rowKey={(row: any) => row.orderId}
+            rowKey={(row) => row.orderId}
             toolbar={{
               search: {
                 value: search,

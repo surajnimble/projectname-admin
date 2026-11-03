@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { PermissionGuard } from '@/components/auth/guards';
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
+import type { DataTableColumn } from '@/components/common/data-table';
 import { Pagination } from '@/components/common/pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
 import { StatusBadge } from '@/components/common/status-badge';
+import type { QuestionListData } from '@/lib/api/contract';
 import { useQuestions } from '@/hooks/use-questions';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
@@ -80,25 +82,25 @@ export default function ClientQuestionsPage() {
     if (ok) setDialogOpen(false);
   };
 
-  const columns = [
+  const columns: DataTableColumn<QuestionListData['itemList'][number]>[] = [
     {
       key: 'question',
       header: MESSAGES.questions.question,
-      cell: (row: any) => <span className="font-medium">{row.question}</span>,
+      cell: (row) => <span className="font-medium">{row.question}</span>,
     },
     {
       key: 'product',
       header: 'Product',
       hideBelow: 'lg',
       width: 'w-40',
-      cell: (row: any) => <span className="text-sm truncate">{row.productName}</span>,
+      cell: (row) => <span className="text-sm truncate">{row.productName}</span>,
     },
     {
       key: 'customer',
       header: 'Customer',
       hideBelow: 'xl',
       width: 'w-40',
-      cell: (row: any) => <span className="text-sm truncate">{row.userName}</span>,
+      cell: (row) => <span className="text-sm truncate">{row.userName}</span>,
     },
     {
       key: 'status',
@@ -106,7 +108,7 @@ export default function ClientQuestionsPage() {
       align: 'center',
       hideBelow: 'lg',
       width: 'w-32',
-      cell: (row: any) => (
+      cell: (row) => (
         <StatusBadge
           meta={{
             label: row.isApproved ? 'Approved' : 'Pending',
@@ -119,7 +121,7 @@ export default function ClientQuestionsPage() {
       key: 'actions',
       header: MESSAGES.common.actions,
       align: 'center',
-      cell: (row: any) => {
+      cell: (row) => {
         const items: OptionsMenuItem[] = [
           {
             label: row.isApproved ? 'Reject' : 'Approve',
@@ -140,7 +142,7 @@ export default function ClientQuestionsPage() {
         );
       },
     },
-  ] as const;
+  ];
 
   return (
     <div className="flex flex-col gap-4">
@@ -153,7 +155,7 @@ export default function ClientQuestionsPage() {
           <DataTable
             columns={columns}
             rows={data.itemList}
-            rowKey={(row: any) => row.questionId}
+            rowKey={(row) => row.questionId}
             toolbar={{
               search: {
                 value: search,
@@ -173,7 +175,7 @@ export default function ClientQuestionsPage() {
             }}
             actions={{
               header: MESSAGES.common.actions,
-              render: (row: any) => {
+              render: (row) => {
                 const items: OptionsMenuItem[] = [
                   {
                     label: row.isApproved ? MESSAGES.common.reject : MESSAGES.common.approve,

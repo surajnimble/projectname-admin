@@ -90,5 +90,5 @@ export class ApiRequest {
   body?: string;
   isInternal?: boolean;
   code?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }

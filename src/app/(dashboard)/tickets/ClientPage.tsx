@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { PermissionGuard } from '@/components/auth/guards';
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
+import type { DataTableColumn } from '@/components/common/data-table';
 import { Pagination } from '@/components/common/pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
 import { StatusBadge } from '@/components/common/status-badge';
+import type { TicketListData } from '@/lib/api/contract';
 import { useTickets } from '@/hooks/use-tickets';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
@@ -99,30 +101,30 @@ export default function ClientTicketsPage() {
     if (ok && dialogMode === 'create') setDialogOpen(false);
   };
 
-  const columns = [
+  const columns: DataTableColumn<TicketListData['itemList'][number]>[] = [
     {
       key: 'ticket',
       header: 'Ticket',
-      cell: (row: any) => <span className="font-medium">{row.ticketNumber}</span>,
+      cell: (row) => <span className="font-medium">{row.ticketNumber}</span>,
     },
     {
       key: 'subject',
       header: 'Subject',
-      cell: (row: any) => <span className="text-sm truncate">{row.subject}</span>,
+      cell: (row) => <span className="text-sm truncate">{row.subject}</span>,
     },
     {
       key: 'customer',
       header: 'Customer',
       hideBelow: 'xl',
       width: 'w-40',
-      cell: (row: any) => <span className="text-sm truncate">{row.userName}</span>,
+      cell: (row) => <span className="text-sm truncate">{row.userName}</span>,
     },
     {
       key: 'priority',
       header: 'Priority',
       hideBelow: 'lg',
       width: 'w-32',
-      cell: (row: any) => (
+      cell: (row) => (
         <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs ${row.priority === 'HIGH' ? 'border-danger/20 text-danger bg-danger/10' : row.priority === 'MEDIUM' ? 'border-warning/20 text-warning bg-warning/10' : 'border-success/20 text-success bg-success/10'}`}>
           {row.priority}
         </span>
@@ -134,7 +136,7 @@ export default function ClientTicketsPage() {
       align: 'center',
       hideBelow: 'lg',
       width: 'w-32',
-      cell: (row: any) => (
+      cell: (row) => (
         <StatusBadge
           meta={{
             label: row.status,
@@ -147,7 +149,7 @@ export default function ClientTicketsPage() {
       key: 'actions',
       header: MESSAGES.common.actions,
       align: 'center',
-      cell: (row: any) => {
+      cell: (row) => {
         const items: OptionsMenuItem[] = [
           {
             label: 'Reply',
@@ -173,7 +175,7 @@ export default function ClientTicketsPage() {
         );
       },
     },
-  ] as const;
+  ];
 
   return (
     <div className="flex flex-col gap-4">
@@ -191,7 +193,7 @@ export default function ClientTicketsPage() {
           <DataTable
             columns={columns}
             rows={data.itemList}
-            rowKey={(row: any) => row.ticketId}
+            rowKey={(row) => row.ticketId}
             toolbar={{
               search: {
                 value: search,
@@ -211,7 +213,7 @@ export default function ClientTicketsPage() {
             }}
             actions={{
               header: MESSAGES.common.actions,
-              render: (row: any) => {
+              render: (row) => {
                 const items: OptionsMenuItem[] = [
                   {
                     label: 'Reply',
@@ -279,7 +281,7 @@ export default function ClientTicketsPage() {
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm text-fg font-medium">Category</label>
                 <select className="border border-input rounded-md px-3 py-2 text-sm w-full">
-                  {categories.itemList?.map((cat: any) => (
+                  {categories.itemList?.map((cat) => (
                     <option key={cat.categoryId} value={cat.categoryId}>
                       {cat.name}
                     </option>

@@ -211,7 +211,11 @@ export const toProductApproval = (raw: Partial<ProductApprovalData> = {}): Produ
   createdAt: toString(raw.createdAt),
 });
 
-export const toProductApprovalList = (raw: Partial<ProductApprovalListData> = {}): ProductApprovalListData => ({
+export const toProductApprovalList = (
+  raw: Partial<ProductApprovalListData> & {
+    productApprovalList?: unknown;
+  } = {},
+): ProductApprovalListData => ({
   totalRecord: toNumber(raw.totalRecord),
   totalPage: toNumber(raw.totalPage),
   currentPage: toNumber(raw.currentPage),
@@ -220,7 +224,7 @@ export const toProductApprovalList = (raw: Partial<ProductApprovalListData> = {}
   hasPrevious: raw.hasPrevious === true,
   nextPage: toNumber(raw.nextPage),
   previousPage: toNumber(raw.previousPage),
-  itemList: Array.isArray(raw.itemList)
-    ? raw.itemList.filter(isObject).map((item) => toProductApproval(item))
+  itemList: Array.isArray(raw.productApprovalList)
+    ? raw.productApprovalList.filter(isObject).map((item) => toProductApproval(item as Record<string, unknown>))
     : [],
 });
