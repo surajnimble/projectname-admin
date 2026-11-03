@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { apiService } from '@/lib/api/api.service';
+import type { ApiRequest } from '@/types/api';
 import type { SettingListData } from '@/lib/api/contract';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
@@ -56,10 +57,10 @@ export default function ClientSettingsPage() {
   const fetchSettings = useCallback(async () => {
     setIsLoading(true);
     try {
-      const query: Record<string, unknown> = { page, limit: 50 };
+      const query: ApiRequest = { page, limit: 50 };
       if (search) query.search = search;
       if (category !== 'all') query.category = category;
-      const res = await apiService.getSettings(query as any);
+      const res = await apiService.getSettings(query);
       if (res.status) {
         setData(res.data);
       } else {

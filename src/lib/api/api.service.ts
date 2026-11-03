@@ -263,7 +263,7 @@ export class ApiService {
 
   updateSubAdmin(
     id: string,
-    body: Pick<ApiRequest, 'name' | 'email' | 'phone'>,
+    body: Pick<ApiRequest, 'name' | 'email' | 'phone' | 'password'>,
   ) {
     return apiClient.patch(API_URLS.updateSubAdmin(id), {
       body,

@@ -164,8 +164,8 @@ export function SubAdminDialog({
           />
         </FormField>
 
-        {mode === 'create' && (
-          <FormField label={subAdmins.passwordLabel} error={errors.password}>
+        {mode === 'create' || mode === 'update' ? (
+            <FormField label={subAdmins.passwordLabel} error={errors.password} hint={mode === 'update' ? subAdmins.passwordOptionalHint : undefined}>
             <Input
               type="password"
               value={password}
@@ -176,7 +176,7 @@ export function SubAdminDialog({
               placeholder={subAdmins.passwordPlaceholder}
             />
           </FormField>
-        )}
+        ) : null}
 
         {mode === 'create' && allPermissions && (
           <FormField label={subAdmins.rolesLabel} error={errors.permissions}>

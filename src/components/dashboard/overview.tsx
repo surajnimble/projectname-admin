@@ -228,7 +228,22 @@ export function DashboardOverview() {
     topSelling.isLoading ||
     lowStock.isLoading;
 
-  const viewAll = (section: string) => showInfo(MESSAGES.common.comingSoon(section));
+  const viewAll = (section: string) => {
+    const route: Record<string, string> = {
+      [sections.orders]: ROUTES.orders,
+      [sections.payments]: ROUTES.payments,
+      [sections.analytics]: ROUTES.analytics,
+      [sections.products]: ROUTES.productApprovals,
+      [sections.inventory]: ROUTES.returns,
+      [sections.activity]: ROUTES.activityLogs,
+    };
+    const target = route[section];
+    if (target) {
+      router.push(target);
+      return;
+    }
+    showInfo(MESSAGES.common.comingSoon(section));
+  };
 
   const refresh = () => {
     void stats.refresh();

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ROUTES } from '@/constants';
+import { ROUTES, PAYOUTS_PAGE_SIZE } from '@/constants';
 import { apiService } from '@/lib/api/api.service';
 import type { PayoutListData, PayoutStatementData } from '@/lib/api/contract';
 import { onScopeDropped } from '@/lib/api/navigation-cache';
@@ -42,7 +42,7 @@ export function useVendorPayouts(vendorId: string) {
     async (next: PayoutsQuery, showLoading: boolean) => {
       if (showLoading) setIsLoading(true);
       const [listResponse, statementResponse] = await Promise.all([
-        apiService.getPayouts({ page: next.page, limit: 5, vendorId: next.vendorId }),
+        apiService.getPayouts({ page: next.page, limit: PAYOUTS_PAGE_SIZE, vendorId: next.vendorId }),
         apiService.getPayoutStatement(next.vendorId),
       ]);
 
@@ -65,7 +65,7 @@ export function useVendorPayouts(vendorId: string) {
     if (entry && isSameQuery(entry.query, query)) return;
     let active = true;
     void Promise.all([
-      apiService.getPayouts({ page: query.page, limit: 5, vendorId: query.vendorId }),
+      apiService.getPayouts({ page: query.page, limit: PAYOUTS_PAGE_SIZE, vendorId: query.vendorId }),
       apiService.getPayoutStatement(query.vendorId),
     ]).then(([listResponse, statementResponse]) => {
       if (!active) return;

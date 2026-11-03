@@ -84,6 +84,7 @@ export function SubAdminList() {
         name: values.name,
         phone: values.phone,
         email: values.email,
+        ...(values.password ? { password: values.password } : {}),
       });
       if (!done) return;
       showSuccess(SUCCESS_MESSAGES.update);

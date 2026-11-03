@@ -1306,6 +1306,7 @@ export const en = {
     subAdminPhoneRequired: 'Enter a phone number.',
     subAdminPasswordRequired: 'Enter a password.',
     subAdminRolesRequired: 'Select at least one role.',
+    passwordOptionalHint: 'Leave blank to keep the current password.',
     dash: '—',
   },
   products: {
