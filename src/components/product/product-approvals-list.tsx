@@ -14,6 +14,7 @@ import { useProductApprovals } from '@/hooks/use-product-approvals';
 import type { ProductApprovalData, ProductSummaryData } from '@/lib/api/contract';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
+import { StatusBadge, productStatusMeta } from '@/components/common/status-badge';
 
 const { products } = MESSAGES;
 
@@ -53,17 +54,7 @@ const approvalColumns: readonly DataTableColumn<ProductApprovalData>[] = [
   {
     key: 'approvalStatus',
     header: products.columns.approvalStatus,
-    cell: (product) => (
-      <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
-        product.approvalStatus === 'APPROVED'
-          ? 'border-success/20 text-success bg-success/10'
-          : product.approvalStatus === 'REJECTED'
-            ? 'border-danger/20 text-danger bg-danger/10'
-            : 'border-warning/20 text-warning bg-warning/10'
-      }`}>
-        {product.approvalStatus}
-      </span>
-    ),
+    cell: (product) => <StatusBadge meta={productStatusMeta(product.approvalStatus)} />,
   },
 ];
 

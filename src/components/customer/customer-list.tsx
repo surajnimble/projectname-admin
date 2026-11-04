@@ -12,6 +12,7 @@ import { useUsers } from '@/hooks/use-users';
 import type { UserData } from '@/lib/api/contract';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
+import { StatusBadge, catalogStatusMeta } from '@/components/common/status-badge';
 
 const { customers } = MESSAGES;
 
@@ -61,13 +62,7 @@ export const customerColumns: readonly DataTableColumn<UserData>[] = [
     align: 'center',
     hideBelow: 'lg',
     width: 'w-32',
-    cell: (user) => (
-      <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
-        user.isActive ? 'border-success/20 text-success bg-success/10' : 'border-danger/20 text-danger bg-danger/10'
-      }`}>
-        {user.isActive ? customers.statuses.active : customers.statuses.inactive}
-      </span>
-    ),
+    cell: (user) => <StatusBadge meta={catalogStatusMeta(user.isActive ? 'ACTIVE' : 'INACTIVE')} />,
   },
 ];
 

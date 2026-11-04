@@ -57,7 +57,7 @@ describe('PaymentList', () => {
     render(<PaymentList />);
 
     expect(await screen.findByText('ORD-1')).toBeInTheDocument();
-    expect(screen.getByText('PAID')).toBeInTheDocument();
+    expect(await screen.findAllByText('Paid')).toHaveLength(2);
   });
 
   it('confirms a payment from the row menu', async () => {

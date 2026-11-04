@@ -111,7 +111,7 @@ src/
     customer/         customer-list
     delivery-boy/     delivery-boy-page
     analytics/        analytics-page
-    (categories, brands, tags, attributes, collections, coupons, pages, blogs, faqs, banners, notifications, reviews, questions, shipping, tickets, settings, audit/activity logs and system health do not yet have a dedicated components/<feature>/ folder — their markup lives in each route's own ClientPage.tsx until a second use promotes a piece into common/ per §6)
+    (all sections — vendors, products, orders, payments, sub-admins, customers, catalog, content, coupons, notifications, shipping, tickets, reviews, questions, settings, system, activity/audit logs, inventory report, analytics — have dedicated components/<feature>/ folders with list, columns, and dialog components per §3)
   config/             env.ts
   constants.ts        ← every non-copy app constant (routes, roles, keys, timings, regex, nav items)
   hooks/              use-login, use-health, use-mounted, use-permission, use-dashboard-stats, use-recent-activity, use-recent-orders, use-recent-payments, use-low-stock, use-product-performance, use-vendors, use-vendor-detail, use-vendor-documents, use-vendor-products, use-vendor-payouts, use-vendor-returns, use-product-detail, use-product-approvals, use-orders, use-order-detail, use-payments, use-payouts, use-returns, use-sub-admins, use-customer-detail, use-users, use-delivery-boys, use-catalog, use-content, use-coupons, use-analytics, use-audit-logs, use-notifications, use-reviews, use-questions, use-shipping-zones, use-tickets, use-settings, use-system-health, use-theme-settings, use-debounced-value, use-media-query, use-ripple

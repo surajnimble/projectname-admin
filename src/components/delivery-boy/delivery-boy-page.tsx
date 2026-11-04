@@ -1,16 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { RefreshCw } from 'lucide-react';
+import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
+import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
 import { Pagination } from '@/components/common/pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Dialog } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { DELIVERY_BOY_PAGE_SIZE } from '@/constants';
+import { ConfirmDialog } from '@/components/common/confirm-dialog';
+import { EntityDialog } from '@/components/common/entity-dialog';
+import { OptionsMenu } from '@/components/ui/options-menu';
+import { StatusBadge, catalogStatusMeta } from '@/components/common/status-badge';
+import { PermissionGuard } from '@/components/auth/guards';
 import { useDeliveryBoys } from '@/hooks/use-delivery-boys';
 import type { DeliveryBoyData } from '@/lib/api/contract';
+import { DELIVERY_BOY_PAGE_SIZE } from '@/constants';
+import { PERMISSIONS } from '@/constants';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
 
@@ -18,17 +24,10 @@ const { deliveryBoys } = MESSAGES;
 const df = deliveryBoys;
 
 const STATUS_FILTERS = [
-  { value: 'all', label: df.columns.status },
-  { value: 'active', label: df.statusActive },
-  { value: 'inactive', label: df.statusInactive },
+  { value: 'all', label: df.statuses.all },
+  { value: 'active', label: df.statuses.active },
+  { value: 'inactive', label: df.statuses.inactive },
 ] as const;
-
-type DeliveryBoyFormValues = {
-  name: string;
-  phone: string;
-  email: string;
-  maxOrders: string;
-};
 
 const columns = [
   {
@@ -56,11 +55,7 @@ const columns = [
     align: 'center',
     hideBelow: '2xl',
     width: 'w-32',
-    cell: (row: DeliveryBoyData) => (
-      <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs ${row.isActive ? 'border-success/20 text-success bg-success/10' : 'border-muted/30 text-muted'}`}>
-        {row.isActive ? df.statusActive : df.statusInactive}
-      </span>
-    ),
+    cell: (row: DeliveryBoyData) => <StatusBadge meta={catalogStatusMeta(row.isActive ? 'ACTIVE' : 'INACTIVE')} />,
   },
   {
     key: 'orders',
@@ -87,6 +82,13 @@ const columns = [
   },
 ] as const;
 
+const deliveryBoyFields = [
+  { key: 'name', label: df.columns.name, type: 'text' as const, required: true, placeholder: df.namePlaceholder },
+  { key: 'phone', label: df.columns.phone, type: 'text' as const, required: true, placeholder: df.phonePlaceholder },
+  { key: 'email', label: df.columns.email, type: 'text' as const, placeholder: df.emailPlaceholder },
+  { key: 'maxOrders', label: df.columns.maxOrders, type: 'number' as const, placeholder: df.maxOrdersPlaceholder },
+];
+
 export function DeliveryBoyPage() {
   const {
     data,
@@ -106,57 +108,83 @@ export function DeliveryBoyPage() {
     deleteDeliveryBoy,
     toggleDeliveryBoyStatus,
   } = useDeliveryBoys();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<'add' | 'edit'>('add');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [defaultValues, setDefaultValues] = useState<Record<string, unknown>>({});
+  const [dialogKey, setDialogKey] = useState(0);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmRow, setConfirmRow] = useState<DeliveryBoyData | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [draftStatus, setDraftStatus] = useState(status);
+  const activeFilterCount = useMemo(() => (search ? 1 : 0) + (status !== 'all' ? 1 : 0), [search, status]);
 
-  const [createOpen, setCreateOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [editingId, setEditingId] = useState('');
-  const [formValues, setFormValues] = useState<DeliveryBoyFormValues>({
-    name: '',
-    phone: '',
-    email: '',
-    maxOrders: '5',
-  });
-  const [confirmDeleteId, setConfirmDeleteId] = useState('');
-  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const rows = useMemo(() => data.itemList, [data.itemList]);
 
-  const handleCreate = async () => {
-    const done = await createDeliveryBoy({
-      name: formValues.name.trim(),
-      phone: formValues.phone.trim(),
-      email: formValues.email.trim() || undefined,
-      maxOrders: Number(formValues.maxOrders) || 5,
-    });
-    if (done) {
-      setCreateOpen(false);
-      setFormValues({ name: '', phone: '', email: '', maxOrders: '5' });
-      showSuccess(df.created);
-    }
+  const handleAdd = () => {
+    setDialogMode('add');
+    setEditingId(null);
+    setDefaultValues({});
+    setDialogKey((k) => k + 1);
+    setDialogOpen(true);
   };
 
-  const handleUpdate = async () => {
-    if (!editingId) return;
-    const done = await updateDeliveryBoy(editingId, {
-      name: formValues.name.trim() || undefined,
-      phone: formValues.phone.trim() || undefined,
-      email: formValues.email.trim() || undefined,
-      maxOrders: Number(formValues.maxOrders) || 5,
+  const handleEdit = (row: DeliveryBoyData) => {
+    setDialogMode('edit');
+    setEditingId(row.deliveryBoyId);
+    setDefaultValues({
+      name: row.name,
+      phone: row.phone,
+      email: row.email,
+      maxOrders: String(row.maxOrders),
     });
-    if (done) {
-      setEditOpen(false);
-      setEditingId('');
-      setFormValues({ name: '', phone: '', email: '', maxOrders: '5' });
-      showSuccess(df.updated);
-    }
+    setDialogKey((k) => k + 1);
+    setDialogOpen(true);
   };
 
-  const handleDelete = async () => {
-    if (!confirmDeleteId) return;
-    const done = await deleteDeliveryBoy(confirmDeleteId);
-    if (done) {
-      setConfirmDeleteOpen(false);
-      setConfirmDeleteId('');
-      showSuccess(df.deleted);
+  const handleDelete = (row: DeliveryBoyData) => {
+    setConfirmRow(row);
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!confirmRow) return;
+    setConfirmOpen(false);
+    const id = confirmRow.deliveryBoyId;
+    setConfirmRow(null);
+    await deleteDeliveryBoy(id);
+  };
+
+  const handleSubmit = async (values: Record<string, unknown>) => {
+    let ok = false;
+    if (dialogMode === 'add') {
+      ok = await createDeliveryBoy({
+        name: String(values.name).trim(),
+        phone: String(values.phone).trim(),
+        email: String(values.email).trim() || undefined,
+        maxOrders: Number(values.maxOrders) || 5,
+      });
+    } else if (editingId) {
+      ok = await updateDeliveryBoy(editingId, {
+        name: String(values.name).trim() || undefined,
+        phone: String(values.phone).trim() || undefined,
+        email: String(values.email).trim() || undefined,
+        maxOrders: Number(values.maxOrders) || 5,
+      });
     }
+    if (ok) setDialogOpen(false);
+  };
+
+  const openFilters = () => {
+    setDraftStatus(status);
+    setFiltersOpen(true);
+  };
+
+  const resetDraft = () => setDraftStatus('all');
+
+  const applyDraft = () => {
+    setStatus(draftStatus);
+    setFiltersOpen(false);
   };
 
   const handleToggle = async (id: string, currentIsActive: boolean) => {
@@ -166,114 +194,57 @@ export function DeliveryBoyPage() {
     }
   };
 
-  const handleEditClick = (row: DeliveryBoyData) => {
-    setEditingId(row.deliveryBoyId);
-    setFormValues({
-      name: row.name,
-      phone: row.phone,
-      email: row.email,
-      maxOrders: String(row.maxOrders),
-    });
-    setEditOpen(true);
-  };
-
-  const hasFilters = search !== '' || status !== 'all';
-
   return (
-    <div className="flex min-h-0 flex-col">
-      <div className="flex flex-col gap-2 shrink-0">
-        <h1 className="text-fg text-2xl font-semibold tracking-tight">{df.title}</h1>
-        <p className="text-fg-muted text-sm">{df.subtitle}</p>
-      </div>
-
-      <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between p-4 border-b border-border bg-background/50">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <Input
-                placeholder={df.searchPlaceholder}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full sm:w-auto max-w-md pl-9"
-              />
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="border border-input bg-background rounded-md px-2 py-1 text-sm text-fg focus:ring-2 focus:ring-ring focus:border-ring outline-none"
-              >
-                {STATUS_FILTERS.map((f) => (
-                  <option key={f.value} value={f.value}>
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => void refresh()}
-                disabled={isLoading || isActioning}
-                loading={isLoading}
-              >
-                {MESSAGES.dashboard.refresh}
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setCreateOpen(true)}
-                disabled={isActioning}
-              >
-                {df.create}
-              </Button>
-            </div>
-          </div>
-
+    <div className="flex flex-col gap-4">
+      <PageHeader
+        title={df.title}
+        description={df.subtitle}
+        action={
+          <Button variant="primary" size="sm" onClick={handleAdd} disabled={isActioning}>
+            {df.create}
+          </Button>
+        }
+      />
+      <PermissionGuard permission={PERMISSIONS.deliveryBoyManage}>
+        <Card className="overflow-hidden">
           <DataTable
             columns={columns}
-            rows={data.itemList}
+            rows={rows}
             rowKey={(row: DeliveryBoyData) => row.deliveryBoyId}
             toolbar={{
+              search: {
+                value: search,
+                placeholder: df.searchPlaceholder,
+                onChange: setSearch,
+              },
               filters: {
                 label: MESSAGES.common.filters,
-                count: hasFilters ? 1 : 0,
-                onOpen: () => {},
+                count: activeFilterCount,
+                onOpen: openFilters,
               },
+              actions: (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  loading={isLoading}
+                  onClick={() => void refresh()}
+                  className="shrink-0"
+                >
+                  <RefreshCw className="size-4" aria-hidden="true" />
+                  {MESSAGES.dashboard.refresh}
+                </Button>
+              ),
             }}
             actions={{
               header: df.columns.actions,
               render: (row: DeliveryBoyData) => {
                 const isActive = row.isActive;
                 return (
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEditClick(row)}
-                      disabled={isActioning}
-                    >
-                      {df.update}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => void handleToggle(row.deliveryBoyId, isActive)}
-                      disabled={isActioning}
-                    >
-                      {isActive ? df.deactivate : df.activate}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setConfirmDeleteId(row.deliveryBoyId);
-                        setConfirmDeleteOpen(true);
-                      }}
-                      disabled={isActioning}
-                    >
-                      {df.delete}
-                    </Button>
-                  </div>
+                  <OptionsMenu label={df.actionsLabel} items={[
+                    { label: MESSAGES.common.editExisting, onSelect: () => handleEdit(row) },
+                    { label: isActive ? df.deactivate : df.activate, onSelect: () => void handleToggle(row.deliveryBoyId, isActive) },
+                    { label: df.delete, intent: 'danger', onSelect: () => handleDelete(row) },
+                  ]} className="flex justify-end" />
                 );
               },
             }}
@@ -281,171 +252,63 @@ export function DeliveryBoyPage() {
             error={error}
             onRetry={() => void refresh()}
             emptyTitle={df.empty}
-            emptyDescription={hasFilters ? df.emptyFiltered : undefined}
+            emptyDescription={activeFilterCount > 0 ? df.emptyFiltered : undefined}
             footer={
               <Pagination
-                currentPage={page}
+                currentPage={data.currentPage || page}
                 totalPage={data.totalPage}
                 totalRecord={data.totalRecord}
-                limit={DELIVERY_BOY_PAGE_SIZE}
+                limit={data.limit || DELIVERY_BOY_PAGE_SIZE}
                 onPageChange={setPage}
               />
             }
           />
-        </div>
-      </Card>
+        </Card>
 
-      {actionError && (
-        <div className="p-4 text-destructive text-sm">{actionError}</div>
-      )}
+        {actionError && <div className="p-4 text-destructive text-sm">{actionError}</div>}
 
-      <Dialog
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        title={df.createTitle}
-        description={df.createDescription}
-        closeLabel={MESSAGES.common.cancel}
-        footer={
-          <>
-            <Button type="button" variant="outline" onClick={() => setCreateOpen(false)}>
-              {MESSAGES.common.cancel}
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              onClick={handleCreate}
-              disabled={isActioning || !formValues.name || !formValues.phone}
-            >
-              {df.save}
-            </Button>
-          </>
-        }
-      >
-        <form onSubmit={(e) => { e.preventDefault(); void handleCreate(); }} className="grid gap-4 p-6">
-          <div>
-            <Label className="text-sm font-medium text-fg block mb-1">{df.nameLabel}</Label>
-            <Input
-              value={formValues.name}
-              onChange={(e) => setFormValues({ ...formValues, name: e.target.value })}
-              placeholder={df.namePlaceholder}
-              className="w-full"
-            />
-          </div>
-          <div>
-            <Label className="text-sm font-medium text-fg block mb-1">{df.phoneLabel}</Label>
-            <Input
-              value={formValues.phone}
-              onChange={(e) => setFormValues({ ...formValues, phone: e.target.value })}
-              placeholder={df.phonePlaceholder}
-              className="w-full"
-            />
-          </div>
-          <div>
-            <Label className="text-sm font-medium text-fg block mb-1">{df.emailLabel}</Label>
-            <Input
-              value={formValues.email}
-              onChange={(e) => setFormValues({ ...formValues, email: e.target.value })}
-              placeholder={df.emailPlaceholder}
-              className="w-full"
-            />
-          </div>
-          <div>
-            <Label className="text-sm font-medium text-fg block mb-1">{df.maxOrdersLabel}</Label>
-            <Input
-              type="number"
-              value={formValues.maxOrders}
-              onChange={(e) => setFormValues({ ...formValues, maxOrders: e.target.value })}
-              placeholder={df.maxOrdersPlaceholder}
-              className="w-full"
-            />
-          </div>
-        </form>
-      </Dialog>
+        <FilterSheet
+          open={filtersOpen}
+          title={MESSAGES.common.filters}
+          onClose={() => setFiltersOpen(false)}
+          onReset={resetDraft}
+          onDone={applyDraft}
+        >
+          <FilterGroup label={df.columns.status}>
+            {STATUS_FILTERS.map((f) => (
+              <FilterOption
+                key={f.value}
+                label={f.label}
+                selected={draftStatus === f.value}
+                onSelect={() => setDraftStatus(f.value)}
+              />
+            ))}
+          </FilterGroup>
+        </FilterSheet>
 
-      <Dialog
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        title={df.update}
-        description={editingId}
-        closeLabel={MESSAGES.common.cancel}
-        footer={
-          <>
-            <Button type="button" variant="outline" onClick={() => setEditOpen(false)}>
-              {MESSAGES.common.cancel}
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              onClick={handleUpdate}
-              disabled={isActioning || !editingId || !formValues.name || !formValues.phone}
-            >
-              {df.save}
-            </Button>
-          </>
-        }
-      >
-        <form onSubmit={(e) => { e.preventDefault(); void handleUpdate(); }} className="grid gap-4 p-6">
-          <div>
-            <Label className="text-sm font-medium text-fg block mb-1">{df.nameLabel}</Label>
-            <Input
-              value={formValues.name}
-              onChange={(e) => setFormValues({ ...formValues, name: e.target.value })}
-              className="w-full"
-            />
-          </div>
-          <div>
-            <Label className="text-sm font-medium text-fg block mb-1">{df.phoneLabel}</Label>
-            <Input
-              value={formValues.phone}
-              onChange={(e) => setFormValues({ ...formValues, phone: e.target.value })}
-              className="w-full"
-            />
-          </div>
-          <div>
-            <Label className="text-sm font-medium text-fg block mb-1">{df.emailLabel}</Label>
-            <Input
-              value={formValues.email}
-              onChange={(e) => setFormValues({ ...formValues, email: e.target.value })}
-              className="w-full"
-            />
-          </div>
-          <div>
-            <Label className="text-sm font-medium text-fg block mb-1">{df.maxOrdersLabel}</Label>
-            <Input
-              type="number"
-              value={formValues.maxOrders}
-              onChange={(e) => setFormValues({ ...formValues, maxOrders: e.target.value })}
-              className="w-full"
-            />
-          </div>
-        </form>
-      </Dialog>
+        <EntityDialog
+          open={dialogOpen}
+          mode={dialogMode}
+          title={dialogMode === 'add' ? df.createTitle : df.update}
+          submitLabel={dialogMode === 'add' ? MESSAGES.common.addNew : df.save}
+          fields={deliveryBoyFields}
+          defaultValues={defaultValues}
+          key={dialogKey}
+          isSubmitting={isActioning}
+          onClose={() => setDialogOpen(false)}
+          onSubmit={handleSubmit}
+        />
 
-      <Dialog
-        open={confirmDeleteOpen}
-        onClose={() => setConfirmDeleteOpen(false)}
-        title={df.deleteConfirm}
-        closeLabel={MESSAGES.common.cancel}
-        footer={
-          <>
-            <Button type="button" variant="outline" onClick={() => setConfirmDeleteOpen(false)}>
-              {MESSAGES.common.cancel}
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={isActioning || !confirmDeleteId}
-            >
-              {df.delete}
-            </Button>
-          </>
-        }
-      >
-        <p className="p-6 text-sm text-fg-muted">
-          This action cannot be undone. All associated orders will be affected.
-        </p>
-      </Dialog>
+        <ConfirmDialog
+          open={confirmOpen}
+          title={df.delete}
+          description={confirmRow ? df.deleteConfirm.replace('{name}', confirmRow.name) : ''}
+          confirmLabel={MESSAGES.common.delete}
+          isSubmitting={isActioning}
+          onConfirm={() => void confirmDelete()}
+          onClose={() => setConfirmOpen(false)}
+        />
+      </PermissionGuard>
     </div>
   );
 }

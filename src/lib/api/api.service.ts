@@ -101,7 +101,7 @@ export class ApiService {
     });
   }
 
-  getPayments(query: Pick<ApiRequest, 'page' | 'limit'>) {
+  getPayments(query: Pick<ApiRequest, 'page' | 'limit' | 'search'>) {
     return apiClient.get(API_URLS.getPayments, { query, mapper: toPaymentList });
   }
 

@@ -39,9 +39,24 @@ const ORDER_INTENTS: Record<string, BadgeIntent> = {
   RETURNED: 'danger',
 };
 
+const PAYMENT_INTENTS: Record<string, BadgeIntent> = {
+  PENDING: 'warning',
+  PAID: 'success',
+  FAILED: 'danger',
+  REFUNDED: 'info',
+  PARTIALLY_REFUNDED: 'info',
+  COD_PENDING: 'warning',
+  COD_COLLECTED: 'success',
+};
+
 export const orderStatusMeta = (status: string): StatusMeta => ({
   label: MESSAGES.orders.statuses[status as keyof typeof MESSAGES.orders.statuses] ?? status,
   intent: ORDER_INTENTS[status] ?? 'neutral',
+});
+
+export const paymentStatusMeta = (status: string): StatusMeta => ({
+  label: MESSAGES.payments.statuses[status as keyof typeof MESSAGES.payments.statuses] ?? status,
+  intent: PAYMENT_INTENTS[status] ?? 'neutral',
 });
 
 export const vendorStatusMeta = (status: string): StatusMeta => ({
@@ -69,6 +84,13 @@ const CONTENT_INTENTS: Record<string, BadgeIntent> = {
   INACTIVE: 'neutral',
 };
 
+const TICKET_INTENTS: Record<string, BadgeIntent> = {
+  OPEN: 'neutral',
+  IN_PROGRESS: 'info',
+  RESOLVED: 'success',
+  CLOSED: 'danger',
+};
+
 export const catalogStatusMeta = (status: string): StatusMeta => ({
   label: status,
   intent: CATALOG_INTENTS[status] ?? 'neutral',
@@ -77,6 +99,11 @@ export const catalogStatusMeta = (status: string): StatusMeta => ({
 export const contentStatusMeta = (status: string): StatusMeta => ({
   label: status,
   intent: CONTENT_INTENTS[status] ?? 'neutral',
+});
+
+export const ticketStatusMeta = (status: string): StatusMeta => ({
+  label: MESSAGES.tickets.statuses[status as keyof typeof MESSAGES.tickets.statuses] ?? status,
+  intent: TICKET_INTENTS[status] ?? 'neutral',
 });
 
 interface StatusBadgeProps {

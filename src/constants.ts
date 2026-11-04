@@ -143,7 +143,9 @@ export const PERMISSIONS = {
   giftCardManage: 'giftcard:manage',
   referralManage: 'referral:manage',
   reviewModerate: 'review:moderate',
+  reviewManage: 'review:manage',
   questionModerate: 'question:moderate',
+  questionManage: 'question:manage',
   pageManage: 'page:manage',
   blogManage: 'blog:manage',
   faqManage: 'faq:manage',
@@ -239,6 +241,8 @@ export const FAILED_JOB_PAGE_SIZE = 10;
 export const COUPON_PAGE_SIZE = 10;
 export const SHIPPING_ZONE_PAGE_SIZE = 10;
 
+export const CONTENT_PAGE_SIZE = 10;
+
 export const ORDER_STATUSES = {
   all: 'all',
   pending: 'PENDING',
@@ -267,6 +271,8 @@ export const ORDER_STATUS_OPTIONS = [
 export type OrderStatusFilter = (typeof ORDER_STATUSES)[keyof typeof ORDER_STATUSES];
 
 export const SUB_ADMIN_PAGE_SIZE = 10;
+
+export const SETTINGS_PAGE_SIZE = 50;
 
 /**
  * Viewport width at which a list table switches from the stacked card layout to

@@ -37,8 +37,6 @@ export function OrderReviewList() {
     to,
     setPage,
     setSearch,
-    setDateRange,
-    refresh,
     confirmForVendor,
     rejectByAdmin,
     clearActionError,

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ROUTES } from '@/constants';
+import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { apiService } from '@/lib/api/api.service';
 import type { BaseResponse, PaymentListData } from '@/lib/api/contract';
 import { onScopeDropped } from '@/lib/api/navigation-cache';
@@ -31,9 +32,10 @@ export function usePayments() {
   const [actionError, setActionError] = useState('');
   const [isActioning, setIsActioning] = useState(false);
   const [page, setPage] = useState(initial?.query.page ?? 1);
-  const [search, setSearch] = useState(initial?.query.search ?? '');
+  const [search, setSearchState] = useState(initial?.query.search ?? '');
+  const debouncedSearch = useDebouncedValue(search);
 
-  const query: PaymentsQuery = useMemo(() => ({ page, search }), [page, search]);
+  const query: PaymentsQuery = useMemo(() => ({ page, search: debouncedSearch }), [page, debouncedSearch]);
 
   const apply = useCallback((response: BaseResponse<PaymentListData>, next: PaymentsQuery) => {
     setError(response.status ? '' : response.message);
@@ -46,9 +48,11 @@ export function usePayments() {
     const entry = cache.get('payments');
     if (entry && isSameQuery(entry.query, query)) return;
     let active = true;
-    void apiService.getPayments({ page: query.page, limit: 10 }).then((response) => {
-      if (active) apply(response, query);
-    });
+    void apiService
+      .getPayments({ page: query.page, limit: 10, ...(query.search ? { search: query.search } : {}) })
+      .then((response) => {
+        if (active) apply(response, query);
+      });
     return () => {
       active = false;
     };
@@ -64,7 +68,14 @@ export function usePayments() {
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
-    apply(await apiService.getPayments({ page: query.page, limit: 10 }), query);
+    apply(
+      await apiService.getPayments({
+        page: query.page,
+        limit: 10,
+        ...(query.search ? { search: query.search } : {}),
+      }),
+      query,
+    );
   }, [apply, query]);
 
   const runAction = useCallback(
@@ -94,6 +105,11 @@ export function usePayments() {
     },
     [refresh],
   );
+
+  const setSearch = useCallback((next: string) => {
+    setSearchState(next);
+    setPage(1);
+  }, []);
 
   return {
     data,

@@ -13,14 +13,15 @@ import { usePayouts } from '@/hooks/use-payouts';
 import type { PayoutData } from '@/lib/api/contract';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
+import { StatusBadge, productStatusMeta } from '@/components/common/status-badge';
 
 const { payouts } = MESSAGES;
 
 const PAYOUT_STATUS_OPTIONS = [
   { value: '', label: payouts.statuses.all ?? 'All' },
-  { value: 'PENDING', label: 'Pending' },
-  { value: 'APPROVED', label: 'Approved' },
-  { value: 'REJECTED', label: 'Rejected' },
+  { value: 'PENDING', label: payouts.statuses.PENDING },
+  { value: 'APPROVED', label: payouts.statuses.APPROVED },
+  { value: 'REJECTED', label: payouts.statuses.REJECTED },
 ];
 
 export const payoutColumns: readonly DataTableColumn<PayoutData>[] = [
@@ -58,17 +59,7 @@ export const payoutColumns: readonly DataTableColumn<PayoutData>[] = [
     align: 'center',
     hideBelow: 'lg',
     width: 'w-32',
-    cell: (p) => (
-      <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
-        p.status === 'APPROVED'
-          ? 'border-success/20 text-success bg-success/10'
-          : p.status === 'REJECTED'
-            ? 'border-danger/20 text-danger bg-danger/10'
-            : 'border-warning/20 text-warning bg-warning/10'
-      }`}>
-        {p.status}
-      </span>
-    ),
+    cell: (p) => <StatusBadge meta={productStatusMeta(p.status)} />,
   },
   {
     key: 'period',

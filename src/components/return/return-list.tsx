@@ -13,14 +13,15 @@ import { useReturns } from '@/hooks/use-returns';
 import type { ReturnRequestData } from '@/lib/api/contract';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
+import { StatusBadge, productStatusMeta } from '@/components/common/status-badge';
 
 const { returns } = MESSAGES;
 
 const RETURN_STATUS_OPTIONS = [
   { value: '', label: returns.statuses.all ?? 'All' },
-  { value: 'PENDING', label: 'Pending' },
-  { value: 'APPROVED', label: 'Approved' },
-  { value: 'REJECTED', label: 'Rejected' },
+  { value: 'PENDING', label: returns.statuses.PENDING },
+  { value: 'APPROVED', label: returns.statuses.APPROVED },
+  { value: 'REJECTED', label: returns.statuses.REJECTED },
 ];
 
 export const returnColumns: readonly DataTableColumn<ReturnRequestData>[] = [
@@ -65,17 +66,7 @@ export const returnColumns: readonly DataTableColumn<ReturnRequestData>[] = [
     align: 'center',
     hideBelow: 'lg',
     width: 'w-32',
-    cell: (ret) => (
-      <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
-        ret.status === 'APPROVED'
-          ? 'border-success/20 text-success bg-success/10'
-          : ret.status === 'REJECTED'
-            ? 'border-danger/20 text-danger bg-danger/10'
-            : 'border-warning/20 text-warning bg-warning/10'
-      }`}>
-        {ret.status}
-      </span>
-    ),
+    cell: (ret) => <StatusBadge meta={productStatusMeta(ret.status)} />,
   },
   {
     key: 'requested',

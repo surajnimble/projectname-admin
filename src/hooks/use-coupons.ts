@@ -9,6 +9,7 @@ import { toCouponList } from '@/types/coupon';
 interface CouponsQuery {
   page: number;
   search: string;
+  isActive: string;
 }
 
 interface CouponsCacheEntry {
@@ -23,12 +24,13 @@ export const resetCouponsCache = () => {
 };
 
 const isSameQuery = (a: CouponsQuery, b: CouponsQuery) =>
-  a.page === b.page && a.search === b.search;
+  a.page === b.page && a.search === b.search && a.isActive === b.isActive;
 
 export function useCoupons() {
   const [initial] = useState(() => cache);
   const [page, setPage] = useState(initial?.query.page ?? 1);
   const [search, setSearchState] = useState(initial?.query.search ?? '');
+  const [isActive, setIsActiveState] = useState(initial?.query.isActive ?? 'all');
   const [data, setData] = useState<CouponListData>(initial?.data ?? toCouponList());
   const [isLoading, setIsLoading] = useState(!initial);
   const [error, setError] = useState('');
@@ -36,10 +38,10 @@ export function useCoupons() {
   const [isActioning, setIsActioning] = useState(false);
   const debouncedSearch = useDebouncedValue(search);
 
-  const query: CouponsQuery = useMemo(() => ({ page, search: debouncedSearch }), [
-    debouncedSearch,
-    page,
-  ]);
+  const query: CouponsQuery = useMemo(
+    () => ({ page, search: debouncedSearch, isActive }),
+    [debouncedSearch, page, isActive],
+  );
 
   const apply = useCallback(
     (response: BaseResponse<CouponListData>, next: CouponsQuery) => {
@@ -56,13 +58,16 @@ export function useCoupons() {
   useEffect(() => {
     if (cache && isSameQuery(cache.query, query)) return;
     let active = true;
-    void apiService.getCoupons({
-      page: query.page,
-      limit: COUPON_PAGE_SIZE,
-      ...(query.search ? { search: query.search } : {}),
-    }).then((response) => {
-      if (active) apply(response, query);
-    });
+    void apiService
+      .getCoupons({
+        page: query.page,
+        limit: COUPON_PAGE_SIZE,
+        ...(query.search ? { search: query.search } : {}),
+        ...(query.isActive !== 'all' ? { isActive: query.isActive as 'true' | 'false' } : {}),
+      })
+      .then((response) => {
+        if (active) apply(response, query);
+      });
     return () => {
       active = false;
     };
@@ -76,15 +81,24 @@ export function useCoupons() {
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
-    apply(await apiService.getCoupons({
-      page: query.page,
-      limit: COUPON_PAGE_SIZE,
-      ...(query.search ? { search: query.search } : {}),
-    }), query);
+    apply(
+      await apiService.getCoupons({
+        page: query.page,
+        limit: COUPON_PAGE_SIZE,
+        ...(query.search ? { search: query.search } : {}),
+        ...(query.isActive !== 'all' ? { isActive: query.isActive as 'true' | 'false' } : {}),
+      }),
+      query,
+    );
   }, [apply, query]);
 
   const setSearch = useCallback((value: string) => {
     setSearchState(value);
+    setPage(1);
+  }, []);
+
+  const setStatus = useCallback((value: string) => {
+    setIsActiveState(value);
     setPage(1);
   }, []);
 
@@ -166,8 +180,10 @@ export function useCoupons() {
     isActioning,
     page,
     search,
+    isActive,
     setPage: changePage,
     setSearch,
+    setStatus,
     refresh,
     createCoupon,
     updateCoupon,

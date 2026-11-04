@@ -5,7 +5,7 @@ import { DataTable, type DataTableColumn } from '@/components/common/data-table'
 import { DataTableIdentity } from '@/components/common/data-table-media';
 import { Pagination } from '@/components/common/pagination';
 import { ReasonDialog } from '@/components/common/reason-dialog';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge, paymentStatusMeta } from '@/components/common/status-badge';
 import { Card } from '@/components/ui/card';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
 import { usePayments } from '@/hooks/use-payments';
@@ -15,7 +15,7 @@ import { formatRelativeTime } from '@/lib/utils/datetime';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
 
-const { vendors, payments } = MESSAGES;
+const { payments } = MESSAGES;
 
 export function PaymentList() {
   const {
@@ -54,23 +54,23 @@ export function PaymentList() {
   const columns: readonly DataTableColumn<PaymentSummaryData>[] = [
     {
       key: 'order',
-      header: vendors.columns.order,
+      header: payments.columns.order,
       cell: (payment: PaymentSummaryData) => (
         <DataTableIdentity title={payment.orderData.orderNumber || payments.fallback} />
       ),
     },
     {
       key: 'method',
-      header: vendors.columns.paymentMethod,
+      header: payments.columns.method,
       hideBelow: 'xl',
       width: 'w-32',
       cell: (payment: PaymentSummaryData) => (
-        <span className="block truncate">{payment.method || vendors.dash}</span>
+        <span className="block truncate">{payment.method || payments.fallback}</span>
       ),
     },
     {
       key: 'amount',
-      header: vendors.columns.amount,
+      header: payments.columns.amount,
       align: 'right',
       hideBelow: 'lg',
       width: 'w-32',
@@ -83,18 +83,14 @@ export function PaymentList() {
     },
     {
       key: 'status',
-      header: vendors.columns.status,
+      header: payments.columns.status,
       hideBelow: 'lg',
       width: 'w-28',
-      cell: (payment: PaymentSummaryData) => (
-        <Badge intent={payment.isPaid ? 'success' : 'warning'}>
-          {payment.status || vendors.dash}
-        </Badge>
-      ),
+      cell: (payment: PaymentSummaryData) => <StatusBadge meta={paymentStatusMeta(payment.status)} />,
     },
     {
       key: 'date',
-      header: vendors.columns.date,
+      header: payments.columns.date,
       hideBelow: 'xl',
       width: 'w-32',
       cell: (payment: PaymentSummaryData) => (
@@ -119,7 +115,7 @@ export function PaymentList() {
           },
         }}
         actions={{
-          header: vendors.columns.actions,
+          header: payments.columns.actions,
           render: (payment) => {
             const items: OptionsMenuItem[] = [
               {
