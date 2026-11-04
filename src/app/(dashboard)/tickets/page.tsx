@@ -1,6 +1,4 @@
 'use client';
-
-import type { Metadata } from 'next';
 import { useState } from 'react';
 import { PermissionGuard } from '@/components/auth/guards';
 import { PageHeader } from '@/components/common/page-header';
@@ -16,8 +14,6 @@ import type { TicketListData } from '@/lib/api/contract';
 import { useTickets } from '@/hooks/use-tickets';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
-
-export const metadata: Metadata = { title: 'Support Tickets' };
 
 export default function TicketsPage() {
   const {

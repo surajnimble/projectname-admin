@@ -1,6 +1,4 @@
 'use client';
-
-import type { Metadata } from 'next';
 import { PermissionGuard } from '@/components/auth/guards';
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
@@ -11,8 +9,6 @@ import { useLowStock } from '@/hooks/use-low-stock';
 import { PERMISSIONS } from '@/constants';
 import type { LowStockProductData } from '@/lib/api/contract';
 import { MESSAGES } from '@/messages';
-
-export const metadata: Metadata = { title: MESSAGES.inventoryReport.title };
 
 const { inventoryReport } = MESSAGES;
 

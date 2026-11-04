@@ -1,6 +1,4 @@
 'use client';
-
-import type { Metadata } from 'next';
 import { RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { PermissionGuard } from '@/components/auth/guards';
@@ -17,8 +15,6 @@ import type { CronJobData, FailedJobData } from '@/lib/api/contract';
 import { formatRelativeTime } from '@/lib/utils/datetime';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
-
-export const metadata: Metadata = { title: MESSAGES.systemHealth.title };
 
 const { systemHealth } = MESSAGES;
 const df = systemHealth;

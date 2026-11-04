@@ -1,6 +1,4 @@
 'use client';
-
-import type { Metadata } from 'next';
 import { useState } from 'react';
 import { PermissionGuard } from '@/components/auth/guards';
 import { PageHeader } from '@/components/common/page-header';
@@ -18,8 +16,6 @@ import type { NotificationListData, NotificationTemplateListData } from '@/lib/a
 import { useNotifications } from '@/hooks/use-notifications';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
-
-export const metadata: Metadata = { title: 'Notifications' };
 
 export default function NotificationsPage() {
   const {

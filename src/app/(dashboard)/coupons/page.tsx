@@ -1,6 +1,4 @@
 'use client';
-
-import type { Metadata } from 'next';
 import { PermissionGuard } from '@/components/auth/guards';
 import { useState } from 'react';
 import { DataTable } from '@/components/common/data-table';
@@ -16,8 +14,6 @@ import { useCoupons } from '@/hooks/use-coupons';
 import type { CouponData } from '@/lib/api/contract';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
-
-export const metadata: Metadata = { title: MESSAGES.coupons.title };
 
 const { coupons } = MESSAGES;
 const df = coupons;

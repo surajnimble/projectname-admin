@@ -60,6 +60,8 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         <ClickableText
           variant="nav"
           className="w-full"
+          active={pathname.startsWith(ROUTES.settings)}
+          aria-current={pathname.startsWith(ROUTES.settings) ? 'page' : undefined}
           onClick={() => void router.push(ROUTES.settings)}
         >
           <Settings className="size-4" aria-hidden="true" />

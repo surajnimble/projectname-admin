@@ -1,6 +1,4 @@
 'use client';
-
-import type { Metadata } from 'next';
 import { PermissionGuard } from '@/components/auth/guards';
 import { useState } from 'react';
 import { PageHeader } from '@/components/common/page-header';
@@ -14,8 +12,6 @@ import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu'
 import { useAnalytics } from '@/hooks/use-analytics';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
-
-export const metadata: Metadata = { title: MESSAGES.analytics.title };
 
 export default function AnalyticsPageShell() {
   const {

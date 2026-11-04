@@ -1,6 +1,4 @@
 'use client';
-
-import type { Metadata } from 'next';
 import { useState } from 'react';
 import { PermissionGuard } from '@/components/auth/guards';
 import { PageHeader } from '@/components/common/page-header';
@@ -18,8 +16,6 @@ import { useContent } from '@/hooks/use-content';
 import type { FaqData } from '@/lib/api/contract';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
-
-export const metadata: Metadata = { title: 'FAQs' };
 
 export default function FaqsPage() {
   const {

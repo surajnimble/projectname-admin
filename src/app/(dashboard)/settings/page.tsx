@@ -1,6 +1,4 @@
 'use client';
-
-import type { Metadata } from 'next';
 import { PermissionGuard } from '@/components/auth/guards';
 import { useState } from 'react';
 import { DataTable } from '@/components/common/data-table';
@@ -15,8 +13,6 @@ import { useSettings } from '@/hooks/use-settings';
 import type { SettingListData } from '@/lib/api/contract';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
-
-export const metadata: Metadata = { title: MESSAGES.settings.title };
 
 export default function SettingsPage() {
   const {

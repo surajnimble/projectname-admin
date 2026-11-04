@@ -1,6 +1,4 @@
 'use client';
-
-import type { Metadata } from 'next';
 import { PermissionGuard } from '@/components/auth/guards';
 import { DataTable } from '@/components/common/data-table';
 import { Pagination } from '@/components/common/pagination';
@@ -12,8 +10,6 @@ import { PERMISSIONS } from '@/constants';
 import { useAuditLogs } from '@/hooks/use-audit-logs';
 import type { AuditLogData } from '@/lib/api/contract';
 import { MESSAGES } from '@/messages';
-
-export const metadata: Metadata = { title: MESSAGES.auditLogs.title };
 
 const { auditLogs } = MESSAGES;
 const df = auditLogs;

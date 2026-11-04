@@ -1,6 +1,4 @@
 'use client';
-
-import type { Metadata } from 'next';
 import { useState } from 'react';
 import { DataTable } from '@/components/common/data-table';
 import { Pagination } from '@/components/common/pagination';
@@ -15,8 +13,6 @@ import { useShippingZones } from '@/hooks/use-shipping-zones';
 import type { ShippingZoneData } from '@/lib/api/contract';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
-
-export const metadata: Metadata = { title: MESSAGES.shipping.title };
 
 const { shipping } = MESSAGES;
 const df = shipping;

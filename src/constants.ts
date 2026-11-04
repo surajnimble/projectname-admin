@@ -9,7 +9,6 @@ import {
   Layout,
   FileText,
   Image,
-  Settings,
   Truck,
   Activity,
   Server,
@@ -513,12 +512,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: ROUTES.notifications,
     icon: Image,
     permission: PERMISSIONS.notificationSend,
-  },
-  {
-    label: MESSAGES.sections.settings,
-    href: ROUTES.settings,
-    icon: Settings,
-    permission: PERMISSIONS.settingsView,
   },
   {
     label: MESSAGES.sections.auditLogs,

@@ -1,6 +1,4 @@
 'use client';
-
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { PageHeader } from '@/components/common/page-header';
@@ -18,8 +16,6 @@ import { formatCurrency } from '@/lib/utils';
 import { formatRelativeTime } from '@/lib/utils/datetime';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
-
-export const metadata: Metadata = { title: MESSAGES.customers.detail.title };
 
 const { customers, orders } = MESSAGES;
 const df = customers.detail.fields;
