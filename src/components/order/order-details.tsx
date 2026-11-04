@@ -76,7 +76,9 @@ const orderItemColumns: readonly DataTableColumn<OrderItemData>[] = [
 const show = (value: string) => value || orders.dash;
 
 const canConfirm = (status: string) =>
-  status === ORDER_STATUSES.pending || status === ORDER_STATUSES.pendingToken;
+  status === ORDER_STATUSES.pending ||
+  status === ORDER_STATUSES.pendingToken ||
+  status === ORDER_STATUSES.awaitingAdminReview;
 
 export function OrderDetails({ orderId }: { orderId: string }) {
   const { can } = usePermission();
@@ -113,8 +115,12 @@ export function OrderDetails({ orderId }: { orderId: string }) {
 
   const handleConfirm = async () => {
     setConfirming(true);
+    const targetStatus =
+      order.status === ORDER_STATUSES.awaitingAdminReview
+        ? ORDER_STATUSES.pending
+        : ORDER_STATUSES.confirmed;
     const done = await updateStatus({
-      status: ORDER_STATUSES.confirmed,
+      status: targetStatus,
       remark: 'Confirmed by admin and forwarded to vendors',
       location: '',
     });

@@ -93,29 +93,37 @@ If a case is missing, use the closest row and say so in your report; do not inve
 src/
   app/                routes: layout.tsx, page.tsx, error.tsx, not-found.tsx
     (auth)/           layout.tsx (brand panel) · login/page.tsx
-    (dashboard)/      layout.tsx (sidebar + header) · page.tsx · vendors/page.tsx · vendors/[vendorId]/page.tsx · vendors/[vendorId]/products/[productId]/page.tsx · payments/page.tsx
+    (dashboard)/      layout.tsx (sidebar + header) · page.tsx · vendors/page.tsx · vendors/[vendorId]/page.tsx · vendors/[vendorId]/products/[productId]/page.tsx · orders/page.tsx · orders/[orderId]/page.tsx · product-approvals/page.tsx · sub-admins/page.tsx · payments/page.tsx · payouts/page.tsx · returns/page.tsx · customers/page.tsx · customers/[userId]/page.tsx · categories/, brands/, tags/, attributes/, collections/ · pages/, blogs/, faqs/, banners/ · coupons/, analytics/, notifications/, reviews/, questions/, shipping/, tickets/, delivery-boys/, activity-logs/, audit-logs/, system/, settings/ · components-showcase/
     maintenance/
   components/
-    ui/               button, input, textarea, label, card, badge, table, dialog, options-menu, select, status-dot, thumbnail, skeleton, spinner
-    common/           form-field, form-error, password-input, error-state, empty-state, page-header, pagination, filter-sheet, detail-grid, status-badge, data-table, data-table-media, confirm-dialog, reason-dialog, theme-toggle
-    layout/           sidebar, header, mobile-nav, logo, api-status
-    auth/             login-form, guards (AuthGuard, GuestGuard, RoleGuard)
-    dashboard/        overview
-    vendor/           vendor-page, vendor-list, vendor-columns, vendor-details, vendor-documents, vendor-action-dialog, vendor-document-dialog
-    product/          product-list, product-columns, product-details, product-action-dialog
+    ui/               button, input, textarea, label, card, badge, table, dialog, options-menu, select, status-dot, thumbnail, skeleton, spinner, accordion, alert, avatar, breadcrumb, button-group, checkbox, clickable-text, collapsible, dropdown-menu, icon-button, input-error, input-group, popover, progress, radio-group, ripple, separator, sheet, stat-card, status-indicator, switch, tabs, text, toggle, toggle-group, tooltip
+    common/           form-field, form-error, password-input, error-state, empty-state, page-header, pagination, filter-sheet, detail-grid, status-badge, data-table, data-table-media, confirm-dialog, reason-dialog, entity-dialog, theme-toggle
+    layout/           sidebar, header, mobile-nav, logo, api-status, dashboard-shell
+    auth/             login-form, auth-globe, guards (AuthGuard, GuestGuard, RoleGuard)
+    dashboard/        overview, dashboard-widget, low-stock, product-performance, recent-activity, recent-orders, recent-payments, top-selling
+    vendor/           vendor-page, vendor-list, vendor-columns, vendor-details, vendor-documents, vendor-action-dialog, vendor-document-dialog, vendor-payouts, vendor-returns
+    product/          product-list, product-columns, product-details, product-action-dialog, product-approvals-list
+    order/            order-list, order-columns, order-details, order-status-dialog
     payment/          payment-list
+    payout/           payout-list
+    return/           return-list
+    sub-admin/        sub-admin-list, sub-admin-columns, sub-admin-dialog, permission-dialog
+    customer/         customer-list
+    delivery-boy/     delivery-boy-page
+    analytics/        analytics-page
+    (categories, brands, tags, attributes, collections, coupons, pages, blogs, faqs, banners, notifications, reviews, questions, shipping, tickets, settings, audit/activity logs and system health do not yet have a dedicated components/<feature>/ folder — their markup lives in each route's own ClientPage.tsx until a second use promotes a piece into common/ per §6)
   config/             env.ts
   constants.ts        ← every non-copy app constant (routes, roles, keys, timings, regex, nav items)
-  hooks/              use-login, use-health, use-mounted, use-vendors, use-vendor-detail, use-vendor-documents, use-vendor-products, use-vendor-payouts, use-vendor-returns, use-product-detail, use-payments
+  hooks/              use-login, use-health, use-mounted, use-permission, use-dashboard-stats, use-recent-activity, use-recent-orders, use-recent-payments, use-low-stock, use-product-performance, use-vendors, use-vendor-detail, use-vendor-documents, use-vendor-products, use-vendor-payouts, use-vendor-returns, use-product-detail, use-product-approvals, use-orders, use-order-detail, use-payments, use-payouts, use-returns, use-sub-admins, use-customer-detail, use-users, use-delivery-boys, use-catalog, use-content, use-coupons, use-analytics, use-audit-logs, use-notifications, use-reviews, use-questions, use-shipping-zones, use-tickets, use-settings, use-system-health, use-theme-settings, use-debounced-value, use-media-query, use-ripple
   lib/
-    api/              client, api.service (the ApiService), api-urls (API_URLS), session, auth, device
-      contract/       api-request, base-response, api-models (the request/response contract)
+    api/              client, api.service (the ApiService), api-urls (API_URLS), session, auth, device, product-actions, vendor-actions, navigation-cache, seed-store
+      contract/       api-request, base-response, api-models, index (the request/response contract)
     utils/            index (cn, format), validations, activity, datetime, toast
   messages/           en.ts (English UI copy) · index.ts (exports MESSAGES + Messages type)
-  providers/          auth-provider, theme-provider, toast-provider, ripple-provider, app-providers
+  providers/          auth-provider, theme-provider, toast-provider, ripple-provider, hover-style-provider, app-providers
 
   styles/             tokens.css, theme.css, base.css
-  types/              api.ts (re-exports the API contract, parseResponse), auth.ts (mappers)
+  types/              api.ts (re-exports the API contract, parseResponse), auth.ts (mappers), plus one file per domain — vendor, product, order, payment, payout, return, coupon, catalog, content, review, shipping, ticket, notification, user, delivery-boy, audit, cron, failed-job, report, dashboard, settings, system-health, analytics
   proxy.ts            Next.js 16 proxy (formerly middleware)
 ```
 

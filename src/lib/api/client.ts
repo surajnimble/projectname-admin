@@ -56,11 +56,6 @@ function refreshAccessToken(): Promise<boolean> {
   return refreshing;
 }
 
-function sanitizeMessage(message: string): string {
-  if (!message) return message;
-  return message.replace(/\s*Error Code\s*\([^)]+\)\s*$/i, '').trim();
-}
-
 async function execute<T>(
   method: Method,
   path: string,
@@ -118,11 +113,7 @@ async function execute<T>(
   }
 
   if (!response.status && response.message) {
-    showError(sanitizeMessage(response.message));
-  }
-
-  if (response.message) {
-    response.message = sanitizeMessage(response.message);
+    showError(response.message);
   }
 
   return response;

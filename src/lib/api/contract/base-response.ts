@@ -508,6 +508,23 @@ export interface OrderDetailData extends OrderSummaryData {
   timelineList: OrderTimelineData[];
 }
 
+export interface OrderReviewData {
+  subOrderId: string;
+  orderId: string;
+  orderNumber: string;
+  status: string;
+  orderStatus: string;
+  total: number;
+  subtotal: number;
+  placedAt: string;
+  vendorId: string;
+  shopName: string;
+  customerData: OrderCustomerData;
+  itemCount: number;
+}
+
+export type OrderReviewListData = PageData<OrderReviewData>;
+
 /* ---------- Catalog: Categories ---------- */
 export interface CategoryData {
   categoryId: string;

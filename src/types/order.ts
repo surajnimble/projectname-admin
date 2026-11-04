@@ -9,6 +9,7 @@ import type {
   OrderTagListData,
   OrderTimelineData,
   OrderVendorData,
+  OrderReviewListData,
 } from '@/lib/api/contract';
 
 type Raw = Record<string, unknown>;
@@ -137,6 +138,35 @@ export const toOrderNoteList = (raw: RawOrderNoteList = {}): OrderNoteListData =
         createdAt: toString(item.createdAt),
       }))
     : [],
+});
+
+type RawOrderReviewList = Partial<Record<keyof Omit<OrderReviewListData, 'itemList'>, unknown>> & {
+  reviewList?: unknown;
+};
+
+export const toOrderReviewList = (raw: RawOrderReviewList = {}): OrderReviewListData => ({
+  totalRecord: toNumber(raw.totalRecord),
+  totalPage: toNumber(raw.totalPage),
+  currentPage: toNumber(raw.currentPage),
+  limit: toNumber(raw.limit),
+  hasNext: raw.hasNext === true,
+  hasPrevious: raw.hasPrevious === true,
+  nextPage: toNumber(raw.nextPage),
+  previousPage: toNumber(raw.previousPage),
+  itemList: toObjects(raw.reviewList).map((item) => ({
+    subOrderId: toString(item.subOrderId),
+    orderId: toString(item.orderId),
+    orderNumber: toString(item.orderNumber),
+    status: toString(item.status),
+    orderStatus: toString(item.orderStatus),
+    total: toNumber(item.total),
+    subtotal: toNumber(item.subtotal),
+    placedAt: toString(item.placedAt),
+    vendorId: toString(item.vendorId),
+    shopName: toString(item.shopName),
+    customerData: toCustomer(isObject(item.customerData) ? item.customerData : {}),
+    itemCount: toNumber(item.itemCount),
+  })),
 });
 
 type RawOrderTagList = Partial<Record<keyof Omit<OrderTagListData, 'itemList'>, unknown>> & {

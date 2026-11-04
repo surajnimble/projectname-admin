@@ -30,6 +30,7 @@ const PRODUCT_INTENTS: Record<string, BadgeIntent> = {
 const ORDER_INTENTS: Record<string, BadgeIntent> = {
   PENDING: 'warning',
   PENDING_TOKEN: 'warning',
+  AWAITING_ADMIN_REVIEW: 'warning',
   CONFIRMED: 'info',
   SHIPPED: 'info',
   OUT_FOR_DELIVERY: 'info',

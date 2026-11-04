@@ -13,6 +13,9 @@ import {
   Truck,
   Activity,
   Server,
+  Clock,
+  Star,
+  MessageCircle,
   type LucideIcon,
 } from 'lucide-react';
 import { MESSAGES } from '@/messages';
@@ -64,6 +67,10 @@ export const ROUTES = {
   notifications: '/notifications',
   reviews: '/reviews',
   tickets: '/tickets',
+  orderReviews: '/order-reviews',
+  shipping: '/shipping',
+  questions: '/questions',
+  inventoryReport: '/reports/inventory',
 } as const;
 
 export const ROLES = {
@@ -117,6 +124,7 @@ export const PERMISSIONS = {
   orderList: 'order:list',
   orderView: 'order:view',
   orderUpdateStatus: 'order:status:update',
+  orderConfirm: 'order:confirm',
   orderCancel: 'order:cancel',
   orderAssignDelivery: 'order:delivery:assign',
   paymentList: 'payment:list',
@@ -236,6 +244,7 @@ export const ORDER_STATUSES = {
   all: 'all',
   pending: 'PENDING',
   pendingToken: 'PENDING_TOKEN',
+  awaitingAdminReview: 'AWAITING_ADMIN_REVIEW',
   confirmed: 'CONFIRMED',
   shipped: 'SHIPPED',
   outForDelivery: 'OUT_FOR_DELIVERY',
@@ -247,6 +256,7 @@ export const ORDER_STATUSES = {
 export const ORDER_STATUS_OPTIONS = [
   ORDER_STATUSES.pending,
   ORDER_STATUSES.pendingToken,
+  ORDER_STATUSES.awaitingAdminReview,
   ORDER_STATUSES.confirmed,
   ORDER_STATUSES.shipped,
   ORDER_STATUSES.outForDelivery,
@@ -358,6 +368,30 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: ROUTES.orders,
     icon: ShoppingCart,
     permission: PERMISSIONS.orderList,
+  },
+  {
+    label: MESSAGES.sections.orderReviews,
+    href: ROUTES.orderReviews,
+    icon: Clock,
+    permission: PERMISSIONS.orderConfirm,
+  },
+  {
+    label: MESSAGES.sections.reviews,
+    href: ROUTES.reviews,
+    icon: Star,
+    permission: PERMISSIONS.reviewModerate,
+  },
+  {
+    label: MESSAGES.sections.shipping,
+    href: ROUTES.shipping,
+    icon: Truck,
+    permission: PERMISSIONS.shippingManage,
+  },
+  {
+    label: MESSAGES.sections.questions,
+    href: ROUTES.questions,
+    icon: MessageCircle,
+    permission: PERMISSIONS.questionModerate,
   },
   {
     label: MESSAGES.sections.productApprovals,
@@ -497,6 +531,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: ROUTES.systemHealth,
     icon: Server,
     permission: PERMISSIONS.systemHealthView,
+  },
+  {
+    label: MESSAGES.sections.inventory,
+    href: ROUTES.inventoryReport,
+    icon: Package,
+    permission: PERMISSIONS.reportView,
   },
   {
     label: MESSAGES.sections.coupons,

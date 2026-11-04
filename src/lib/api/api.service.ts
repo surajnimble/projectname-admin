@@ -20,7 +20,7 @@ import { toCategoryList, toAttributeList, toBrandList, toTagList, toCollectionLi
 import { toBannerList, toBlogList, toFaqList, toPageList } from '@/types/content';
 import { toCouponList } from '@/types/coupon';
 import { toDeliveryBoyList } from '@/types/delivery-boy';
-import { toOrderDetail, toOrderList, toOrderNoteList, toOrderTagList } from '@/types/order';
+import { toOrderDetail, toOrderList, toOrderNoteList, toOrderReviewList, toOrderTagList } from '@/types/order';
 import { toPaymentList, toPaymentSummary } from '@/types/payment';
 import { toPayout, toPayoutList, toPayoutStatement } from '@/types/payout';
 import { toProductDetail, toProductList, toProductSummary, toProductApproval, toProductApprovalList } from '@/types/product';
@@ -78,6 +78,27 @@ export class ApiService {
 
   updateOrderStatus(orderId: string, body: Pick<ApiRequest, 'status' | 'remark' | 'location'>) {
     return apiClient.patch(API_URLS.updateOrderStatus(orderId), { body, mapper: toOrderDetail });
+  }
+
+  getPendingAdminReview(query: Pick<ApiRequest, 'page' | 'limit' | 'search' | 'from' | 'to'>) {
+    return apiClient.get(API_URLS.getPendingAdminReview, {
+      query,
+      mapper: toOrderReviewList,
+    });
+  }
+
+  confirmForVendor(subOrderId: string, body: Pick<ApiRequest, 'reason'>) {
+    return apiClient.patch(API_URLS.confirmForVendor(subOrderId), {
+      body,
+      mapper: toOrderDetail,
+    });
+  }
+
+  rejectByAdmin(subOrderId: string, body: Required<Pick<ApiRequest, 'reason'>>) {
+    return apiClient.patch(API_URLS.rejectByAdmin(subOrderId), {
+      body,
+      mapper: toOrderDetail,
+    });
   }
 
   getPayments(query: Pick<ApiRequest, 'page' | 'limit'>) {

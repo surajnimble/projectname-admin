@@ -50,6 +50,8 @@ export type {
   OrderDetailData,
   OrderItemData,
   OrderListData,
+  OrderReviewData,
+  OrderReviewListData,
   OrderSummaryData,
   OrderTimelineData,
   OrderVendorData,
