@@ -29,6 +29,7 @@ export function TagList() {
   const {
     data,
     isLoading,
+    isFetching,
     error,
     page,
     search,
@@ -168,7 +169,7 @@ export function TagList() {
                 <Button
                   variant="outline"
                   size="sm"
-                  loading={isLoading}
+                  loading={isLoading || isFetching}
                   onClick={() => void refresh()}
                   className="shrink-0"
                 >

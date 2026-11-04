@@ -29,6 +29,7 @@ interface CatalogListOptions {
 export function useCatalog({ kind, pageSize = 10, initialFilters }: CatalogListOptions) {
   const [data, setData] = useState<ListData>(toCategoryList());
   const [isLoading, setIsLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState('');
   const [actionError, setActionError] = useState('');
   const [isActioning, setIsActioning] = useState(false);
@@ -93,18 +94,25 @@ export function useCatalog({ kind, pageSize = 10, initialFilters }: CatalogListO
 
   useEffect(() => {
     let active = true;
+    const isInitial = isLoading;
     void (async () => {
+      if (isInitial) {
+        setIsLoading(true);
+      } else {
+        setIsFetching(true);
+      }
       const result = await fetchList();
       if (active) {
         setData(result.data);
         setError(result.error);
         setIsLoading(false);
+        setIsFetching(false);
       }
     })();
     return () => {
       active = false;
     };
-  }, [fetchList]);
+  }, [fetchList, isLoading]);
 
   const setSearch = useCallback((value: string) => {
     setSearchState(value);
@@ -122,12 +130,13 @@ export function useCatalog({ kind, pageSize = 10, initialFilters }: CatalogListO
 
   const refresh = useCallback(async () => {
     activeRef.current = true;
-    setIsLoading(true);
+    setIsFetching(true);
     const result = await fetchList();
     if (activeRef.current) {
       setData(result.data);
       setError(result.error);
       setIsLoading(false);
+      setIsFetching(false);
     }
   }, [fetchList]);
 
@@ -251,6 +260,7 @@ export function useCatalog({ kind, pageSize = 10, initialFilters }: CatalogListO
   return {
     data,
     isLoading,
+    isFetching,
     error,
     actionError,
     isActioning,

@@ -74,6 +74,7 @@ export function useAnalytics() {
   const [funnelList, setFunnelList] = useState<AnalyticsFunnelStepData[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState('');
 
   const [page, setPage] = useState(1);
@@ -263,7 +264,13 @@ export function useAnalytics() {
 
   useEffect(() => {
     let active = true;
+    const isInitial = isLoading;
     void (async () => {
+      if (isInitial) {
+        setIsLoading(true);
+      } else {
+        setIsFetching(true);
+      }
       await fetchOverview();
       await fetchVisitors();
       await fetchUniqueVisitors();
@@ -276,12 +283,13 @@ export function useAnalytics() {
       await fetchProductPerformance();
       if (active) {
         setIsLoading(false);
+        setIsFetching(false);
       }
     })();
     return () => {
       active = false;
     };
-  }, [query, fetchOverview, fetchVisitors, fetchUniqueVisitors, fetchPageViews, fetchTrafficSources, fetchDeviceBreakdown, fetchGeoBreakdown, fetchSessions, fetchRealtime, fetchProductPerformance]);
+  }, [query, fetchOverview, fetchVisitors, fetchUniqueVisitors, fetchPageViews, fetchTrafficSources, fetchDeviceBreakdown, fetchGeoBreakdown, fetchSessions, fetchRealtime, fetchProductPerformance, isLoading]);
 
   const setSearch = useCallback((value: string) => {
     setSearchState(value);
@@ -296,7 +304,7 @@ export function useAnalytics() {
   const changePage = useCallback((next: number) => setPage(next), []);
 
   const refresh = useCallback(async () => {
-    setIsLoading(true);
+    setIsFetching(true);
     await fetchOverview();
     await fetchVisitors();
     await fetchUniqueVisitors();
@@ -308,6 +316,7 @@ export function useAnalytics() {
     await fetchRealtime();
     await fetchProductPerformance();
     setIsLoading(false);
+    setIsFetching(false);
   }, [
     fetchOverview,
     fetchVisitors,
@@ -346,6 +355,7 @@ export function useAnalytics() {
     appVersions,
     funnelList,
     isLoading,
+    isFetching,
     error,
     page,
     search,

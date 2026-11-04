@@ -1,7 +1,9 @@
 'use client';
 
+import { RefreshCw } from 'lucide-react';
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
+import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
 import { Pagination } from '@/components/common/pagination';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -18,9 +20,11 @@ export function AnalyticsPage() {
     sessions,
     sessionsList,
     isLoading,
+    isFetching,
     error,
     search,
     setSearch,
+    setPage,
     refresh,
   } = useAnalytics();
 
@@ -124,10 +128,7 @@ export function AnalyticsPage() {
             </Card>
 
             {/* Traffic Sources */}
-            <Card className="p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">{a.sections.trafficSources}</h3>
-              </div>
+            <Card className="overflow-hidden">
               <DataTable
                 columns={[
                   {
@@ -155,15 +156,15 @@ export function AnalyticsPage() {
                 ]}
                 rows={trafficSources}
                 rowKey={(row) => row.source}
+                isLoading={isLoading || isFetching}
+                error={error}
+                onRetry={() => void refresh()}
                 emptyTitle={a.empty}
               />
             </Card>
 
             {/* Device Breakdown */}
-            <Card className="p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">{a.sections.devices}</h3>
-              </div>
+            <Card className="overflow-hidden">
               <DataTable
                 columns={[
                   {
@@ -185,6 +186,9 @@ export function AnalyticsPage() {
                 ]}
                 rows={deviceBreakdown}
                 rowKey={(row) => row.device}
+                isLoading={isLoading || isFetching}
+                error={error}
+                onRetry={() => void refresh()}
                 emptyTitle={a.empty}
               />
             </Card>
@@ -192,12 +196,6 @@ export function AnalyticsPage() {
 
           {/* Sessions List */}
           <Card className="overflow-hidden">
-            <div className="p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-              <h3 className="text-lg font-semibold">{a.sections.sessions}</h3>
-              <Button variant="outline" size="sm" loading={isLoading} onClick={() => void refresh()}>
-                {MESSAGES.dashboard.refresh}
-              </Button>
-            </div>
             <DataTable
               columns={[
                 {
@@ -205,7 +203,7 @@ export function AnalyticsPage() {
                   header: a.columns.session,
                   cell: (row) => (
                     <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full {row.isActive ? 'bg-success/20 text-success' : 'bg-surface-muted text-fg-muted'} flex items-center justify-center text-xs font-bold">
+                      <span className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">
                         {row.userName?.slice(0, 2).toUpperCase()}
                       </span>
                       <span className="font-medium">{row.userName}</span>
@@ -249,8 +247,27 @@ export function AnalyticsPage() {
                   placeholder: MESSAGES.common.search,
                   onChange: setSearch,
                 },
+                filters: {
+                  label: MESSAGES.common.filters,
+                  count: search ? 1 : 0,
+                  onOpen: () => {},
+                },
+                actions: (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    loading={isLoading || isFetching}
+                    onClick={() => void refresh()}
+                    className="shrink-0"
+                  >
+                    <span className="flex items-center gap-2">
+                  <RefreshCw className="size-4" aria-hidden="true" />
+                      {MESSAGES.dashboard.refresh}
+                    </span>
+                  </Button>
+                ),
               }}
-              isLoading={isLoading}
+              isLoading={isLoading || isFetching}
               error={error}
               onRetry={() => void refresh()}
               emptyTitle={a.empty}
@@ -260,7 +277,7 @@ export function AnalyticsPage() {
                   totalPage={sessionsList.totalPage}
                   totalRecord={sessionsList.totalRecord}
                   limit={sessionsList.limit}
-                  onPageChange={() => {}}
+                  onPageChange={setPage}
                 />
               }
             />
