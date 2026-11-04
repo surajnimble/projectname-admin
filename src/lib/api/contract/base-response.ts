@@ -63,6 +63,7 @@ export type UserListData = PageData<UserData>;
 
 export interface PermissionData {
   roleList: Record<string, string[]>;
+  permissionList: string[];
 }
 
 export interface AuthData {

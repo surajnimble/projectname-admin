@@ -70,13 +70,22 @@ export const toSubAdmin = (raw: RawSubAdmin = {}): SubAdminData => ({
   updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : '',
 });
 
-export const toPermissionData = (raw: Partial<Record<keyof PermissionData, unknown>> = {}): PermissionData => ({
-  roleList: typeof raw.roleList === 'object' && raw.roleList !== null ? raw.roleList as Record<string, string[]> : {},
-});
+export const toPermissionData = (raw: Partial<Record<keyof PermissionData, unknown>> = {}): PermissionData => {
+  const roleList =
+    typeof raw.roleList === 'object' && raw.roleList !== null
+      ? (raw.roleList as Record<string, string[]>)
+      : {};
+  const permissionList = Array.isArray(raw.permissionList)
+    ? raw.permissionList.filter((permission): permission is string => typeof permission === 'string')
+    : Object.values(roleList).flat();
+
+  return { roleList, permissionList };
+};
 
 export const toSubAdminList = (
   raw: Partial<Record<keyof Omit<SubAdminListData, 'itemList'>, unknown>> & {
     subAdminList?: unknown;
+    itemList?: unknown;
   } = {},
 ): SubAdminListData => ({
   totalRecord: typeof raw.totalRecord === 'number' ? raw.totalRecord : 0,
@@ -87,7 +96,11 @@ export const toSubAdminList = (
   hasPrevious: raw.hasPrevious === true,
   nextPage: typeof raw.nextPage === 'number' ? raw.nextPage : 0,
   previousPage: typeof raw.previousPage === 'number' ? raw.previousPage : 0,
-  itemList: Array.isArray(raw.subAdminList)
-    ? raw.subAdminList.filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null).map((item) => toSubAdmin(item))
-    : [],
+  itemList: (Array.isArray(raw.subAdminList)
+    ? raw.subAdminList
+    : Array.isArray(raw.itemList)
+      ? raw.itemList
+      : []
+  )
+    .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null).map((item) => toSubAdmin(item)),
 });

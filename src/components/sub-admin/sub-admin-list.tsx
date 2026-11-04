@@ -38,6 +38,7 @@ export function SubAdminList() {
     isLoading,
     isFetching,
     error,
+    actionError,
     isActioning,
     page,
     search,
@@ -57,9 +58,11 @@ export function SubAdminList() {
   const [mode, setMode] = useState<'create' | 'update'>('create');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
   const [permissionTarget, setPermissionTarget] = useState<SubAdminData | null>(null);
-  const [allPermissions, setAllPermissions] = useState<PermissionData>({ roleList: {} });
+  const [allPermissions, setAllPermissions] = useState<PermissionData>({
+    roleList: {},
+    permissionList: [],
+  });
 
   useEffect(() => {
     void getPermissions().then((permissions) => {
@@ -108,7 +111,6 @@ export function SubAdminList() {
 
   const handleEditPermissions = async (subAdmin: SubAdminData) => {
     setPermissionTarget(subAdmin);
-    setPermissionDialogOpen(true);
   };
 
   const handleSavePermissions = async (permissions: string[]) => {
@@ -116,7 +118,6 @@ export function SubAdminList() {
     const done = await updatePermissions(permissionTarget.userId, permissions);
     if (!done) return;
     showSuccess(SUCCESS_MESSAGES.update);
-    setPermissionDialogOpen(false);
     setPermissionTarget(null);
     await refresh();
   };
@@ -211,7 +212,7 @@ export function SubAdminList() {
         subAdmin={target ?? undefined}
         allPermissions={allPermissions}
         isSubmitting={isActioning}
-        error={MESSAGES.errors.unknown}
+        error={actionError}
         onClose={() => {
           setDialogOpen(false);
           setTarget(null);
@@ -229,14 +230,17 @@ export function SubAdminList() {
         onClose={() => setDeletingId(null)}
       />
 
-      <PermissionDialog
-        open={permissionDialogOpen}
-        currentPermissions={permissionTarget?.permissions ?? []}
-        allPermissions={allPermissions}
-        isSubmitting={isActioning}
-        onClose={() => setPermissionDialogOpen(false)}
-        onSubmit={(permissions) => void handleSavePermissions(permissions)}
-      />
+      {permissionTarget && (
+        <PermissionDialog
+          key={permissionTarget.userId}
+          open
+          currentPermissions={permissionTarget.permissions ?? []}
+          allPermissions={allPermissions}
+          isSubmitting={isActioning}
+          onClose={() => setPermissionTarget(null)}
+          onSubmit={(permissions) => void handleSavePermissions(permissions)}
+        />
+      )}
     </div>
   );
 }

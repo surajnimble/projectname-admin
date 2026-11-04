@@ -3,8 +3,8 @@
 import { useCallback, useId, useMemo, useState, type FormEvent } from 'react';
 import { FormError } from '@/components/common/form-error';
 import { FormField } from '@/components/common/form-field';
+import { PermissionPicker } from '@/components/sub-admin/permission-picker';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import type { PermissionData } from '@/lib/api/contract';
@@ -45,30 +45,14 @@ export function SubAdminDialog({
   const [email, setEmail] = useState(subAdmin?.email ?? '');
   const [phone, setPhone] = useState(subAdmin?.phone ?? '');
   const [password, setPassword] = useState(mode === 'create' ? '' : '');
-  const [permissions, setPermissions] = useState<string[]>([]);
-  const [permSearch, setPermSearch] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const subAdminPermissions = useMemo(
+  const grantedPermissions = useMemo(
     () => allPermissions?.roleList['SUB_ADMIN'] ?? [],
     [allPermissions],
   );
-
-  const filteredPermissions = useMemo(
-    () => {
-      const term = permSearch.toLowerCase().trim();
-      return subAdminPermissions.filter((p) => p.toLowerCase().includes(term));
-    },
-    [permSearch, subAdminPermissions],
-  );
-
-  const togglePermission = (permission: string) => {
-    setPermissions((prev) =>
-      prev.includes(permission)
-        ? prev.filter((p) => p !== permission)
-        : [...prev, permission],
-    );
-  };
+  const [picked, setPicked] = useState<string[] | null>(null);
+  const permissions = picked ?? grantedPermissions;
 
   const setFieldError = useCallback((field: string, message: string) => {
     setErrors((prev) => ({ ...prev, [field]: message }));
@@ -121,7 +105,7 @@ export function SubAdminDialog({
             variant="primary"
             loading={isSubmitting}
           >
-            {mode === 'create' ? subAdmins.created : subAdmins.updated}
+            {mode === 'create' ? subAdmins.createLabel : subAdmins.updateLabel}
           </Button>
         </>
       }
@@ -179,33 +163,16 @@ export function SubAdminDialog({
         ) : null}
 
         {mode === 'create' && allPermissions && (
-          <FormField label={subAdmins.rolesLabel} error={errors.permissions}>
-            <div>
-              <Input
-                type="text"
-                value={permSearch}
-                onChange={(event) => setPermSearch(event.target.value)}
-                placeholder={subAdmins.rolesPlaceholder}
-              />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto pr-2">
-                {filteredPermissions.map((permission) => {
-                  const isSelected = permissions.includes(permission);
-                  const label = permission.replace(/:/g, ' : ');
-                  return (
-                    <label key={permission} className="flex items-center gap-2 text-sm cursor-pointer select-none">
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => togglePermission(permission)}
-                      />
-                      <span className="text-fg">{label}</span>
-                    </label>
-                  );
-                })}
-              </div>
-              <p className="text-fg-muted text-xs">
-                {permissions.length} of {subAdminPermissions.length} permissions selected
-              </p>
-            </div>
+          <FormField
+            label={subAdmins.permissionsLabel}
+            hint={subAdmins.permissionsHint}
+            error={errors.permissions}
+          >
+            <PermissionPicker
+              available={allPermissions.permissionList}
+              selected={permissions}
+              onChange={setPicked}
+            />
           </FormField>
         )}
       </form>

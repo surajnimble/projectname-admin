@@ -102,6 +102,11 @@ const visibleClip = (element: Element, rect: DOMRect): VisibleClip => {
   let parent = element.parentElement;
 
   while (parent && parent !== document.body) {
+    if (parent.tagName === 'TD' || parent.tagName === 'TH') {
+      parent = parent.parentElement;
+      continue;
+    }
+
     const style = window.getComputedStyle(parent);
     if (style.overflowX !== 'visible' || style.overflowY !== 'visible') {
       const box = parent.getBoundingClientRect();

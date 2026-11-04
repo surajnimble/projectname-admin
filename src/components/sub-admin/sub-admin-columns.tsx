@@ -63,7 +63,7 @@ export const subAdminColumns: readonly DataTableColumn<SubAdminData>[] = [
       return (
         <span className="block truncate" title={permissions.join(', ')}>
           {permissions.length > 0
-            ? `${permissions.length} permission${permissions.length > 1 ? 's' : ''}`
+            ? subAdmins.permissionCountLabel(permissions.length)
             : subAdmins.dash}
         </span>
       );
@@ -115,7 +115,7 @@ export function SubAdminRowActions({
       onSelect: () => onEdit(subAdmin),
     },
     {
-      label: 'Edit permissions',
+      label: subAdmins.editPermissions,
       icon: Key,
       onSelect: () => onEditPermissions(subAdmin),
     },

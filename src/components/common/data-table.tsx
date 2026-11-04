@@ -368,7 +368,7 @@ function DataTableCards<T>({
             key={key}
             data-state={isSelected ? 'selected' : undefined}
             className={cn(
-              'flex flex-col gap-3 px-4 py-4 transition-colors',
+              'data-hover-color flex flex-col gap-3 px-4 py-4 transition-colors',
               isSelected && 'bg-primary-soft/60',
               onRowClick && 'cursor-pointer',
             )}

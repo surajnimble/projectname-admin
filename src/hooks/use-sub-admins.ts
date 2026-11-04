@@ -179,7 +179,7 @@ export function useSubAdmins() {
     setIsFetching(false);
     if (!response.status) {
       setError(response.message);
-      return { roleList: {} };
+      return { roleList: {}, permissionList: [] };
     }
     return response.data;
   }, []);

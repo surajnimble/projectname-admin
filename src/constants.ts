@@ -289,6 +289,18 @@ export const SUB_ADMIN_STATUS = {
 
 export type SubAdminStatusFilter = (typeof SUB_ADMIN_STATUS)[keyof typeof SUB_ADMIN_STATUS];
 
+export const PERMISSION_GROUP_LABELS: Record<string, string> = {
+  activitylog: 'Activity log',
+  apikey: 'API key',
+  auditlog: 'Audit log',
+  deliveryboy: 'Delivery partner',
+  flashsale: 'Flash sale',
+  giftcard: 'Gift card',
+  rolepermission: 'Role permissions',
+  subadmin: 'Sub admin',
+  webhook: 'Web hook',
+};
+
 export const VENDOR_REASON_MAX_LENGTH = 500;
 
 export const VENDOR_COMMISSION_MIN = 0;

@@ -101,6 +101,7 @@ body {
   }
 
   :where(
+    tr,
     tr[data-ripple]:not([data-ripple='off']),
     tr[data-hover-color]
   ):not([aria-disabled='true']):hover {

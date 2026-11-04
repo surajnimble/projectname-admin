@@ -322,6 +322,29 @@ selection={{
 
   The header checkbox selects and clears every selectable row (it shows the indeterminate state in between). While records are selected a bulk action bar appears above the table with the count, the actions and a "Clear selection" button; selected rows are tinted with `--primary-soft`. The page owns the selection, so it can read it after a reload or a filter change — the component drops rows that are no longer listed.
 
+### Row states and the ripple
+
+- **Hover** — a row carries `data-hover-color`, so its tint is `color-mix(in srgb, var(--hover-color) var(--hover-opacity), transparent)`. Both tokens are written onto `<html>` by the Theme Settings panel, so the hover follows the accent colour and the opacity slider everywhere it is used. Never hardcode a row hover with `hover:bg-*`: a Tailwind utility lives in the utilities layer and silently overrides the theme setting. Use `data-hover-color` on every list row — table rows, the stacked card rows and plain `<li>` lists — so the treatment is identical everywhere. A selected row uses the full `--primary-soft` and keeps it on hover.
+- **Ripple** — `RippleProvider` paints the expanding circle on press for every `button`, `a[href]`, ARIA widget role and any `[data-ripple]` element. Mark clickable table rows with `data-ripple=""`. The circle is a sibling layer in `document.body`, so a cell's `overflow-hidden` (which stops long content from bleeding into the next column) must never clip it: `visibleClip` in `src/providers/ripple-provider.tsx` skips `td`/`th` ancestors for that reason.
+- **Opacity** — `--hover-opacity` defaults to `0.12`, so a row reads as a soft brand glow rather than a wash. The Theme Settings slider (0–1) drives it live for every element that uses the token.
+
+### The permission picker (`sub-admin/permission-picker.tsx`)
+
+One component renders the permissions a sub admin can be given. It is used by both the create dialog and the edit-permissions dialog.
+
+```tsx
+<PermissionPicker
+  available={allPermissions.permissionList}   // the catalogue the backend allows
+  selected={permissions}                      // what is granted right now
+  onChange={setPermissions}
+/>
+```
+
+- The catalogue comes from `GET /admin/getPermissions`, which returns `result: { roleList, permissionList }`. `permissionList` is everything that can be granted; `roleList['SUB_ADMIN']` is what the sub admin role holds today — the create dialog starts from it, so the admin sees the current state and adjusts it.
+- Permissions are grouped by their namespace (`vendor:list` → **Vendor**), in the order the backend sends them, and each group shows how many of its permissions are granted. `PERMISSION_GROUP_LABELS` (`src/constants.ts`) spells out the namespaces that are not a single word (`activitylog` → *Activity log*).
+- The permission key stays visible because that is the value the API stores: the namespace is dimmed, the action is in the foreground.
+- A search field filters the list, and "Select all" / "Clear" act on what is currently visible.
+
 ---
 
 ## 8. Layout, spacing, responsiveness
