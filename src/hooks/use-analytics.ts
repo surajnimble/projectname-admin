@@ -89,12 +89,7 @@ export function useAnalytics() {
 
   const fetchOverview = useCallback(async () => {
     try {
-      const res = await apiService.getAnalyticsOverview({
-        page: query.page,
-        limit: 10,
-        ...(query.search ? { search: query.search } : {}),
-        ...query.filters,
-      });
+      const res = await apiService.getAnalyticsOverview({});
       if (res.status) {
         setOverview(res.data);
       } else {
@@ -103,16 +98,11 @@ export function useAnalytics() {
     } catch {
       setError('Failed to load analytics overview');
     }
-  }, [query]);
+  }, []);
 
   const fetchVisitors = useCallback(async () => {
     try {
-      const res = await apiService.getAnalyticsVisitors({
-        page: query.page,
-        limit: 10,
-        ...(query.search ? { search: query.search } : {}),
-        ...query.filters,
-      });
+      const res = await apiService.getAnalyticsVisitors({});
       if (res.status) {
         setVisitors(res.data.itemList);
       } else {
@@ -121,7 +111,7 @@ export function useAnalytics() {
     } catch {
       setError('Failed to load visitors');
     }
-  }, [query]);
+  }, []);
 
   const fetchSessions = useCallback(async () => {
     try {
@@ -174,12 +164,7 @@ export function useAnalytics() {
 
   const fetchUniqueVisitors = useCallback(async () => {
     try {
-      const res = await apiService.getAnalyticsUniqueVisitors({
-        page: query.page,
-        limit: 10,
-        ...(query.search ? { search: query.search } : {}),
-        ...query.filters,
-      });
+      const res = await apiService.getAnalyticsUniqueVisitors({});
       if (res.status) {
         setUniqueVisitors(res.data.itemList);
       } else {
@@ -188,16 +173,11 @@ export function useAnalytics() {
     } catch {
       setError('Failed to load unique visitors');
     }
-  }, [query]);
+  }, []);
 
   const fetchPageViews = useCallback(async () => {
     try {
-      const res = await apiService.getAnalyticsPageViews({
-        page: query.page,
-        limit: 10,
-        ...(query.search ? { search: query.search } : {}),
-        ...query.filters,
-      });
+      const res = await apiService.getAnalyticsPageViews({});
       if (res.status) {
         setTopPages(res.data.itemList);
       } else {
@@ -206,16 +186,11 @@ export function useAnalytics() {
     } catch {
       setError('Failed to load page views');
     }
-  }, [query]);
+  }, []);
 
   const fetchTrafficSources = useCallback(async () => {
     try {
-      const res = await apiService.getAnalyticsTrafficSources({
-        page: query.page,
-        limit: 10,
-        ...(query.search ? { search: query.search } : {}),
-        ...query.filters,
-      });
+      const res = await apiService.getAnalyticsTrafficSources({});
       if (res.status) {
         setTrafficSources(res.data.itemList);
       } else {
@@ -224,16 +199,11 @@ export function useAnalytics() {
     } catch {
       setError('Failed to load traffic sources');
     }
-  }, [query]);
+  }, []);
 
   const fetchDeviceBreakdown = useCallback(async () => {
     try {
-      const res = await apiService.getAnalyticsDeviceBreakdown({
-        page: query.page,
-        limit: 10,
-        ...(query.search ? { search: query.search } : {}),
-        ...query.filters,
-      });
+      const res = await apiService.getAnalyticsDeviceBreakdown({});
       if (res.status) {
         setDeviceBreakdown(res.data.itemList);
       } else {
@@ -242,16 +212,11 @@ export function useAnalytics() {
     } catch {
       setError('Failed to load device breakdown');
     }
-  }, [query]);
+  }, []);
 
   const fetchGeoBreakdown = useCallback(async () => {
     try {
-      const res = await apiService.getAnalyticsGeoBreakdown({
-        page: query.page,
-        limit: 10,
-        ...(query.search ? { search: query.search } : {}),
-        ...query.filters,
-      });
+      const res = await apiService.getAnalyticsGeoBreakdown({});
       if (res.status) {
         setGeoBreakdown(res.data.itemList);
       } else {
@@ -260,7 +225,7 @@ export function useAnalytics() {
     } catch {
       setError('Failed to load geo breakdown');
     }
-  }, [query]);
+  }, []);
 
   useEffect(() => {
     let active = true;

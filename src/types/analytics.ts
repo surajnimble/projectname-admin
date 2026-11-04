@@ -55,10 +55,10 @@ const baseList = (raw: RawList) => ({
   previousPage: toNumber(raw.previousPage),
 });
 
-export const toAnalyticsOverview = (raw: Partial<AnalyticsOverviewData> = {}): AnalyticsOverviewData => ({
-  totalRevenue: toNumber(raw.totalRevenue),
-  totalOrders: toNumber(raw.totalOrders),
-  totalCustomers: toNumber(raw.totalCustomers),
+export const toAnalyticsOverview = (raw: Record<string, unknown> = {}): AnalyticsOverviewData => ({
+  totalRevenue: toNumber(raw.revenue),
+  totalOrders: toNumber(raw.orders),
+  totalCustomers: toNumber(raw.newUsers),
   totalProducts: toNumber(raw.totalProducts),
   conversionRate: toNumber(raw.conversionRate),
   avgOrderValue: toNumber(raw.avgOrderValue),
@@ -71,9 +71,18 @@ export const toVisitor = (raw: Record<string, unknown>): AnalyticsVisitorData =>
   pageViews: toNumber(raw.pageViews),
 });
 
-export const toVisitorList = (raw: RawList = {}): AnalyticsVisitorListData => ({
+export const toVisitorList = (raw: Record<string, unknown> = {}): AnalyticsVisitorListData => ({
   ...baseList(raw),
-  itemList: mapList(raw, toVisitor),
+  itemList: Array.isArray(raw.byDay)
+    ? raw.byDay
+        .filter(isObject)
+        .map((item) => ({
+          date: toString(item.date),
+          visitors: toNumber(item.count),
+          uniqueVisitors: 0,
+          pageViews: 0,
+        }))
+    : [],
 });
 
 export const toPageView = (raw: Record<string, unknown>): AnalyticsPageViewData => ({
@@ -92,13 +101,15 @@ export const toPageItemList = (raw: RawList = {}): AnalyticsPageItemListData => 
 export const toTrafficSource = (raw: Record<string, unknown>): AnalyticsTrafficSourceData => ({
   source: toString(raw.source),
   medium: toString(raw.medium),
-  visits: toNumber(raw.visits),
-  conversions: toNumber(raw.conversions),
+  visits: toNumber(raw.views ?? raw.visits),
+  conversions: toNumber(raw.visitors ?? raw.conversions),
 });
 
-export const toTrafficList = (raw: RawList = {}): AnalyticsTrafficListData => ({
+export const toTrafficList = (raw: Record<string, unknown> = {}): AnalyticsTrafficListData => ({
   ...baseList(raw),
-  itemList: mapList(raw, toTrafficSource),
+  itemList: Array.isArray(raw.sourceList)
+    ? raw.sourceList.filter(isObject).map(toTrafficSource)
+    : [],
 });
 
 export const toDevice = (raw: Record<string, unknown>): AnalyticsDeviceData => ({
@@ -108,9 +119,18 @@ export const toDevice = (raw: Record<string, unknown>): AnalyticsDeviceData => (
   visitors: toNumber(raw.visitors),
 });
 
-export const toDeviceList = (raw: RawList = {}): AnalyticsDeviceListData => ({
+export const toDeviceList = (raw: Record<string, unknown> = {}): AnalyticsDeviceListData => ({
   ...baseList(raw),
-  itemList: mapList(raw, toDevice),
+  itemList: Array.isArray(raw.osList)
+    ? raw.osList
+        .filter(isObject)
+        .map((item) => ({
+          device: toString(item.key),
+          os: toString(item.key),
+          browser: '',
+          visitors: toNumber(item.count),
+        }))
+    : [],
 });
 
 export const toGeo = (raw: Record<string, unknown>): AnalyticsGeoData => ({
@@ -120,10 +140,13 @@ export const toGeo = (raw: Record<string, unknown>): AnalyticsGeoData => ({
   conversions: toNumber(raw.conversions),
 });
 
-export const toGeoList = (raw: RawList = {}): AnalyticsGeoListData => ({
-  ...baseList(raw),
-  itemList: mapList(raw, toGeo),
-});
+export const toGeoList = (raw: Record<string, unknown> | unknown[] = []): AnalyticsGeoListData => {
+  const list = Array.isArray(raw) ? raw : (raw as Record<string, unknown>).list;
+  return {
+    ...baseList(raw as Record<string, unknown>),
+    itemList: Array.isArray(list) ? list.filter(isObject).map(toGeo) : [],
+  };
+};
 
 export const toSession = (raw: Record<string, unknown>): AnalyticsSessionData => ({
   sessionId: toString(raw.sessionId),
@@ -150,9 +173,19 @@ export const toConversion = (raw: Record<string, unknown>): AnalyticsConversionD
   revenue: toNumber(raw.revenue),
 });
 
-export const toConversionList = (raw: RawList = {}): AnalyticsConversionListData => ({
+export const toConversionList = (raw: Record<string, unknown> = {}): AnalyticsConversionListData => ({
   ...baseList(raw),
-  itemList: mapList(raw, toConversion),
+  itemList: Array.isArray(raw.series)
+    ? raw.series
+        .filter(isObject)
+        .map((item) => ({
+          date: toString(item.date),
+          visitors: 0,
+          conversions: toNumber(item.orders),
+          rate: 0,
+          revenue: toNumber(item.revenue),
+        }))
+    : [],
 });
 
 export const toCrash = (raw: Record<string, unknown>): AnalyticsCrashData => ({
@@ -178,9 +211,19 @@ export const toAppVersion = (raw: Record<string, unknown>): AnalyticsAppVersionD
   crashRate: toNumber(raw.crashRate),
 });
 
-export const toAppVersionList = (raw: RawList = {}): AnalyticsAppVersionListData => ({
+export const toAppVersionList = (raw: Record<string, unknown> = {}): AnalyticsAppVersionListData => ({
   ...baseList(raw),
-  itemList: mapList(raw, toAppVersion),
+  itemList: Array.isArray(raw.versionList)
+    ? raw.versionList
+        .filter(isObject)
+        .map((item) => ({
+          version: toString(item.appVersion),
+          users: toNumber(item.deviceCount),
+          sessions: 0,
+          crashes: 0,
+          crashRate: 0,
+        }))
+    : [],
 });
 
 type RawProductPerformance = Partial<Record<keyof ProductPerformanceData, unknown>>;
