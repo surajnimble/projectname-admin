@@ -8,13 +8,29 @@ import {
   toAppVersionList,
   toConversionList,
   toCrashList,
+  toCustomerCohorts,
   toDeviceList,
   toGeoList,
   toPageItemList,
+  toRevenueReport,
+  toSearchTermList,
   toSessionList,
   toTrafficList,
+  toVendorPerformanceList,
   toVisitorList,
+  toZeroResultSearchList,
+  toAbandonedCartsList,
 } from '@/types/analytics';
+import { toConversationList, toMessageList } from '@/types/chat';
+import {
+  toGiftCardList,
+  toLoyaltyHistory,
+  toLoyaltyPoints,
+  toLoyaltyTiers,
+  toReferralCode,
+  toReferralList,
+  toReferralLeaderboardList,
+} from '@/types/engagement';
 import { toAuthData, toEmptyData, toPermissionData, toSubAdmin, toSubAdminList } from '@/types/auth';
 import { toCategoryList, toAttributeList, toBrandList, toTagList, toCollectionList } from '@/types/catalog';
 import { toBannerList, toBlogList, toFaqList, toPageList } from '@/types/content';
@@ -25,7 +41,7 @@ import { toPaymentList, toPaymentSummary } from '@/types/payment';
 import { toPayout, toPayoutList, toPayoutStatement } from '@/types/payout';
 import { toProductDetail, toProductList, toProductSummary, toProductApproval, toProductApprovalList } from '@/types/product';
 import { toLowStockList } from '@/types/report';
-import { toReviewList, toQuestionList, toReviewSummary } from '@/types/review';
+import { toReviewList, toQuestionList, toReviewSummary, toFlashSaleList } from '@/types/review';
 import { toReturn, toReturnList } from '@/types/return';
 import { toSettingList, toFeatureFlags, toMaintenanceStatus } from '@/types/settings';
 import { toShippingZoneList } from '@/types/shipping';
@@ -560,7 +576,7 @@ export class ApiService {
   }
 
   getAnalyticsRevenueReport(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsRevenueReport, { query, mapper: toConversionList });
+    return apiClient.get(API_URLS.getAnalyticsRevenueReport, { query, mapper: toRevenueReport });
   }
 
   getAnalyticsProductPerformance(query: ApiRequest) {
@@ -571,23 +587,23 @@ export class ApiService {
   }
 
   getAnalyticsVendorPerformance(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsVendorPerformance, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsVendorPerformance, { query, mapper: toVendorPerformanceList });
   }
 
   getAnalyticsCustomerCohorts(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsCustomerCohorts, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsCustomerCohorts, { query, mapper: toCustomerCohorts });
   }
 
   getAnalyticsAbandonedCarts(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsAbandonedCarts, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsAbandonedCarts, { query, mapper: toAbandonedCartsList });
   }
 
   getAnalyticsSearchTerms(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsSearchTerms, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsSearchTerms, { query, mapper: toSearchTermList });
   }
 
   getAnalyticsZeroResultSearches(query: ApiRequest) {
-    return apiClient.get(API_URLS.getAnalyticsZeroResultSearches, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getAnalyticsZeroResultSearches, { query, mapper: toZeroResultSearchList });
   }
 
   getAnalyticsRealtime() {
@@ -677,7 +693,7 @@ export class ApiService {
 
   /* ---------- Chat ---------- */
   getConversations(query: ApiRequest) {
-    return apiClient.get(API_URLS.getConversations, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getConversations, { query, mapper: toConversationList });
   }
 
   getChatUnreadCount() {
@@ -689,7 +705,7 @@ export class ApiService {
   }
 
   getMessages(conversationId: string, query: ApiRequest) {
-    return apiClient.get(API_URLS.getMessages(conversationId), { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getMessages(conversationId), { query, mapper: toMessageList });
   }
 
   sendMessage(conversationId: string, body: ApiRequest) {
@@ -903,7 +919,7 @@ export class ApiService {
 
   /* ---------- Flash Sales ---------- */
   getFlashSales(query: ApiRequest) {
-    return apiClient.get(API_URLS.getFlashSales, { query, mapper: toEmptyData });
+    return apiClient.get(API_URLS.getFlashSales, { query, mapper: toFlashSaleList });
   }
 
   getLiveFlashSales() {
@@ -975,6 +991,10 @@ export class ApiService {
 
   assignDeliveryBoy(subOrderId: string, body: ApiRequest) {
     return apiClient.patch(API_URLS.assignDeliveryBoy(subOrderId), { body, mapper: toEmptyData });
+  }
+
+  verifyDeliveryOtp(subOrderId: string, body: ApiRequest) {
+    return apiClient.post(API_URLS.verifyDeliveryOtp(subOrderId), { body, mapper: toEmptyData });
   }
 
   /* ---------- Audit Logs & System Health ---------- */
@@ -1104,6 +1124,79 @@ export class ApiService {
 
   updateMaintenance(body: ApiRequest) {
     return apiClient.patch(API_URLS.updateMaintenance, { body, mapper: toEmptyData });
+  }
+
+  /* ---------- Engagement ---------- */
+  getLoyaltyPoints(query: ApiRequest) {
+    return apiClient.get(API_URLS.getLoyaltyPoints, { query, mapper: toLoyaltyPoints });
+  }
+
+  getLoyaltyTiers(query: ApiRequest) {
+    return apiClient.get(API_URLS.getLoyaltyTiers, { query, mapper: toLoyaltyTiers });
+  }
+
+  getLoyaltyHistory(query: ApiRequest) {
+    return apiClient.get(API_URLS.getLoyaltyHistory, { query, mapper: toLoyaltyHistory });
+  }
+
+  redeemLoyaltyPoints(body: ApiRequest) {
+    return apiClient.post(API_URLS.redeemLoyaltyPoints, { body, mapper: toEmptyData });
+  }
+
+  adjustLoyaltyPoints(userId: string, body: ApiRequest) {
+    return apiClient.post(API_URLS.adjustLoyaltyPoints(userId), { body, mapper: toEmptyData });
+  }
+
+  getReferralMyCode() {
+    return apiClient.get(API_URLS.getReferralMyCode, { mapper: toReferralCode });
+  }
+
+  applyReferralCode(body: ApiRequest) {
+    return apiClient.post(API_URLS.applyReferralCode, { body, mapper: toEmptyData });
+  }
+
+  getReferralRewards(query: ApiRequest) {
+    return apiClient.get(API_URLS.getReferralRewards, { query, mapper: toReferralList });
+  }
+
+  getReferralLeaderboard(query: ApiRequest) {
+    return apiClient.get(API_URLS.getReferralLeaderboard, { query, mapper: toReferralLeaderboardList });
+  }
+
+  getAllReferrals(query: ApiRequest) {
+    return apiClient.get(API_URLS.getAllReferrals, { query, mapper: toReferralList });
+  }
+
+  completeReferral(id: string) {
+    return apiClient.post(API_URLS.completeReferral(id), { mapper: toEmptyData });
+  }
+
+  updateReferralStatus(id: string, body: ApiRequest) {
+    return apiClient.patch(API_URLS.updateReferralStatus(id), { body, mapper: toEmptyData });
+  }
+
+  getAllGiftCards(query: ApiRequest) {
+    return apiClient.get(API_URLS.getAllGiftCards, { query, mapper: toGiftCardList });
+  }
+
+  createGiftCard(body: ApiRequest) {
+    return apiClient.post(API_URLS.createGiftCard, { body, mapper: toEmptyData });
+  }
+
+  disableGiftCard(id: string) {
+    return apiClient.patch(API_URLS.disableGiftCard(id), { mapper: toEmptyData });
+  }
+
+  deleteGiftCard(id: string) {
+    return apiClient.delete(API_URLS.deleteGiftCard(id), { mapper: toEmptyData });
+  }
+
+  checkGiftCardBalance(code: string) {
+    return apiClient.get(API_URLS.checkGiftCardBalance(code), { mapper: toEmptyData });
+  }
+
+  redeemGiftCard(body: ApiRequest) {
+    return apiClient.post(API_URLS.redeemGiftCard, { body, mapper: toEmptyData });
   }
 }
 

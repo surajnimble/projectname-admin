@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card';
 import { StatusBadge, catalogStatusMeta } from '@/components/common/status-badge';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { MESSAGES } from '@/messages';
+import type { AnalyticsRevenueReportSeriesData } from '@/lib/api/contract';
 
 export function AnalyticsPage() {
   const {
@@ -19,6 +20,14 @@ export function AnalyticsPage() {
     deviceBreakdown,
     sessions,
     sessionsList,
+    vendorPerformance,
+    customerCohorts,
+    abandonedCarts,
+    searchTerms,
+    zeroResultSearches,
+    crashes,
+    appVersions,
+    revenueReport,
     isLoading,
     isFetching,
     error,
@@ -281,6 +290,299 @@ export function AnalyticsPage() {
                 />
               }
             />
+          </Card>
+
+          {/* Vendor Performance */}
+          <Card className="overflow-hidden">
+            <DataTable
+              columns={[
+                {
+                  key: 'shop',
+                  header: a.sections.vendorPerformance,
+                  cell: (row) => <span className="font-medium">{row.shopName}</span>,
+                },
+                {
+                  key: 'revenue',
+                  header: a.columns.revenue,
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.revenue.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>,
+                },
+                {
+                  key: 'commission',
+                  header: a.columns.commission,
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.commission.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>,
+                },
+                {
+                  key: 'orders',
+                  header: a.columns.orders,
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.subOrderCount}</span>,
+                },
+                {
+                  key: 'fulfilmentRate',
+                  header: a.columns.fulfilmentRate,
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.fulfilmentRate.toFixed(0)}%</span>,
+                },
+              ]}
+              rows={vendorPerformance}
+              rowKey={(row) => row.vendorId}
+              isLoading={isLoading || isFetching}
+              error={error}
+              onRetry={() => void refresh()}
+              emptyTitle={a.empty}
+            />
+          </Card>
+
+          {/* Customer Cohorts */}
+          <Card className="overflow-hidden">
+            <div className="p-4">
+              <h3 className="text-lg font-semibold">{a.sections.customerCohorts}</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr>
+                      <th className="pb-2 text-fg-muted font-medium">{a.columns.period}</th>
+                      <th className="pb-2 text-fg-muted font-medium">{a.columns.customers}</th>
+                      <th className="pb-2 text-fg-muted font-medium">{a.columns.retained}</th>
+                      <th className="pb-2 text-fg-muted font-medium">{a.columns.retentionRate}</th>
+                      <th className="pb-2 text-fg-muted font-medium">{a.columns.revenue}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customerCohorts.map((c) => (
+                      <tr key={c.period} className="border-b border-border/50">
+                        <td className="py-2">{c.period}</td>
+                        <td className="py-2">{c.customers}</td>
+                        <td className="py-2">{c.retained}</td>
+                        <td className="py-2">{c.retentionRate.toFixed(0)}%</td>
+                        <td className="py-2">{c.revenue.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Card>
+
+          {/* Abandoned Carts */}
+          <Card className="overflow-hidden">
+            <DataTable
+              columns={[
+                {
+                  key: 'customer',
+                  header: a.columns.customers,
+                  cell: (row) => <span className="font-medium">{row.customerName}</span>,
+                },
+                {
+                  key: 'email',
+                  header: 'Email',
+                  cell: (row) => <span className="text-sm text-fg-muted">{row.email}</span>,
+                },
+                {
+                  key: 'items',
+                  header: 'Items',
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.items}</span>,
+                },
+                {
+                  key: 'value',
+                  header: a.columns.cartValue,
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.value.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</span>,
+                },
+                {
+                  key: 'abandonedAt',
+                  header: 'Abandoned At',
+                  cell: (row) => <span className="text-sm text-fg-muted">{row.abandonedAt}</span>,
+                },
+              ]}
+              rows={abandonedCarts}
+              rowKey={(row) => row.cartId}
+              isLoading={isLoading || isFetching}
+              error={error}
+              onRetry={() => void refresh()}
+              emptyTitle={a.empty}
+            />
+          </Card>
+
+          {/* Search Terms */}
+          <Card className="overflow-hidden">
+            <DataTable
+              columns={[
+                {
+                  key: 'term',
+                  header: a.columns.term,
+                  cell: (row) => <span className="font-medium">{row.term}</span>,
+                },
+                {
+                  key: 'searches',
+                  header: a.columns.searches,
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.searches}</span>,
+                },
+                {
+                  key: 'results',
+                  header: a.columns.results,
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.results}</span>,
+                },
+                {
+                  key: 'conversions',
+                  header: a.columns.conversions,
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.conversions}</span>,
+                },
+                {
+                  key: 'conversionRate',
+                  header: a.columns.conversionRate,
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.conversionRate.toFixed(0)}%</span>,
+                },
+              ]}
+              rows={searchTerms}
+              rowKey={(row) => row.term}
+              isLoading={isLoading || isFetching}
+              error={error}
+              onRetry={() => void refresh()}
+              emptyTitle={a.empty}
+            />
+          </Card>
+
+          {/* Zero Result Searches */}
+          <Card className="overflow-hidden">
+            <DataTable
+              columns={[
+                {
+                  key: 'term',
+                  header: a.columns.term,
+                  cell: (row) => <span className="font-medium">{row.term}</span>,
+                },
+                {
+                  key: 'searches',
+                  header: a.columns.searches,
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.searches}</span>,
+                },
+              ]}
+              rows={zeroResultSearches}
+              rowKey={(row) => row.term}
+              isLoading={isLoading || isFetching}
+              error={error}
+              onRetry={() => void refresh()}
+              emptyTitle={a.empty}
+            />
+          </Card>
+
+          {/* Crashes */}
+          <Card className="overflow-hidden">
+            <DataTable
+              columns={[
+                {
+                  key: 'appVersion',
+                  header: a.columns.appVersion,
+                  cell: (row) => <span className="font-medium">{row.appVersion}</span>,
+                },
+                {
+                  key: 'os',
+                  header: a.columns.os,
+                  cell: (row) => <span className="text-sm">{row.os}</span>,
+                },
+                {
+                  key: 'device',
+                  header: a.columns.device,
+                  cell: (row) => <span className="text-sm">{row.device}</span>,
+                },
+                {
+                  key: 'count',
+                  header: a.columns.count,
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.count}</span>,
+                },
+                {
+                  key: 'lastOccurred',
+                  header: a.columns.lastOccurred,
+                  cell: (row) => <span className="text-sm text-fg-muted">{row.lastOccurred}</span>,
+                },
+              ]}
+              rows={crashes}
+              rowKey={(row) => row.crashId}
+              isLoading={isLoading || isFetching}
+              error={error}
+              onRetry={() => void refresh()}
+              emptyTitle={a.empty}
+            />
+          </Card>
+
+          {/* App Versions */}
+          <Card className="overflow-hidden">
+            <DataTable
+              columns={[
+                {
+                  key: 'appVersion',
+                  header: a.columns.appVersion,
+                  cell: (row) => <span className="font-medium">{row.version}</span>,
+                },
+                {
+                  key: 'users',
+                  header: a.columns.devices,
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.users}</span>,
+                },
+                {
+                  key: 'crashes',
+                  header: a.columns.crashRate,
+                  align: 'right',
+                  cell: (row) => <span className="text-sm">{row.crashRate.toFixed(0)}%</span>,
+                },
+              ]}
+              rows={appVersions}
+              rowKey={(row) => row.version}
+              isLoading={isLoading || isFetching}
+              error={error}
+              onRetry={() => void refresh()}
+              emptyTitle={a.empty}
+            />
+          </Card>
+
+          {/* Revenue Report */}
+          <Card className="p-4">
+            <div className="flex flex-col gap-4">
+              <h3 className="text-lg font-semibold">{a.sections.revenueReport}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-3 bg-surface-muted rounded-lg">
+                  <p className="text-fg-muted text-sm">{a.totalRevenue}</p>
+                  <h3 className="text-2xl font-bold">{revenueReport.totalRevenue.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</h3>
+                </div>
+                <div className="p-3 bg-surface-muted rounded-lg">
+                  <p className="text-fg-muted text-sm">{a.totalOrders}</p>
+                  <h3 className="text-2xl font-bold">{revenueReport.totalOrders}</h3>
+                </div>
+                <div className="p-3 bg-surface-muted rounded-lg">
+                  <p className="text-fg-muted text-sm">{a.avgOrderValue}</p>
+                  <h3 className="text-2xl font-bold">{revenueReport.averageOrderValue.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</h3>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr>
+                      <th className="pb-2 text-fg-muted font-medium">{a.columns.period}</th>
+                      <th className="pb-2 text-fg-muted font-medium">{a.columns.revenue}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {revenueReport.series.map((s: AnalyticsRevenueReportSeriesData) => (
+                      <tr key={s.date} className="border-b border-border/50">
+                        <td className="py-2">{s.date}</td>
+                        <td className="py-2">{s.revenue.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </Card>
         </>
       )}

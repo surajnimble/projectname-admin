@@ -6,6 +6,7 @@ import { DataTable } from '@/components/common/data-table';
 import { Pagination } from '@/components/common/pagination';
 import { orderReviewColumns } from '@/components/order/order-review-columns';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
 import {
   ORDER_PAGE_SIZE,
@@ -37,6 +38,7 @@ export function OrderReviewList() {
     to,
     setPage,
     setSearch,
+    setDateRange,
     confirmForVendor,
     rejectByAdmin,
     clearActionError,
@@ -65,6 +67,27 @@ export function OrderReviewList() {
     setRejecting(null);
   };
 
+  const dateRangeControls = (
+    <div className="flex items-center gap-2 shrink-0 sm:ml-auto">
+      <label className="text-xs text-fg-muted shrink-0">{orderReviews.fromLabel}</label>
+      <Input
+        type="date"
+        value={from}
+        onChange={(e) => setDateRange(e.target.value, to)}
+        className="text-xs shrink-0 w-32"
+        aria-label={orderReviews.fromLabel}
+      />
+      <label className="text-xs text-fg-muted shrink-0">{orderReviews.toLabel}</label>
+      <Input
+        type="date"
+        value={to}
+        onChange={(e) => setDateRange(from, e.target.value)}
+        className="text-xs shrink-0 w-32"
+        aria-label={orderReviews.toLabel}
+      />
+    </div>
+  );
+
   return (
     <Card className="overflow-hidden">
       <DataTable
@@ -90,6 +113,7 @@ export function OrderReviewList() {
             ],
             onChange: () => {},
           },
+          actions: dateRangeControls,
         }}
         actions={{
           header: orderReviews.columns.actions,

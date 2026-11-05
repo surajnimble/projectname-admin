@@ -5,6 +5,7 @@ import { FormError } from '@/components/common/form-error';
 import { FormField } from '@/components/common/form-field';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { VENDOR_REASON_MAX_LENGTH } from '@/constants';
 import { MESSAGES } from '@/messages';
@@ -20,7 +21,7 @@ interface VendorDocumentDialogProps {
   isSubmitting: boolean;
   error: string;
   onClose: () => void;
-  onSubmit: (remark: string) => void;
+  onSubmit: (isVerified: boolean, remark: string) => void;
 }
 
 export function VendorDocumentDialog({
@@ -33,6 +34,7 @@ export function VendorDocumentDialog({
   onSubmit,
 }: VendorDocumentDialogProps) {
   const [remark, setRemark] = useState('');
+  const [isVerified, setIsVerified] = useState(decision === 'verify');
   const isVerify = decision === 'verify';
 
   return (
@@ -53,7 +55,7 @@ export function VendorDocumentDialog({
             type="button"
             variant={isVerify ? 'primary' : 'destructive'}
             loading={isSubmitting}
-            onClick={() => onSubmit(remark.trim())}
+            onClick={() => onSubmit(isVerified, remark.trim())}
           >
             {isVerify ? vendors.confirmVerify : vendors.confirmRejectDocument}
           </Button>
@@ -62,6 +64,14 @@ export function VendorDocumentDialog({
     >
       <div className="flex flex-col gap-4">
         {error && <FormError message={error} />}
+        {isVerify && (
+          <div className="flex items-center gap-3">
+            <Switch checked={isVerified} onChange={setIsVerified} />
+            <label className="text-sm text-fg cursor-pointer select-none">
+              {vendors.isVerifiedLabel}
+            </label>
+          </div>
+        )}
         <FormField label={vendors.remarkLabel} hint={vendors.remarkHint}>
           <Textarea
             value={remark}

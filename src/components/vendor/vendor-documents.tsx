@@ -246,7 +246,7 @@ export function VendorDocuments() {
         isSubmitting={isActioning}
         error={actionError}
         onClose={() => setDecision(null)}
-        onSubmit={(remark) => void submitDecision(remark)}
+        onSubmit={(_isVerified, remark) => void submitDecision(remark)}
       />
 
       <FilterSheet

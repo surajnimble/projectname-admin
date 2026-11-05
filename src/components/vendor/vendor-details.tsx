@@ -370,9 +370,9 @@ export function VendorDetails({ vendorId }: { vendorId: string }) {
         isSubmitting={isActioning}
         error={actionError}
         onClose={() => setDocumentDecision(null)}
-        onSubmit={(remark) => {
+        onSubmit={(isVerified, remark) => {
           if (!documentDecision) return;
-          void verifyDocument(documentDecision.documentId, documentDecision.mode === 'verify', remark || undefined).then((done) => {
+          void verifyDocument(documentDecision.documentId, isVerified, remark || undefined).then((done) => {
             if (!done) return;
             showSuccess(
               documentDecision.mode === 'verify'

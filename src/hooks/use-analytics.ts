@@ -12,6 +12,7 @@ import type {
   AnalyticsGeoData,
   AnalyticsOverviewData,
   AnalyticsPageViewData,
+  AnalyticsRevenueReportData,
   AnalyticsSessionData,
   AnalyticsSessionListData,
   AnalyticsTrafficSourceData,
@@ -19,6 +20,11 @@ import type {
   AnalyticsAppVersionData,
   PageData,
   ProductPerformanceData,
+  AnalyticsVendorPerformanceData,
+  AnalyticsCustomerCohortData,
+  AnalyticsAbandonedCartData,
+  AnalyticsSearchTermData,
+  AnalyticsZeroResultSearchData,
 } from '@/lib/api/contract';
 
 export function useAnalytics() {
@@ -51,23 +57,21 @@ export function useAnalytics() {
   });
   const [funnel, setFunnel] = useState<AnalyticsFunnelStepData[]>([]);
   const [conversions, setConversions] = useState<AnalyticsConversionData[]>([]);
-  const [revenueReport, setRevenueReport] = useState<PageData<AnalyticsConversionData>>({
-    totalRecord: 0,
-    totalPage: 0,
-    currentPage: 1,
-    limit: 10,
-    hasNext: false,
-    hasPrevious: false,
-    nextPage: 0,
-    previousPage: 0,
-    itemList: [],
+  const [revenueReport, setRevenueReport] = useState<AnalyticsRevenueReportData>({
+    from: '',
+    to: '',
+    groupBy: '',
+    totalRevenue: 0,
+    totalOrders: 0,
+    averageOrderValue: 0,
+    series: [],
   });
   const [productPerformance, setProductPerformance] = useState<ProductPerformanceData[]>([]);
-  const [vendorPerformance, setVendorPerformance] = useState<ProductPerformanceData[]>([]);
-  const [customerCohorts, setCustomerCohorts] = useState<ProductPerformanceData[]>([]);
-  const [abandonedCarts, setAbandonedCarts] = useState<ProductPerformanceData[]>([]);
-  const [searchTerms, setSearchTerms] = useState<ProductPerformanceData[]>([]);
-  const [zeroResultSearches, setZeroResultSearches] = useState<ProductPerformanceData[]>([]);
+  const [vendorPerformance, setVendorPerformance] = useState<AnalyticsVendorPerformanceData[]>([]);
+  const [customerCohorts, setCustomerCohorts] = useState<AnalyticsCustomerCohortData[]>([]);
+  const [abandonedCarts, setAbandonedCarts] = useState<AnalyticsAbandonedCartData[]>([]);
+  const [searchTerms, setSearchTerms] = useState<AnalyticsSearchTermData[]>([]);
+  const [zeroResultSearches, setZeroResultSearches] = useState<AnalyticsZeroResultSearchData[]>([]);
   const [realtime, setRealtime] = useState<AnalyticsOverviewData>(toAnalyticsOverview());
   const [crashes, setCrashes] = useState<AnalyticsCrashData[]>([]);
   const [appVersions, setAppVersions] = useState<AnalyticsAppVersionData[]>([]);
@@ -162,6 +166,130 @@ export function useAnalytics() {
     }
   }, [query]);
 
+  const fetchVendorPerformance = useCallback(async () => {
+    try {
+      const res = await apiService.getAnalyticsVendorPerformance({
+        page: query.page,
+        limit: 10,
+        ...query.filters,
+      });
+      if (res.status) {
+        setVendorPerformance(res.data.itemList);
+      } else {
+        setError(res.message);
+      }
+    } catch {
+      setError('Failed to load vendor performance');
+    }
+  }, [query]);
+
+  const fetchCustomerCohorts = useCallback(async () => {
+    try {
+      const res = await apiService.getAnalyticsCustomerCohorts({ ...query.filters });
+      if (res.status) {
+        setCustomerCohorts(res.data.series);
+      } else {
+        setError(res.message);
+      }
+    } catch {
+      setError('Failed to load customer cohorts');
+    }
+  }, [query]);
+
+  const fetchAbandonedCarts = useCallback(async () => {
+    try {
+      const res = await apiService.getAnalyticsAbandonedCarts({
+        page: query.page,
+        limit: 10,
+        ...query.filters,
+      });
+      if (res.status) {
+        setAbandonedCarts(res.data.itemList);
+      } else {
+        setError(res.message);
+      }
+    } catch {
+      setError('Failed to load abandoned carts');
+    }
+  }, [query]);
+
+  const fetchSearchTerms = useCallback(async () => {
+    try {
+      const res = await apiService.getAnalyticsSearchTerms({
+        page: query.page,
+        limit: 10,
+        ...query.filters,
+      });
+      if (res.status) {
+        setSearchTerms(res.data.itemList);
+      } else {
+        setError(res.message);
+      }
+    } catch {
+      setError('Failed to load search terms');
+    }
+  }, [query]);
+
+  const fetchZeroResultSearches = useCallback(async () => {
+    try {
+      const res = await apiService.getAnalyticsZeroResultSearches({
+        page: query.page,
+        limit: 10,
+        ...query.filters,
+      });
+      if (res.status) {
+        setZeroResultSearches(res.data.itemList);
+      } else {
+        setError(res.message);
+      }
+    } catch {
+      setError('Failed to load zero result searches');
+    }
+  }, [query]);
+
+  const fetchCrashes = useCallback(async () => {
+    try {
+      const res = await apiService.getAnalyticsCrashes({
+        page: query.page,
+        limit: 10,
+        ...query.filters,
+      });
+      if (res.status) {
+        setCrashes(res.data.itemList);
+      } else {
+        setError(res.message);
+      }
+    } catch {
+      setError('Failed to load crashes');
+    }
+  }, [query]);
+
+  const fetchAppVersions = useCallback(async () => {
+    try {
+      const res = await apiService.getAnalyticsAppVersions({ ...query.filters });
+      if (res.status) {
+        setAppVersions(res.data.itemList);
+      } else {
+        setError(res.message);
+      }
+    } catch {
+      setError('Failed to load app versions');
+    }
+  }, [query]);
+
+  const fetchRevenueReport = useCallback(async () => {
+    try {
+      const res = await apiService.getAnalyticsRevenueReport({ ...query.filters });
+      if (res.status) {
+        setRevenueReport(res.data);
+      } else {
+        setError(res.message);
+      }
+    } catch {
+      setError('Failed to load revenue report');
+    }
+  }, [query]);
+
   const fetchUniqueVisitors = useCallback(async () => {
     try {
       const res = await apiService.getAnalyticsUniqueVisitors({});
@@ -246,6 +374,14 @@ export function useAnalytics() {
       await fetchSessions();
       await fetchRealtime();
       await fetchProductPerformance();
+      await fetchVendorPerformance();
+      await fetchCustomerCohorts();
+      await fetchAbandonedCarts();
+      await fetchSearchTerms();
+      await fetchZeroResultSearches();
+      await fetchCrashes();
+      await fetchAppVersions();
+      await fetchRevenueReport();
       if (active) {
         setIsLoading(false);
         setIsFetching(false);
@@ -254,7 +390,7 @@ export function useAnalytics() {
     return () => {
       active = false;
     };
-  }, [query, fetchOverview, fetchVisitors, fetchUniqueVisitors, fetchPageViews, fetchTrafficSources, fetchDeviceBreakdown, fetchGeoBreakdown, fetchSessions, fetchRealtime, fetchProductPerformance, isLoading]);
+  }, [query, fetchOverview, fetchVisitors, fetchUniqueVisitors, fetchPageViews, fetchTrafficSources, fetchDeviceBreakdown, fetchGeoBreakdown, fetchSessions, fetchRealtime, fetchProductPerformance, fetchVendorPerformance, fetchCustomerCohorts, fetchAbandonedCarts, fetchSearchTerms, fetchZeroResultSearches, fetchCrashes, fetchAppVersions, fetchRevenueReport, isLoading]);
 
   const setSearch = useCallback((value: string) => {
     setSearchState(value);
@@ -280,6 +416,14 @@ export function useAnalytics() {
     await fetchSessions();
     await fetchRealtime();
     await fetchProductPerformance();
+    await fetchVendorPerformance();
+    await fetchCustomerCohorts();
+    await fetchAbandonedCarts();
+    await fetchSearchTerms();
+    await fetchZeroResultSearches();
+    await fetchCrashes();
+    await fetchAppVersions();
+    await fetchRevenueReport();
     setIsLoading(false);
     setIsFetching(false);
   }, [
@@ -293,6 +437,14 @@ export function useAnalytics() {
     fetchSessions,
     fetchRealtime,
     fetchProductPerformance,
+    fetchVendorPerformance,
+    fetchCustomerCohorts,
+    fetchAbandonedCarts,
+    fetchSearchTerms,
+    fetchZeroResultSearches,
+    fetchCrashes,
+    fetchAppVersions,
+    fetchRevenueReport,
   ]);
 
   return {

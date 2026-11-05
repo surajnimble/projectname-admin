@@ -142,6 +142,138 @@ export interface ProductPerformanceData {
 
 export type ProductPerformanceListData = PageData<ProductPerformanceData>;
 
+export interface AnalyticsVendorPerformanceData {
+  vendorId: string;
+  shopName: string;
+  slug: string;
+  status: string;
+  commissionRate: number;
+  subOrderCount: number;
+  revenue: number;
+  commission: number;
+  earnings: number;
+  fulfilmentRate: number;
+}
+
+export type AnalyticsVendorPerformanceListData = PageData<AnalyticsVendorPerformanceData>;
+
+export interface AnalyticsCustomerCohortData {
+  period: string;
+  customers: number;
+  retained: number;
+  retentionRate: number;
+  revenue: number;
+}
+
+export type AnalyticsCustomerCohortsData = {
+  from: string;
+  to: string;
+  series: AnalyticsCustomerCohortData[];
+};
+
+export interface AnalyticsAbandonedCartData {
+  cartId: string;
+  customerId: string;
+  customerName: string;
+  email: string;
+  items: number;
+  value: number;
+  abandonedAt: string;
+}
+
+export type AnalyticsAbandonedCartsListData = PageData<AnalyticsAbandonedCartData> & {
+  totalValue: number;
+};
+
+export interface AnalyticsSearchTermData {
+  term: string;
+  searches: number;
+  results: number;
+  conversions: number;
+  conversionRate: number;
+}
+
+export type AnalyticsSearchTermListData = PageData<AnalyticsSearchTermData>;
+
+export interface AnalyticsZeroResultSearchData {
+  term: string;
+  searches: number;
+}
+
+export type AnalyticsZeroResultSearchListData = PageData<AnalyticsZeroResultSearchData>;
+
+export interface AnalyticsRevenueReportSeriesData {
+  date: string;
+  revenue: number;
+  orders: number;
+}
+
+export interface AnalyticsRevenueReportData {
+  from: string;
+  to: string;
+  groupBy: string;
+  totalRevenue: number;
+  totalOrders: number;
+  averageOrderValue: number;
+  series: AnalyticsRevenueReportSeriesData[];
+}
+
+export interface ConversationParticipantData {
+  userId: string;
+  lastReadAt: string | null;
+  isArchived: boolean;
+  userData: {
+    userId: string;
+    name: string;
+    avatarUrl: string;
+  };
+  vendorData: {
+    vendorId: string;
+    shopName: string;
+    slug: string;
+  } | null;
+}
+
+export interface ConversationLastMessageData {
+  messageId: string;
+  body: string;
+  senderId: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface ConversationData {
+  conversationId: string;
+  lastMessageAt: string;
+  isActive: boolean;
+  createdAt: string;
+  lastMessageData: ConversationLastMessageData;
+  participantList: ConversationParticipantData[];
+}
+
+export type ConversationListData = PageData<ConversationData> & {
+  unreadTotal: number;
+};
+
+export interface MessageData {
+  messageId: string;
+  conversationId: string;
+  senderId: string;
+  body: string;
+  attachments: string[];
+  isRead: boolean;
+  readAt: string | null;
+  isDeleted: boolean;
+  createdAt: string;
+  senderData: {
+    userId: string;
+    name: string;
+    avatarUrl: string;
+  };
+}
+
+export type MessageListData = PageData<MessageData>;
+
 export interface LowStockProductData {
   name: string;
   sku: string;
@@ -739,8 +871,6 @@ export interface AnalyticsConversionData {
   revenue: number;
 }
 
-export type AnalyticsRevenueReportData = PageData<AnalyticsConversionData>;
-
 export interface AnalyticsCrashData {
   crashId: string;
   appVersion: string;
@@ -1142,3 +1272,146 @@ export interface ShippingZoneData {
 }
 
 export type ShippingZoneListData = PageData<ShippingZoneData>;
+
+/* ---------- Flash Sales ---------- */
+export interface FlashSaleItemData {
+  flashSaleItemId: string;
+  productId: string;
+  salePrice: number;
+  originalPrice: number;
+  mrpPrice: number;
+  saving: number;
+  saleStock: number;
+  soldCount: number;
+  stockRemaining: number;
+  isSoldOut: boolean;
+  discountPercent: number;
+  productData: {
+    productId: string;
+    name: string;
+    slug: string;
+    price: number;
+    mrpPrice: number;
+    stock: number;
+    isActive: boolean;
+    imageList: string[];
+  };
+}
+
+export interface FlashSaleData {
+  flashSaleId: string;
+  name: string;
+  slug: string;
+  banner: string;
+  startsAt: string;
+  endsAt: string;
+  discountType: string;
+  discountValue: number;
+  isActive: boolean;
+  isLive: boolean;
+  isUpcoming: boolean;
+  hasEnded: boolean;
+  secondsRemaining: number;
+  itemList: FlashSaleItemData[];
+}
+
+export type FlashSaleListData = PageData<FlashSaleData>;
+
+export interface LoyaltyPointsData {
+  userId: string;
+  isEnabled: boolean;
+  balance: number;
+  tier: string;
+  multiplier: number;
+  pointsToNextTier: number;
+  nextTier: string;
+  totalEarned: number;
+  totalRedeemed: number;
+  totalExpired: number;
+  transactionCount: number;
+  pointValue: number;
+  redeemableAmount: number;
+  minRedeemPoints: number;
+  tierList: LoyaltyTierData[];
+}
+
+export interface LoyaltyTierData {
+  tierId: string;
+  name: string;
+  minPoints: number;
+  multiplier: number;
+  benefits: string[];
+}
+
+export type LoyaltyTiersData = {
+  loyaltyTierList: LoyaltyTierData[];
+  totalRecord: number;
+};
+
+export interface LoyaltyTransactionData {
+  transactionId: string;
+  userId: string;
+  points: number;
+  type: string;
+  description: string;
+  referenceId: string;
+  createdAt: string;
+}
+
+export type LoyaltyHistoryData = PageData<LoyaltyTransactionData>;
+
+export interface ReferralCodeData {
+  userId: string;
+  isEnabled: boolean;
+  referralCode: string;
+  referralCount: number;
+  completedCount: number;
+  totalEarned: number;
+  referrerReward: number;
+  refereeReward: number;
+  expiryDays: number;
+}
+
+export interface ReferralData {
+  referralId: string;
+  referrerId: string;
+  refereeId: string;
+  referralCode: string;
+  status: string;
+  rewardEarned: number;
+  createdAt: string;
+}
+
+export type ReferralListData = PageData<ReferralData>;
+
+export interface ReferralLeaderboardData {
+  userId: string;
+  name: string;
+  referralCount: number;
+  completedCount: number;
+  totalEarned: number;
+  rank: number;
+}
+
+export type ReferralLeaderboardListData = {
+  referralTierList: ReferralLeaderboardData[];
+  totalRecord: number;
+};
+
+export interface GiftCardData {
+  giftCardId: string;
+  code: string;
+  name: string;
+  description: string;
+  value: number;
+  balance: number;
+  currency: string;
+  status: string;
+  isActive: boolean;
+  expiresAt: string | null;
+  createdAt: string;
+  usedBy: string | null;
+  usedAt: string | null;
+}
+
+export type GiftCardListData = PageData<GiftCardData>;

@@ -160,6 +160,25 @@ export function useOrderDetail(orderId: string) {
     [load],
   );
 
+  const verifyDeliveryOtp = useCallback(
+    async (subOrderId: string, otp: string, collectedAmount?: number) => {
+      setIsActioning(true);
+      setActionError('');
+      const response = await apiService.verifyDeliveryOtp(subOrderId, {
+        otp,
+        ...(collectedAmount !== undefined ? { collectedAmount } : {}),
+      });
+      setIsActioning(false);
+      if (!response.status) {
+        setActionError(response.message);
+        return false;
+      }
+      await load();
+      return true;
+    },
+    [load],
+  );
+
   const retry = useCallback(() => {
     setIsLoading(true);
     void load();
@@ -180,6 +199,7 @@ export function useOrderDetail(orderId: string) {
     addTag,
     removeTag,
     assignDeliveryBoy,
+    verifyDeliveryOtp,
     retry,
   };
 }

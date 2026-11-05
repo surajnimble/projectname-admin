@@ -5,15 +5,18 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { DetailCard, DetailItem } from '@/components/common/detail-grid';
 import { ErrorState } from '@/components/common/error-state';
+import { FormError } from '@/components/common/form-error';
+import { FormField } from '@/components/common/form-field';
 import { PageHeader } from '@/components/common/page-header';
 import { orderStatusMeta } from '@/components/common/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DataTable, type DataTableColumn } from '@/components/common/data-table';
-import { DataTableIdentity, DataTableMedia } from '@/components/common/data-table-media';
+import { DataTableMedia, DataTableIdentity } from '@/components/common/data-table-media';
 import { PERMISSIONS, ORDER_STATUSES, ROUTES } from '@/constants';
 import { useOrderDetail } from '@/hooks/use-order-detail';
 import type { OrderItemData } from '@/lib/api/contract';
@@ -97,6 +100,7 @@ export function OrderDetails({ orderId }: { orderId: string }) {
     addTag,
     removeTag,
     assignDeliveryBoy,
+    verifyDeliveryOtp,
     retry,
   } = useOrderDetail(orderId);
   const [editing, setEditing] = useState(false);
@@ -105,6 +109,9 @@ export function OrderDetails({ orderId }: { orderId: string }) {
   const [newTag, setNewTag] = useState('');
   const [assigningSubOrder, setAssigningSubOrder] = useState<string | null>(null);
   const [selectedDeliveryBoy, setSelectedDeliveryBoy] = useState('');
+  const [verifyingSubOrder, setVerifyingSubOrder] = useState<string | null>(null);
+  const [otpCode, setOtpCode] = useState('');
+  const [collectedAmount, setCollectedAmount] = useState('');
 
   const handleUpdate = async (values: { status: string; remark: string; location: string }) => {
     const done = await updateStatus(values);
@@ -164,6 +171,21 @@ export function OrderDetails({ orderId }: { orderId: string }) {
       setAssigningSubOrder(null);
       setSelectedDeliveryBoy('');
       showSuccess(orders.deliveryBoyAssigned);
+    }
+  };
+
+  const handleVerifyDeliveryOtp = async () => {
+    if (!verifyingSubOrder || !otpCode.trim()) return;
+    const done = await verifyDeliveryOtp(
+      verifyingSubOrder,
+      otpCode.trim(),
+      collectedAmount ? Number(collectedAmount) : undefined,
+    );
+    if (done) {
+      setVerifyingSubOrder(null);
+      setOtpCode('');
+      setCollectedAmount('');
+      showSuccess(orders.orderDelivered);
     }
   };
 
@@ -411,14 +433,28 @@ export function OrderDetails({ orderId }: { orderId: string }) {
                       </Button>
                     </div>
                   ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setAssigningSubOrder(vendor.subOrderId)}
-                      disabled={isActioning}
-                    >
-                      {orders.fields.assignDeliveryBoy}
-                    </Button>
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setAssigningSubOrder(vendor.subOrderId)}
+                        disabled={isActioning}
+                      >
+                        {orders.fields.assignDeliveryBoy}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setVerifyingSubOrder(vendor.subOrderId);
+                          setOtpCode('');
+                          setCollectedAmount('');
+                        }}
+                        disabled={isActioning}
+                      >
+                        {orders.fields.verifyDeliveryOtp}
+                      </Button>
+                    </>
                   )}
                 </div>
               ))}
@@ -490,6 +526,52 @@ export function OrderDetails({ orderId }: { orderId: string }) {
           onConfirm={() => void handleConfirm()}
           onClose={() => setConfirming(false)}
         />
+      )}
+
+      {verifyingSubOrder && (
+        <Dialog
+          open
+          onClose={() => setVerifyingSubOrder(null)}
+          title={orders.verifyDeliveryOtpTitle}
+          description={orders.verifyDeliveryOtpDescription}
+        >
+          <div className="flex flex-col gap-4">
+            {actionError && <FormError message={actionError} />}
+            <FormField label={orders.fields.otpCode}>
+              <Input
+                type="text"
+                maxLength={4}
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                placeholder={orders.fields.otpPlaceholder}
+                autoFocus
+                className="text-center tracking-wider"
+              />
+            </FormField>
+            <FormField label={orders.fields.collectedAmount}>
+              <Input
+                type="number"
+                value={collectedAmount}
+                onChange={(e) => setCollectedAmount(e.target.value)}
+                placeholder="0"
+              />
+            </FormField>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => setVerifyingSubOrder(null)} disabled={isActioning}>
+              {MESSAGES.common.cancel}
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              loading={isActioning}
+              onClick={handleVerifyDeliveryOtp}
+              disabled={!otpCode.trim() || isActioning}
+            >
+              {orders.verifyDeliveryOtpBtn}
+            </Button>
+          </div>
+        </Dialog>
       )}
     </div>
   );

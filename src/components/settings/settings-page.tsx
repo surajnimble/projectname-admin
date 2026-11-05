@@ -33,6 +33,7 @@ const CATEGORY_OPTIONS = [
   { key: 'customer', label: settings.categories.customer },
   { key: 'feature', label: settings.categories.feature },
   { key: 'analytics', label: settings.categories.analytics },
+  { key: 'order', label: settings.categories.order },
 ] as const;
 
 type SettingsTab = 'settings' | 'features' | 'maintenance';
@@ -68,6 +69,9 @@ export function SettingsPage() {
   const [maintOpen, setMaintOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [draftCategory, setDraftCategory] = useState(category);
+  const orderRequireAdminConfirmation =
+    data.itemList.find((s) => s.key === 'orderRequireAdminConfirmation')?.value === true ||
+    data.itemList.find((s) => s.key === 'orderRequireAdminConfirmation')?.value === 'true';
 
   const activeFilterCount = (search ? 1 : 0) + (category !== 'all' ? 1 : 0);
 
@@ -159,7 +163,22 @@ export function SettingsPage() {
 
   const settingsContent = (
     <div className="p-6">
-      <Card className="overflow-hidden">
+      <Card>
+        <div className="flex items-center justify-between p-4">
+          <div>
+            <h2 className="text-fg font-semibold">{settings.orderRequireAdminConfirmationLabel}</h2>
+            <p className="text-fg-muted text-sm">{settings.orderRequireAdminConfirmationDescription}</p>
+          </div>
+          <Switch
+            checked={orderRequireAdminConfirmation ?? false}
+            onChange={(checked) => {
+              void updateSetting('orderRequireAdminConfirmation', String(checked));
+            }}
+            disabled={isActioning}
+          />
+        </div>
+      </Card>
+      <Card className="overflow-hidden mt-4">
         <DataTable
           columns={columns}
           rows={data.itemList}
