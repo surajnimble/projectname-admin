@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { apiService } from '@/lib/api/api.service';
 import type { FlashSaleListData } from '@/lib/api/contract';
 import type { ApiRequest } from '@/lib/api/contract/api-request';
-import { toFlashSaleList } from '@/types/review';
 
 export function useFlashSales() {
   const [data, setData] = useState<FlashSaleListData>({
@@ -29,7 +28,7 @@ export function useFlashSales() {
       setError(response.message);
       return response;
     }
-    setData(toFlashSaleList(response.data));
+    setData(response.data);
     return response;
   }, [page]);
 
@@ -95,6 +94,16 @@ export function useFlashSales() {
     [load],
   );
 
+  const searchProducts = useCallback(
+    async (query: string) => {
+      if (!query.trim()) return [];
+      const response = await apiService.getProducts({ page: 1, limit: 10, search: query });
+      if (!response.status) return [];
+      return response.data.itemList;
+    },
+    [],
+  );
+
   const retry = useCallback(() => {
     setIsLoading(true);
     void load();
@@ -109,6 +118,7 @@ export function useFlashSales() {
     createFlashSale,
     updateFlashSale,
     deleteFlashSale,
+    searchProducts,
     retry,
   };
 }

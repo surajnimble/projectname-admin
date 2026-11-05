@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { DataTable, type DataTableColumn } from '@/components/common/data-table';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { PERMISSIONS } from '@/constants';
 import { useFlashSales } from '@/hooks/use-flash-sales';
@@ -75,9 +74,11 @@ export function FlashSaleList() {
     data,
     isLoading,
     error,
+    actionError,
     isActioning,
     createFlashSale,
     updateFlashSale,
+    searchProducts,
   } = useFlashSales();
 
   const handleCreate = () => {
@@ -88,10 +89,12 @@ export function FlashSaleList() {
   const handleSubmit = async (values: ApiRequest) => {
     if (editing) {
       const done = await updateFlashSale(editing.flashSaleId, values);
-      if (done) showSuccess(flashSales.updated);
+      if (!done) return;
+      showSuccess(flashSales.updated);
     } else {
       const done = await createFlashSale(values);
-      if (done) showSuccess(flashSales.created);
+      if (!done) return;
+      showSuccess(flashSales.created);
     }
     setOpen(false);
     setEditing(undefined);
@@ -134,20 +137,18 @@ export function FlashSaleList() {
         />
       </Card>
 
-      <Dialog
+      <FlashSaleDialog
         open={open}
-        onClose={() => setOpen(false)}
-        title={editing ? flashSales.editTitle : flashSales.createTitle}
-      >
-        <FlashSaleDialog
-          open={open}
-          flashSale={editing}
-          isSubmitting={isActioning}
-          error={error}
-          onClose={() => setOpen(false)}
-          onSubmit={handleSubmit}
-        />
-      </Dialog>
+        flashSale={editing}
+        isSubmitting={isActioning}
+        error={error || actionError}
+        onClose={() => {
+          setOpen(false);
+          setEditing(undefined);
+        }}
+        onSubmit={handleSubmit}
+        searchProducts={searchProducts}
+      />
     </div>
   );
 }

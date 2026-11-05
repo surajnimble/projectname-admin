@@ -559,8 +559,8 @@ export function DataTable<T>({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map((row) => {
-            const key = rowKey(row);
+          {rows.map((row, index) => {
+            const key = rowKey(row) || String(index);
             const isSelected = selectedKeys.has(key);
 
             return (
