@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
 import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
@@ -17,6 +17,7 @@ import { useCatalog } from '@/hooks/use-catalog';
 import type { AttributeData } from '@/lib/api/contract';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
+import { RefreshButton } from '@/components/common/refresh-button';
 
 const { attributes, common } = MESSAGES;
 
@@ -192,16 +193,7 @@ export function AttributeList() {
                 onOpen: openFilters,
               },
               actions: (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  loading={isLoading || isFetching}
-                  onClick={() => void refresh()}
-                  className="shrink-0"
-                >
-                  <RefreshCw className="size-4" aria-hidden="true" />
-                  {MESSAGES.dashboard.refresh}
-                </Button>
+                <RefreshButton onRefresh={() => void refresh()} size="sm" label={MESSAGES.dashboard.refresh} isRefreshing={isLoading || isFetching} />
               ),
             }}
             actions={{

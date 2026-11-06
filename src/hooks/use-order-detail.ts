@@ -142,6 +142,25 @@ export function useOrderDetail(orderId: string) {
     [orderId, fetchTags],
   );
 
+  const verifyDeliveryOtp = useCallback(
+    async (
+      subOrderId: string,
+      values: { otp: string; remarks?: string; collectedAmount?: number },
+    ) => {
+      setIsActioning(true);
+      setActionError('');
+      const response = await apiService.verifyDeliveryOtp(subOrderId, values);
+      setIsActioning(false);
+      if (!response.status) {
+        setActionError(response.message);
+        return false;
+      }
+      await load();
+      return true;
+    },
+    [load],
+  );
+
   const assignDeliveryBoy = useCallback(
     async (subOrderId: string, deliveryBoyId: string) => {
       setIsActioning(true);
@@ -160,29 +179,14 @@ export function useOrderDetail(orderId: string) {
     [load],
   );
 
-  const verifyDeliveryOtp = useCallback(
-    async (subOrderId: string, otp: string, collectedAmount?: number) => {
-      setIsActioning(true);
-      setActionError('');
-      const response = await apiService.verifyDeliveryOtp(subOrderId, {
-        otp,
-        ...(collectedAmount !== undefined ? { collectedAmount } : {}),
-      });
-      setIsActioning(false);
-      if (!response.status) {
-        setActionError(response.message);
-        return false;
-      }
-      await load();
-      return true;
-    },
-    [load],
-  );
+  const refresh = useCallback(async () => {
+    setIsLoading(true);
+    await Promise.all([load(), fetchNotes(), fetchTags(), fetchDeliveryBoys()]);
+  }, [load, fetchNotes, fetchTags, fetchDeliveryBoys]);
 
   const retry = useCallback(() => {
-    setIsLoading(true);
-    void load();
-  }, [load]);
+    void refresh();
+  }, [refresh]);
 
   return {
     order,
@@ -200,6 +204,7 @@ export function useOrderDetail(orderId: string) {
     removeTag,
     assignDeliveryBoy,
     verifyDeliveryOtp,
+    refresh,
     retry,
   };
 }

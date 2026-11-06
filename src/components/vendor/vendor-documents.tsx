@@ -1,6 +1,8 @@
 'use client';
 
-import { ExternalLink, RefreshCw } from 'lucide-react';
+import {
+  ExternalLink
+} from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,14 +11,17 @@ import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu'
 import { Select, SelectItem } from '@/components/ui/select';
 import { DataTable, type DataTableColumn } from '@/components/common/data-table';
 import { DataTableIdentity } from '@/components/common/data-table-media';
+import { ImagePreview } from '@/components/common/image-preview';
 import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
 import { Pagination } from '@/components/common/pagination';
 import { ROUTES } from '@/constants';
 import { useVendorDocuments, type DocumentFilter } from '@/hooks/use-vendor-documents';
 import type { VendorKycDocumentData } from '@/lib/api/contract';
 import { formatRelativeTime } from '@/lib/utils/datetime';
+import { isImageUrl, safeExternalUrl } from '@/lib/utils/external-url';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
+import { RefreshButton } from '@/components/common/refresh-button';
 import {
   VendorDocumentDialog,
   type DocumentDecision,
@@ -36,17 +41,33 @@ const documentColumns: readonly DataTableColumn<VendorKycDocumentData>[] = [
   {
     key: 'vendor',
     header: vendors.columns.vendor,
-    cell: (document) => (
-      <DataTableIdentity
-        title={document.vendorData.shopName || vendors.shopFallback}
-        meta={document.remark || document.docType || vendors.dash}
-        href={
-          document.vendorData.vendorId
-            ? ROUTES.vendorDetails(document.vendorData.vendorId)
-            : undefined
-        }
-      />
-    ),
+    cell: (document) => {
+      const fileUrl = safeExternalUrl(document.fileUrl);
+      const imageUrl = fileUrl && isImageUrl(fileUrl) ? fileUrl : null;
+      return (
+        <div className="flex min-w-0 items-center gap-3">
+          {imageUrl && (
+            <ImagePreview
+              src={imageUrl}
+              alt={`${document.vendorData.shopName || vendors.shopFallback} ${document.docType || vendors.columns.documentType}`}
+              width={240}
+              height={180}
+              triggerClassName="size-12 shrink-0"
+              className="size-full rounded-md object-cover"
+            />
+          )}
+          <DataTableIdentity
+            title={document.vendorData.shopName || vendors.shopFallback}
+            meta={document.remark || document.docType || vendors.dash}
+            href={
+              document.vendorData.vendorId
+                ? ROUTES.vendorDetails(document.vendorData.vendorId)
+                : undefined
+            }
+          />
+        </div>
+      );
+    },
   },
   {
     key: 'documentType',
@@ -132,15 +153,11 @@ export function VendorDocuments() {
     setFiltersOpen(false);
   };
 
-  const submitDecision = async (remark: string) => {
+  const submitDecision = async (isVerified: boolean, remark: string) => {
     if (!decision) return;
-    const done = await verifyDocument(
-      decision.documentId,
-      decision.mode === 'verify',
-      remark || undefined,
-    );
+    const done = await verifyDocument(decision.documentId, isVerified, remark || undefined);
     if (!done) return;
-    showSuccess(decision.mode === 'verify' ? vendors.documentVerified : vendors.documentRejected);
+    showSuccess(isVerified ? vendors.documentVerified : vendors.documentRejected);
     setDecision(null);
   };
 
@@ -163,16 +180,7 @@ export function VendorDocuments() {
               onOpen: openFilters,
             },
             actions: (
-              <Button
-                variant="outline"
-                size="sm"
-                loading={isLoading}
-                onClick={() => void refresh()}
-                className="shrink-0"
-              >
-                <RefreshCw className="size-4" aria-hidden="true" />
-                {dashboard.refresh}
-              </Button>
+              <RefreshButton onRefresh={() => void refresh()} size="sm" label={dashboard.refresh} isRefreshing={isLoading} />
             ),
           }}
           actions={{
@@ -202,11 +210,11 @@ export function VendorDocuments() {
 
               return (
                 <div className="flex flex-wrap items-center justify-end gap-2">
-                  {document.fileUrl && (
+                  {safeExternalUrl(document.fileUrl) && (
                     <a
-                      href={document.fileUrl}
+                      href={safeExternalUrl(document.fileUrl) ?? undefined}
                       target="_blank"
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                       className="text-fg-muted data-hover-color inline-flex items-center gap-1 text-sm"
                     >
                       {vendors.openDocument}
@@ -246,7 +254,7 @@ export function VendorDocuments() {
         isSubmitting={isActioning}
         error={actionError}
         onClose={() => setDecision(null)}
-        onSubmit={(_isVerified, remark) => void submitDecision(remark)}
+        onSubmit={(isVerified, remark) => void submitDecision(isVerified, remark)}
       />
 
       <FilterSheet

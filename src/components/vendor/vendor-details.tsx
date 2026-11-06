@@ -1,7 +1,15 @@
 'use client';
 
-import { ArrowLeft, Ban, Check, ExternalLink, Percent, RefreshCw, RotateCcw, X } from 'lucide-react';
-import Image from 'next/image';
+import {
+  ArrowLeft,
+  Ban,
+  Check,
+  ExternalLink,
+  Percent,
+  RotateCcw,
+  X
+} from 'lucide-react';
+import { ImagePreview } from '@/components/common/image-preview';
 import Link from 'next/link';
 import { useState } from 'react';
 import { EmptyState } from '@/components/common/empty-state';
@@ -19,7 +27,7 @@ import { Button } from '@/components/ui/button';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Thumbnail } from '@/components/ui/thumbnail';
 import { ProductList } from '@/components/product/product-list';
 import { VendorPayouts } from '@/components/vendor/vendor-payouts';
@@ -32,6 +40,7 @@ import { formatRelativeTime } from '@/lib/utils/datetime';
 import { formatCurrency, maskAccount } from '@/lib/utils';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
+import { RefreshButton } from '@/components/common/refresh-button';
 
 const { vendors } = MESSAGES;
 
@@ -53,13 +62,13 @@ function VendorBanner({ banner }: { banner: string }) {
   }
 
   return (
-    <Image
+    <ImagePreview
       src={banner}
-      alt=""
+      alt="Vendor banner"
       width={1200}
       height={320}
-      unoptimized
-      className="h-28 w-full rounded-lg object-cover sm:h-40 lg:h-52"
+      triggerClassName="h-28 w-full sm:h-40 lg:h-52"
+      className="h-full w-full rounded-lg object-cover"
     />
   );
 }
@@ -308,15 +317,7 @@ export function VendorDetails({ vendorId }: { vendorId: string }) {
           <ArrowLeft className="size-4" aria-hidden="true" />
           {vendors.backToList}
         </Link>
-        <Button
-          variant="outline"
-          size="sm"
-          loading={isPending}
-          onClick={() => void refresh()}
-        >
-          <RefreshCw className="size-4" aria-hidden="true" />
-          {MESSAGES.dashboard.refresh}
-        </Button>
+        <RefreshButton onRefresh={() => void refresh()} size="sm" label={MESSAGES.dashboard.refresh} isRefreshing={isPending} />
       </div>
 
       <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
@@ -374,11 +375,7 @@ export function VendorDetails({ vendorId }: { vendorId: string }) {
           if (!documentDecision) return;
           void verifyDocument(documentDecision.documentId, isVerified, remark || undefined).then((done) => {
             if (!done) return;
-            showSuccess(
-              documentDecision.mode === 'verify'
-                ? vendors.documentVerified
-                : vendors.documentRejected,
-            );
+            showSuccess(isVerified ? vendors.documentVerified : vendors.documentRejected);
             setDocumentDecision(null);
           });
         }}
@@ -443,9 +440,20 @@ export function VendorDetails({ vendorId }: { vendorId: string }) {
           <div className="flex flex-col items-start gap-3 sm:col-span-2 sm:flex-row sm:items-center lg:col-span-3">
             {isPending ? (
               <Skeleton className="size-10 rounded-lg" />
+            ) : vendor.userData.avatarUrl ? (
+              <ImagePreview
+                src={vendor.userData.avatarUrl}
+                alt={vendor.userData.name || vendors.ownerTitle}
+                width={160}
+                height={160}
+                triggerClassName="size-10 shrink-0 rounded-full"
+                className="size-full rounded-full object-cover"
+              />
             ) : (
               <Avatar>
-                <AvatarImage src={vendor.userData.avatarUrl} alt={vendor.userData.name} />
+                <AvatarFallback>
+                  {(vendor.userData.name || vendors.ownerTitle).slice(0, 1).toUpperCase()}
+                </AvatarFallback>
               </Avatar>
             )}
             <div className="flex flex-col gap-0.5">

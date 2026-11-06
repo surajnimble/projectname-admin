@@ -20,9 +20,30 @@ const stats: DashboardStatsData = {
   openTickets: 0,
   pendingReturns: 0,
   pendingRefunds: 0,
+  pendingAdminOrders: 0,
+  availableStats: [
+    'totalUsers', 'totalVendors', 'pendingVendors', 'totalProducts', 'totalOrders',
+    'revenue30d', 'openTickets', 'pendingReturns', 'pendingRefunds', 'pendingAdminOrders',
+  ],
 };
 
 describe('useDashboardStats', () => {
+  it('tracks only metrics actually returned by the permission-filtered API', () => {
+    expect(toDashboardStats({ totalUsers: 4, pendingAdminOrders: 2 })).toEqual({
+      totalUsers: 4,
+      totalVendors: 0,
+      pendingVendors: 0,
+      totalProducts: 0,
+      totalOrders: 0,
+      revenue30d: 0,
+      openTickets: 0,
+      pendingReturns: 0,
+      pendingRefunds: 0,
+      pendingAdminOrders: 2,
+      availableStats: ['totalUsers', 'pendingAdminOrders'],
+    });
+  });
+
   beforeEach(() => getDashboardStats.mockReset());
 
   it('loads the stats when the overview mounts', async () => {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
 import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
@@ -17,6 +17,8 @@ import { useCatalog } from '@/hooks/use-catalog';
 import type { BrandData } from '@/lib/api/contract';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
+import { RefreshButton } from '@/components/common/refresh-button';
+import { ImagePreview } from '@/components/common/image-preview';
 
 const { brands } = MESSAGES;
 
@@ -111,7 +113,7 @@ export function BrandList() {
       cell: (row: BrandData) => (
         <div className="flex items-center gap-3">
           {row.logo ? (
-            <img src={row.logo} alt={row.name} className="size-6 rounded-md object-cover" />
+            <ImagePreview src={row.logo} alt={row.name} width={96} height={96} triggerClassName="size-8" className="size-8 rounded-md object-cover" />
           ) : (
             <div className="size-6 rounded-md bg-surface-muted flex items-center justify-center">
               {row.name?.slice(0, 2).toUpperCase()}
@@ -183,16 +185,7 @@ export function BrandList() {
                 onOpen: openFilters,
               },
               actions: (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  loading={isLoading || isFetching}
-                  onClick={() => void refresh()}
-                  className="shrink-0"
-                >
-                  <RefreshCw className="size-4" aria-hidden="true" />
-                  {MESSAGES.dashboard.refresh}
-                </Button>
+                <RefreshButton onRefresh={() => void refresh()} size="sm" label={MESSAGES.dashboard.refresh} isRefreshing={isLoading || isFetching} />
               ),
             }}
             actions={{

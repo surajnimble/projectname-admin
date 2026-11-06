@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { DataTable } from '@/components/common/data-table';
+import { RefreshButton } from '@/components/common/refresh-button';
 import { Pagination } from '@/components/common/pagination';
 import { orderColumns } from '@/components/order/order-columns';
 import { Card } from '@/components/ui/card';
@@ -48,6 +49,7 @@ export function OrderList() {
     setSearch,
     setStatus,
     updateStatus,
+    refresh,
     clearActionError,
   } = useOrders();
   const [editing, setEditing] = useState<OrderSummaryData | null>(null);
@@ -87,6 +89,7 @@ export function OrderList() {
             options: STATUS_OPTIONS,
             onChange: (value) => setStatus(value as OrderStatusFilter),
           },
+          actions: <RefreshButton onRefresh={refresh} isRefreshing={isLoading} label={MESSAGES.dashboard.refresh} />,
         }}
         actions={{
           header: orders.columns.actions,

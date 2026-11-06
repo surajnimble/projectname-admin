@@ -3,29 +3,31 @@
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { Dialog } from '@/components/ui/dialog';
 import { DetailCard, DetailItem } from '@/components/common/detail-grid';
 import { ErrorState } from '@/components/common/error-state';
-import { FormError } from '@/components/common/form-error';
-import { FormField } from '@/components/common/form-field';
 import { PageHeader } from '@/components/common/page-header';
+import { RefreshButton } from '@/components/common/refresh-button';
 import { orderStatusMeta } from '@/components/common/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DataTable, type DataTableColumn } from '@/components/common/data-table';
-import { DataTableMedia, DataTableIdentity } from '@/components/common/data-table-media';
+import { DataTableIdentity, DataTableMedia } from '@/components/common/data-table-media';
 import { PERMISSIONS, ORDER_STATUSES, ROUTES } from '@/constants';
 import { useOrderDetail } from '@/hooks/use-order-detail';
-import type { OrderItemData } from '@/lib/api/contract';
+import type { OrderItemData, ShipmentTrackingData } from '@/lib/api/contract';
+import { apiService } from '@/lib/api/api.service';
 import { usePermission } from '@/hooks/use-permission';
 import { formatCurrency } from '@/lib/utils';
 import { formatRelativeTime } from '@/lib/utils/datetime';
 import { showSuccess } from '@/lib/utils/toast';
+import { safeExternalUrl } from '@/lib/utils/external-url';
 import { MESSAGES } from '@/messages';
 import { OrderStatusDialog } from './order-status-dialog';
+import { DeliveryOtpDialog } from './delivery-otp-dialog';
 
 const { orders } = MESSAGES;
 
@@ -101,6 +103,7 @@ export function OrderDetails({ orderId }: { orderId: string }) {
     removeTag,
     assignDeliveryBoy,
     verifyDeliveryOtp,
+    refresh,
     retry,
   } = useOrderDetail(orderId);
   const [editing, setEditing] = useState(false);
@@ -110,8 +113,10 @@ export function OrderDetails({ orderId }: { orderId: string }) {
   const [assigningSubOrder, setAssigningSubOrder] = useState<string | null>(null);
   const [selectedDeliveryBoy, setSelectedDeliveryBoy] = useState('');
   const [verifyingSubOrder, setVerifyingSubOrder] = useState<string | null>(null);
-  const [otpCode, setOtpCode] = useState('');
-  const [collectedAmount, setCollectedAmount] = useState('');
+  const [trackingAwb, setTrackingAwb] = useState('');
+  const [trackingData, setTrackingData] = useState<ShipmentTrackingData | null>(null);
+  const [trackingLoading, setTrackingLoading] = useState(false);
+  const [trackingError, setTrackingError] = useState('');
 
   const handleUpdate = async (values: { status: string; remark: string; location: string }) => {
     const done = await updateStatus(values);
@@ -174,18 +179,33 @@ export function OrderDetails({ orderId }: { orderId: string }) {
     }
   };
 
-  const handleVerifyDeliveryOtp = async () => {
-    if (!verifyingSubOrder || !otpCode.trim()) return;
-    const done = await verifyDeliveryOtp(
-      verifyingSubOrder,
-      otpCode.trim(),
-      collectedAmount ? Number(collectedAmount) : undefined,
-    );
+  const handleTrackShipment = async (awb: string) => {
+    setTrackingAwb(awb);
+    setTrackingData(null);
+    setTrackingError('');
+    setTrackingLoading(true);
+    const response = await apiService.getAdminShipmentTracking(awb);
+    setTrackingLoading(false);
+    if (response.status) setTrackingData(response.data);
+    else setTrackingError(response.message);
+  };
+
+  const closeTracking = () => {
+    setTrackingAwb('');
+    setTrackingData(null);
+    setTrackingError('');
+  };
+
+  const handleVerifyDelivery = async (values: {
+    otp: string;
+    remarks?: string;
+    collectedAmount?: number;
+  }) => {
+    if (!verifyingSubOrder) return;
+    const done = await verifyDeliveryOtp(verifyingSubOrder, values);
     if (done) {
       setVerifyingSubOrder(null);
-      setOtpCode('');
-      setCollectedAmount('');
-      showSuccess(orders.orderDelivered);
+      showSuccess(orders.fields.deliveryVerified);
     }
   };
 
@@ -222,6 +242,7 @@ export function OrderDetails({ orderId }: { orderId: string }) {
           description={formatRelativeTime(order.createdAt)}
           action={
             <div className="flex flex-wrap items-center justify-end gap-2">
+              <RefreshButton onRefresh={refresh} isRefreshing={isLoading} label={MESSAGES.dashboard.refresh} />
               <Badge intent={orderStatusMeta(order.status).intent}>
                 {orderStatusMeta(order.status).label}
               </Badge>
@@ -235,7 +256,7 @@ export function OrderDetails({ orderId }: { orderId: string }) {
                   {orders.confirmOrder}
                 </Button>
               )}
-              {can(PERMISSIONS.orderUpdateStatus) && (
+              {can(PERMISSIONS.orderUpdateStatus) && order.status !== ORDER_STATUSES.delivered && (
                 <Button size="sm" onClick={() => setEditing(true)}>
                   {orders.updateStatus}
                 </Button>
@@ -291,7 +312,7 @@ export function OrderDetails({ orderId }: { orderId: string }) {
         </DetailCard>
       )}
 
-      {can(PERMISSIONS.orderUpdateStatus) && notes.length > 0 && (
+      {can(PERMISSIONS.orderUpdateStatus) && (
         <Card>
           <CardHeader>
             <CardTitle>{orders.sections.notes}</CardTitle>
@@ -393,7 +414,7 @@ export function OrderDetails({ orderId }: { orderId: string }) {
         </Card>
       )}
 
-      {can(PERMISSIONS.orderUpdateStatus) && order.vendorList.length > 0 && (
+      {order.vendorList.length > 0 && (can(PERMISSIONS.orderUpdateStatus) || can(PERMISSIONS.trackingView)) && (
         <Card>
           <CardHeader>
             <CardTitle>{orders.sections.delivery}</CardTitle>
@@ -409,7 +430,24 @@ export function OrderDetails({ orderId }: { orderId: string }) {
                     <p className="text-sm font-medium text-fg">{vendor.shopName}</p>
                     <p className="text-xs text-fg-muted">{vendor.subOrderId}</p>
                   </div>
-                  {assigningSubOrder === vendor.subOrderId ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    {can(PERMISSIONS.trackingView) && (vendor.shipmentData.awb || vendor.trackingNumber) && (
+                      <Button variant="outline" size="sm" onClick={() => void handleTrackShipment(vendor.shipmentData.awb || vendor.trackingNumber)}>
+                        {MESSAGES.shipmentTracking.search}
+                      </Button>
+                    )}
+                  {vendor.status === ORDER_STATUSES.delivered ? (
+                    <Badge intent="success">{orders.fields.delivered}</Badge>
+                  ) : can(PERMISSIONS.orderUpdateStatus) ? vendor.status === ORDER_STATUSES.outForDelivery ? (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setVerifyingSubOrder(vendor.subOrderId)}
+                      disabled={isActioning}
+                    >
+                      {orders.fields.verifyDelivery}
+                    </Button>
+                  ) : assigningSubOrder === vendor.subOrderId ? (
                     <div className="flex items-center gap-2">
                       <select
                         value={selectedDeliveryBoy}
@@ -433,29 +471,16 @@ export function OrderDetails({ orderId }: { orderId: string }) {
                       </Button>
                     </div>
                   ) : (
-                    <>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setAssigningSubOrder(vendor.subOrderId)}
-                        disabled={isActioning}
-                      >
-                        {orders.fields.assignDeliveryBoy}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setVerifyingSubOrder(vendor.subOrderId);
-                          setOtpCode('');
-                          setCollectedAmount('');
-                        }}
-                        disabled={isActioning}
-                      >
-                        {orders.fields.verifyDeliveryOtp}
-                      </Button>
-                    </>
-                  )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAssigningSubOrder(vendor.subOrderId)}
+                      disabled={isActioning}
+                    >
+                      {orders.fields.assignDeliveryBoy}
+                    </Button>
+                  ) : null}
+                  </div>
                 </div>
               ))}
             </div>
@@ -517,6 +542,33 @@ export function OrderDetails({ orderId }: { orderId: string }) {
         />
       )}
 
+      {verifyingSubOrder && (
+        <DeliveryOtpDialog
+          open
+          isSubmitting={isActioning}
+          error={actionError}
+          requiresCodCollection={order.paymentMethod === 'COD' && order.paymentStatus !== 'PAID'}
+          onConfirm={(values) => void handleVerifyDelivery(values)}
+          onClose={() => setVerifyingSubOrder(null)}
+        />
+      )}
+
+      {trackingAwb && (
+        <Dialog open onClose={closeTracking} title={MESSAGES.shipmentTracking.title} description={`${MESSAGES.shipmentTracking.awb}: ${trackingAwb}`} footer={<Button onClick={closeTracking}>{MESSAGES.common.close}</Button>}>
+          {trackingLoading ? <p className="text-sm text-fg-muted">{MESSAGES.common.loading}</p> : trackingError ? <p role="alert" className="text-sm text-danger">{trackingError}</p> : trackingData ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div><p className="text-xs text-fg-muted">{MESSAGES.shipmentTracking.order}</p><p className="text-sm font-medium">{trackingData.orderNumber || orders.dash}</p></div>
+              <div><p className="text-xs text-fg-muted">{MESSAGES.shipmentTracking.status}</p><Badge intent={trackingData.status === 'DELIVERED' ? 'success' : trackingData.status === 'FAILED' || trackingData.status === 'CANCELLED' ? 'danger' : 'info'}>{trackingData.status || orders.dash}</Badge></div>
+              <div><p className="text-xs text-fg-muted">{MESSAGES.shipmentTracking.estimatedDays}</p><p className="text-sm font-medium">{trackingData.estimatedDays || orders.dash}</p></div>
+              <div><p className="text-xs text-fg-muted">{MESSAGES.shipmentTracking.shippedAt}</p><p className="text-sm font-medium">{trackingData.shippedAt ? new Date(trackingData.shippedAt).toLocaleString() : orders.dash}</p></div>
+              <div><p className="text-xs text-fg-muted">{MESSAGES.shipmentTracking.deliveredAt}</p><p className="text-sm font-medium">{trackingData.deliveredAt ? new Date(trackingData.deliveredAt).toLocaleString() : orders.dash}</p></div>
+              {trackingData.trackingUrl && <div className="sm:col-span-2"><p className="text-xs text-fg-muted">{MESSAGES.shipmentTracking.trackingUrl}</p>{safeExternalUrl(trackingData.trackingUrl) ? <a href={safeExternalUrl(trackingData.trackingUrl) ?? undefined} target="_blank" rel="noopener noreferrer" className="break-all text-sm text-primary underline">{trackingData.trackingUrl}</a> : <p className="break-all text-sm">{trackingData.trackingUrl}</p>}</div>}
+              <div className="sm:col-span-2"><p className="text-xs text-fg-muted">{MESSAGES.shipmentTracking.remarks}</p><p className="text-sm">{trackingData.remarks || orders.dash}</p></div>
+            </div>
+          ) : null}
+        </Dialog>
+      )}
+
       {confirming && (
         <OrderStatusDialog
           open
@@ -526,52 +578,6 @@ export function OrderDetails({ orderId }: { orderId: string }) {
           onConfirm={() => void handleConfirm()}
           onClose={() => setConfirming(false)}
         />
-      )}
-
-      {verifyingSubOrder && (
-        <Dialog
-          open
-          onClose={() => setVerifyingSubOrder(null)}
-          title={orders.verifyDeliveryOtpTitle}
-          description={orders.verifyDeliveryOtpDescription}
-        >
-          <div className="flex flex-col gap-4">
-            {actionError && <FormError message={actionError} />}
-            <FormField label={orders.fields.otpCode}>
-              <Input
-                type="text"
-                maxLength={4}
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                placeholder={orders.fields.otpPlaceholder}
-                autoFocus
-                className="text-center tracking-wider"
-              />
-            </FormField>
-            <FormField label={orders.fields.collectedAmount}>
-              <Input
-                type="number"
-                value={collectedAmount}
-                onChange={(e) => setCollectedAmount(e.target.value)}
-                placeholder="0"
-              />
-            </FormField>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setVerifyingSubOrder(null)} disabled={isActioning}>
-              {MESSAGES.common.cancel}
-            </Button>
-            <Button
-              type="button"
-              variant="primary"
-              loading={isActioning}
-              onClick={handleVerifyDeliveryOtp}
-              disabled={!otpCode.trim() || isActioning}
-            >
-              {orders.verifyDeliveryOtpBtn}
-            </Button>
-          </div>
-        </Dialog>
       )}
     </div>
   );

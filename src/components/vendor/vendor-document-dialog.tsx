@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormError } from '@/components/common/form-error';
 import { FormField } from '@/components/common/form-field';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
-import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { VENDOR_REASON_MAX_LENGTH } from '@/constants';
 import { MESSAGES } from '@/messages';
 
@@ -35,7 +35,15 @@ export function VendorDocumentDialog({
 }: VendorDocumentDialogProps) {
   const [remark, setRemark] = useState('');
   const [isVerified, setIsVerified] = useState(decision === 'verify');
-  const isVerify = decision === 'verify';
+
+  useEffect(() => {
+    if (open) {
+      setRemark('');
+      setIsVerified(decision === 'verify');
+    }
+  }, [open, decision]);
+
+  const isVerify = isVerified;
 
   return (
     <Dialog
@@ -64,14 +72,11 @@ export function VendorDocumentDialog({
     >
       <div className="flex flex-col gap-4">
         {error && <FormError message={error} />}
-        {isVerify && (
-          <div className="flex items-center gap-3">
-            <Switch checked={isVerified} onChange={setIsVerified} />
-            <label className="text-sm text-fg cursor-pointer select-none">
-              {vendors.isVerifiedLabel}
-            </label>
-          </div>
-        )}
+        <Switch
+          checked={isVerified}
+          onChange={setIsVerified}
+          label={vendors.documentVerifiedToggle}
+        />
         <FormField label={vendors.remarkLabel} hint={vendors.remarkHint}>
           <Textarea
             value={remark}

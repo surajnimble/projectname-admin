@@ -1,6 +1,6 @@
 'use client';
 
-import { RefreshCw } from 'lucide-react';
+
 import { useState } from 'react';
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
@@ -12,6 +12,7 @@ import { activityLogColumns } from '@/components/activity-logs/activity-log-colu
 import { useActivityLogs } from '@/hooks/use-activity-logs';
 import type { ActivityLogData } from '@/lib/api/contract';
 import { MESSAGES } from '@/messages';
+import { RefreshButton } from '@/components/common/refresh-button';
 
 const { activityLogs } = MESSAGES;
 
@@ -80,16 +81,7 @@ export function ActivityLogList() {
               onOpen: openFilters,
             },
             actions: (
-              <Button
-                variant="outline"
-                size="sm"
-                loading={isLoading || isFetching}
-                onClick={() => void refresh()}
-                className="shrink-0"
-              >
-                <RefreshCw className="size-4" aria-hidden="true" />
-                {MESSAGES.dashboard.refresh}
-              </Button>
+              <RefreshButton onRefresh={() => void refresh()} size="sm" label={MESSAGES.dashboard.refresh} isRefreshing={isLoading || isFetching} />
             ),
           }}
           isLoading={isLoading}

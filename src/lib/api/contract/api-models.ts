@@ -12,6 +12,8 @@ import type {
   AnalyticsSessionData,
   AnalyticsTrafficSourceData,
   AnalyticsVisitorData,
+  AnalyticsVendorPerformanceData,
+  AnalyticsSearchTermData,
   PageData,
 } from './base-response';
 

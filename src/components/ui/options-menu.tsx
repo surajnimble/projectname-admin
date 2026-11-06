@@ -1,16 +1,19 @@
 'use client';
 
 import { MoreVertical, type LucideIcon } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { IconButton } from '@/components/ui/icon-button';
 import { cn } from '@/lib/utils';
 
 export interface OptionsMenuItem {
-  label: string;
+  id?: string;
+  label: ReactNode;
   icon?: LucideIcon;
   intent?: 'default' | 'danger';
   active?: boolean;
+  disabled?: boolean;
   onSelect: () => void;
 }
 
@@ -106,9 +109,10 @@ export function OptionsMenu({
             style={{ top: position.top, left: position.left }}
             className="bg-background border-border fixed z-50 flex w-48 flex-col gap-0.5 rounded-md border p-1 shadow-md"
           >
-            {items.map((item) => (
+            {items.map((item, index) => (
               <button
-                key={item.label}
+                key={item.id ?? (typeof item.label === 'string' ? item.label : `action-${index}`)}
+                disabled={item.disabled}
                 type="button"
                 role="menuitem"
                 onClick={() => {
@@ -116,7 +120,7 @@ export function OptionsMenu({
                   item.onSelect();
                 }}
                 className={cn(
-                  'flex items-center gap-2 rounded-sm px-2.5 py-1.5 text-left text-sm transition-colors',
+                  'flex items-center gap-2 rounded-sm px-2.5 py-1.5 text-left text-sm transition-colors disabled:pointer-events-none disabled:opacity-50',
                   item.intent === 'danger'
                     ? 'text-destructive active:bg-destructive/10'
                     : 'text-foreground data-hover-color',

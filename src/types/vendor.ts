@@ -1,7 +1,9 @@
 import type {
   KycDocumentListData,
+  CommissionBoundsData,
   VendorBankData,
   VendorData,
+  VendorBulkResultData,
   VendorKycDocumentData,
   VendorListData,
   VendorRatingSummaryData,
@@ -143,5 +145,21 @@ export const toVendorList = (raw: RawVendorList = {}): VendorListData => ({
   previousPage: toNumber(raw.previousPage),
   itemList: Array.isArray(raw.vendorList)
     ? raw.vendorList.filter(isObject).map((item) => toVendor(item))
+    : [],
+});
+
+export const toCommissionBounds = (raw: Partial<CommissionBoundsData> = {}): CommissionBoundsData => ({
+  min: toNumber(raw.min),
+  max: typeof raw.max === 'number' && Number.isFinite(raw.max) ? raw.max : 50,
+});
+
+
+export const toVendorBulkResult = (raw: Partial<VendorBulkResultData> = {}): VendorBulkResultData => ({
+  updatedCount: toNumber(raw.updatedCount),
+  failedList: Array.isArray(raw.failedList)
+    ? raw.failedList.filter(isObject).map((item) => ({
+        vendorId: toString(item.vendorId),
+        reason: toString(item.reason),
+      }))
     : [],
 });

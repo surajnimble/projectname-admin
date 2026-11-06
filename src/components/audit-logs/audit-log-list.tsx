@@ -1,6 +1,6 @@
 'use client';
 
-import { RefreshCw } from 'lucide-react';
+
 import { useState } from 'react';
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
@@ -13,6 +13,7 @@ import { useAuditLogs } from '@/hooks/use-audit-logs';
 import type { AuditLogData } from '@/lib/api/contract';
 import { AUDIT_LOG_PAGE_SIZE } from '@/constants';
 import { MESSAGES } from '@/messages';
+import { RefreshButton } from '@/components/common/refresh-button';
 
 const { auditLogs } = MESSAGES;
 
@@ -76,7 +77,23 @@ export function AuditLogList() {
               header: auditLogs.columns.user,
               hideBelow: '2xl',
               width: 'w-40',
-              cell: (row: AuditLogData) => <span className="text-sm">{row.userData.name || auditLogs.fallback}</span>,
+              cell: (row: AuditLogData) => (
+                <span className="text-sm">
+                  {row.actorData.name || row.actorData.email || auditLogs.fallback}
+                  {row.actorRole && <span className="ml-1 text-xs text-fg-muted">({row.actorRole})</span>}
+                </span>
+              ),
+            },
+            {
+              key: 'impersonatedBy',
+              header: auditLogs.columns.impersonatedBy,
+              hideBelow: '2xl',
+              width: 'w-40',
+              cell: (row: AuditLogData) => (
+                <span className="text-sm">
+                  {row.impersonatedByData.name || row.impersonatedByData.email || '—'}
+                </span>
+              ),
             },
             {
               key: 'ip',
@@ -107,16 +124,7 @@ export function AuditLogList() {
               onOpen: openFilters,
             },
             actions: (
-              <Button
-                variant="outline"
-                size="sm"
-                loading={isLoading}
-                onClick={() => void refresh()}
-                className="shrink-0"
-              >
-                <RefreshCw className="size-4" aria-hidden="true" />
-                {MESSAGES.dashboard.refresh}
-              </Button>
+              <RefreshButton onRefresh={() => void refresh()} size="sm" label={MESSAGES.dashboard.refresh} isRefreshing={isLoading} />
             ),
           }}
           isLoading={isLoading}

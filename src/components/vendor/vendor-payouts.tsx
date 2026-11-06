@@ -8,6 +8,7 @@ import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu'
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { ReasonDialog } from '@/components/common/reason-dialog';
 import { DetailItem } from '@/components/common/detail-grid';
+import { RefreshButton } from '@/components/common/refresh-button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useVendorPayouts } from '@/hooks/use-vendor-payouts';
 import { formatCurrency } from '@/lib/utils';
@@ -16,7 +17,7 @@ import { MESSAGES } from '@/messages';
 const { vendors } = MESSAGES;
 
 export function VendorPayouts({ vendorId }: { vendorId: string }) {
-  const { data, statement, isLoading, error, actionError, isActioning, runAction } =
+  const { data, statement, isLoading, error, actionError, isActioning, refresh, runAction } =
     useVendorPayouts(vendorId);
   const [approving, setApproving] = useState('');
   const [rejecting, setRejecting] = useState('');
@@ -35,8 +36,9 @@ export function VendorPayouts({ vendorId }: { vendorId: string }) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between gap-3">
         <CardTitle>{vendors.payoutsTitle}</CardTitle>
+        <RefreshButton onRefresh={refresh} isRefreshing={isLoading} label={MESSAGES.dashboard.refresh} />
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

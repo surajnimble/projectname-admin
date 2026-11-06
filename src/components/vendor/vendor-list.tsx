@@ -1,23 +1,27 @@
 'use client';
 
-import { RefreshCw } from 'lucide-react';
+
 import { useRouter } from 'next/navigation';
+import { CheckCheck, Ban } from 'lucide-react';
 import { useState } from 'react';
 import { DataTable } from '@/components/common/data-table';
 import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
 import { Pagination } from '@/components/common/pagination';
 import { VendorActionDialog } from '@/components/vendor/vendor-action-dialog';
+import { ReasonDialog } from '@/components/common/reason-dialog';
 import { vendorColumns, VendorRowActions } from '@/components/vendor/vendor-columns';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Card } from '@/components/ui/card';
-import { ROUTES, VENDOR_PAGE_SIZE, VENDOR_STATUSES, type VendorStatusFilter } from '@/constants';
+import { PERMISSIONS, ROUTES, VENDOR_PAGE_SIZE, VENDOR_STATUSES, type VendorStatusFilter } from '@/constants';
+import { usePermission } from '@/hooks/use-permission';
 import { useVendors } from '@/hooks/use-vendors';
 import type { VendorAction } from '@/lib/api/vendor-actions';
 import type { VendorData } from '@/lib/api/contract';
-import { showSuccess } from '@/lib/utils/toast';
+import { showError, showSuccess, showWarning } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
 import { toVendor } from '@/types/vendor';
+import { RefreshButton } from '@/components/common/refresh-button';
 
 const { vendors, dashboard } = MESSAGES;
 
@@ -41,6 +45,7 @@ const STATUS_FILTERS: readonly { value: VendorStatusFilter; label: string }[] = 
 
 export function VendorList() {
   const router = useRouter();
+  const { can } = usePermission();
   const {
     data,
     isLoading,
@@ -58,9 +63,13 @@ export function VendorList() {
     setHasDocuments,
     refresh,
     runAction,
+    bulkApprove,
+    bulkSuspend,
   } = useVendors();
   const [target, setTarget] = useState<{ vendor: VendorData; action: VendorAction } | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [selectedVendors, setSelectedVendors] = useState<VendorData[]>([]);
+  const [suspendingSelection, setSuspendingSelection] = useState<VendorData[] | null>(null);
   const [draft, setDraft] = useState<{ status: VendorStatusFilter; hasDocuments: boolean }>({
     status: VENDOR_STATUSES.all,
     hasDocuments: false,
@@ -94,6 +103,39 @@ export function VendorList() {
     setTarget(null);
   };
 
+  const handleBulkApprove = async (rows: VendorData[]) => {
+    const response = await bulkApprove(rows.map((vendor) => vendor.vendorId));
+    if (!response.status) {
+      showError(response.message);
+      return;
+    }
+    setSelectedVendors([]);
+    if (response.data.failedList.length > 0) {
+      showWarning(vendors.bulkPartial(response.data.updatedCount, response.data.failedList.length));
+    } else {
+      showSuccess(vendors.bulkApproved(response.data.updatedCount));
+    }
+  };
+
+  const handleBulkSuspend = async (reason: string) => {
+    if (!suspendingSelection?.length || !reason.trim()) return;
+    const response = await bulkSuspend(
+      suspendingSelection.map((vendor) => vendor.vendorId),
+      reason.trim(),
+    );
+    if (!response.status) {
+      showError(response.message);
+      return;
+    }
+    setSelectedVendors([]);
+    setSuspendingSelection(null);
+    if (response.data.failedList.length > 0) {
+      showWarning(vendors.bulkPartial(response.data.updatedCount, response.data.failedList.length));
+    } else {
+      showSuccess(vendors.bulkSuspended(response.data.updatedCount));
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <Card className="overflow-hidden">
@@ -102,6 +144,26 @@ export function VendorList() {
           rows={data.itemList}
           rowKey={(vendor) => vendor.vendorId}
           onRowClick={(vendor) => router.push(ROUTES.vendorDetails(vendor.vendorId))}
+          selection={can(PERMISSIONS.vendorApprove) || can(PERMISSIONS.vendorSuspend) ? {
+            selected: selectedVendors,
+            onChange: setSelectedVendors,
+            isSelectable: (vendor) => vendor.status === 'PENDING' || vendor.status === 'APPROVED',
+            actions: [
+              ...(can(PERMISSIONS.vendorApprove) ? [{
+                label: vendors.bulkApprove,
+                icon: CheckCheck,
+                isVisible: (rows: readonly VendorData[]) => rows.length > 0 && rows.every((vendor) => vendor.status === 'PENDING'),
+                onSelect: (rows: VendorData[]) => void handleBulkApprove(rows),
+              }] : []),
+              ...(can(PERMISSIONS.vendorSuspend) ? [{
+                label: vendors.bulkSuspend,
+                icon: Ban,
+                intent: 'danger' as const,
+                isVisible: (rows: readonly VendorData[]) => rows.length > 0 && rows.every((vendor) => vendor.status === 'APPROVED'),
+                onSelect: (rows: VendorData[]) => setSuspendingSelection(rows),
+              }] : []),
+            ],
+          } : undefined}
           toolbar={{
             search: {
               value: search,
@@ -114,16 +176,7 @@ export function VendorList() {
               onOpen: openFilters,
             },
             actions: (
-              <Button
-                variant="outline"
-                size="sm"
-                loading={isLoading || isFetching}
-                onClick={() => void refresh()}
-                className="shrink-0"
-              >
-                <RefreshCw className="size-4" aria-hidden="true" />
-                {dashboard.refresh}
-              </Button>
+              <RefreshButton onRefresh={() => void refresh()} size="sm" label={dashboard.refresh} isRefreshing={isLoading || isFetching} />
             ),
           }}
           actions={{
@@ -161,6 +214,20 @@ export function VendorList() {
         onClose={() => setTarget(null)}
         onSubmit={(values) => void handleSubmit(values)}
       />
+
+      {suspendingSelection && (
+        <ReasonDialog
+          open={suspendingSelection !== null}
+          title={vendors.bulkSuspendTitle}
+          description={vendors.bulkSuspendDescription}
+          label={vendors.reasonLabel}
+          placeholder={vendors.reasonPlaceholder}
+          confirmLabel={vendors.bulkSuspend}
+          isSubmitting={isActioning}
+          onConfirm={(reason) => void handleBulkSuspend(reason)}
+          onClose={() => setSuspendingSelection(null)}
+        />
+      )}
 
       <FilterSheet
         open={filtersOpen}

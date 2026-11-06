@@ -1,6 +1,18 @@
 import type {
   AnalyticsAppVersionData,
   AnalyticsAppVersionListData,
+  AnalyticsRevenueReportData,
+  AnalyticsVendorPerformanceData,
+  AnalyticsVendorPerformanceListData,
+  AnalyticsCustomerCohortsData,
+  AnalyticsAbandonedCartData,
+  AnalyticsAbandonedCartListData,
+  AnalyticsSearchTermData,
+  AnalyticsSearchTermListData,
+  AnalyticsFunnelData,
+  AnalyticsFunnelListData,
+  AnalyticsFunnelReportData,
+  AnalyticsRealtimeData,
   AnalyticsConversionData,
   AnalyticsConversionListData,
   AnalyticsCrashData,
@@ -12,23 +24,12 @@ import type {
   AnalyticsOverviewData,
   AnalyticsPageViewData,
   AnalyticsPageItemListData,
-  AnalyticsRevenueReportData,
   AnalyticsSessionData,
   AnalyticsSessionListData,
   AnalyticsTrafficSourceData,
   AnalyticsTrafficListData,
   AnalyticsVisitorData,
   AnalyticsVisitorListData,
-  AnalyticsVendorPerformanceData,
-  AnalyticsVendorPerformanceListData,
-  AnalyticsCustomerCohortData,
-  AnalyticsCustomerCohortsData,
-  AnalyticsAbandonedCartData,
-  AnalyticsAbandonedCartsListData,
-  AnalyticsSearchTermData,
-  AnalyticsSearchTermListData,
-  AnalyticsZeroResultSearchData,
-  AnalyticsZeroResultSearchListData,
   PageData,
   ProductPerformanceData,
   ProductPerformanceListData,
@@ -40,6 +41,11 @@ type RawList = Partial<
   Record<keyof Omit<PageData<unknown>, 'itemList'>, unknown>
 > & {
   list?: unknown;
+  vendorList?: unknown;
+  totalValue?: unknown;
+  crashList?: unknown;
+  termList?: unknown;
+  cartList?: unknown;
 };
 
 const toNumber = (value: unknown): number =>
@@ -202,24 +208,26 @@ export const toConversionList = (raw: Record<string, unknown> = {}): AnalyticsCo
 export const toCrash = (raw: Record<string, unknown>): AnalyticsCrashData => ({
   crashId: toString(raw.crashId),
   appVersion: toString(raw.appVersion),
-  os: toString(raw.os),
-  device: toString(raw.device),
-  error: toString(raw.error),
-  count: toNumber(raw.count),
-  lastOccurred: toString(raw.lastOccurred),
+  os: toString(raw.platform ?? raw.os),
+  device: toString(raw.deviceId ?? raw.device),
+  error: toString(raw.errorMessage ?? raw.error),
+  count: toNumber(raw.count) || 1,
+  lastOccurred: toString(raw.createdAt ?? raw.lastOccurred),
 });
 
 export const toCrashList = (raw: RawList = {}): AnalyticsCrashListData => ({
   ...baseList(raw),
-  itemList: mapList(raw, toCrash),
+  itemList: Array.isArray(raw.crashList) ? raw.crashList.filter(isObject).map(toCrash) : [],
 });
 
 export const toAppVersion = (raw: Record<string, unknown>): AnalyticsAppVersionData => ({
+  platform: toString(raw.platform),
   version: toString(raw.version),
   users: toNumber(raw.users),
   sessions: toNumber(raw.sessions),
   crashes: toNumber(raw.crashes),
   crashRate: toNumber(raw.crashRate),
+  deviceShare: toNumber(raw.deviceShare ?? raw.percentage),
 });
 
 export const toAppVersionList = (raw: Record<string, unknown> = {}): AnalyticsAppVersionListData => ({
@@ -228,11 +236,13 @@ export const toAppVersionList = (raw: Record<string, unknown> = {}): AnalyticsAp
     ? raw.versionList
         .filter(isObject)
         .map((item) => ({
+          platform: toString(item.platform),
           version: toString(item.appVersion),
           users: toNumber(item.deviceCount),
           sessions: 0,
           crashes: 0,
           crashRate: 0,
+          deviceShare: toNumber(item.percentage),
         }))
     : [],
 });
@@ -271,7 +281,23 @@ export const toProductPerformanceList = (
     : [],
 });
 
-export const toVendorPerformance = (raw: Record<string, unknown> = {}): AnalyticsVendorPerformanceData => ({
+export const toRevenueReport = (raw: Record<string, unknown> = {}): AnalyticsRevenueReportData => ({
+  from: toString(raw.from),
+  to: toString(raw.to),
+  groupBy: raw.groupBy === 'week' || raw.groupBy === 'month' ? raw.groupBy : 'day',
+  totalRevenue: toNumber(raw.totalRevenue),
+  totalOrders: toNumber(raw.totalOrders),
+  averageOrderValue: toNumber(raw.averageOrderValue),
+  series: Array.isArray(raw.series)
+    ? raw.series.filter(isObject).map((item) => ({
+        bucket: toString(item.bucket),
+        revenue: toNumber(item.revenue),
+        orders: toNumber(item.orders),
+      }))
+    : [],
+});
+
+export const toVendorPerformance = (raw: Record<string, unknown>): AnalyticsVendorPerformanceData => ({
   vendorId: toString(raw.vendorId),
   shopName: toString(raw.shopName),
   slug: toString(raw.slug),
@@ -284,109 +310,119 @@ export const toVendorPerformance = (raw: Record<string, unknown> = {}): Analytic
   fulfilmentRate: toNumber(raw.fulfilmentRate),
 });
 
-type RawVendorPerformanceList = Partial<
-  Record<keyof Omit<AnalyticsVendorPerformanceListData, 'itemList'>, unknown>
-> & {
-  vendorList?: unknown;
-};
-
-export const toVendorPerformanceList = (raw: RawVendorPerformanceList = {}): AnalyticsVendorPerformanceListData => ({
+export const toVendorPerformanceList = (raw: RawList = {}): AnalyticsVendorPerformanceListData => ({
   ...baseList(raw),
-  itemList: Array.isArray(raw.vendorList)
-    ? raw.vendorList.filter(isObject).map(toVendorPerformance)
-    : [],
-});
-
-export const toCustomerCohort = (raw: Record<string, unknown> = {}): AnalyticsCustomerCohortData => ({
-  period: toString(raw.period),
-  customers: toNumber(raw.customers),
-  retained: toNumber(raw.retained),
-  retentionRate: toNumber(raw.retentionRate),
-  revenue: toNumber(raw.revenue),
+  itemList: Array.isArray(raw.vendorList) ? raw.vendorList.filter(isObject).map(toVendorPerformance) : [],
 });
 
 export const toCustomerCohorts = (raw: Record<string, unknown> = {}): AnalyticsCustomerCohortsData => ({
   from: toString(raw.from),
   to: toString(raw.to),
-  series: Array.isArray(raw.series) ? raw.series.filter(isObject).map(toCustomerCohort) : [],
-});
-
-export const toAbandonedCart = (raw: Record<string, unknown> = {}): AnalyticsAbandonedCartData => ({
-  cartId: toString(raw.cartId),
-  customerId: toString(raw.customerId),
-  customerName: toString(raw.customerName),
-  email: toString(raw.email),
-  items: toNumber(raw.items),
-  value: toNumber(raw.value),
-  abandonedAt: toString(raw.abandonedAt),
-});
-
-type RawAbandonedCartsList = Partial<
-  Record<keyof Omit<AnalyticsAbandonedCartsListData, 'itemList' | 'totalValue'>, unknown>
-> & {
-  cartList?: unknown;
-  totalValue?: unknown;
-};
-
-export const toAbandonedCartsList = (raw: RawAbandonedCartsList = {}): AnalyticsAbandonedCartsListData => ({
-  ...baseList(raw),
-  itemList: Array.isArray(raw.cartList)
-    ? raw.cartList.filter(isObject).map(toAbandonedCart)
-    : [],
-  totalValue: toNumber(raw.totalValue),
-});
-
-export const toSearchTerm = (raw: Record<string, unknown> = {}): AnalyticsSearchTermData => ({
-  term: toString(raw.term),
-  searches: toNumber(raw.searches),
-  results: toNumber(raw.results),
-  conversions: toNumber(raw.conversions),
-  conversionRate: toNumber(raw.conversionRate),
-});
-
-type RawSearchTermList = Partial<
-  Record<keyof Omit<AnalyticsSearchTermListData, 'itemList'>, unknown>
-> & {
-  termList?: unknown;
-};
-
-export const toSearchTermList = (raw: RawSearchTermList = {}): AnalyticsSearchTermListData => ({
-  ...baseList(raw),
-  itemList: Array.isArray(raw.termList)
-    ? raw.termList.filter(isObject).map(toSearchTerm)
-    : [],
-});
-
-export const toZeroResultSearch = (raw: Record<string, unknown> = {}): AnalyticsZeroResultSearchData => ({
-  term: toString(raw.term),
-  searches: toNumber(raw.searches),
-});
-
-type RawZeroResultSearchList = Partial<
-  Record<keyof Omit<AnalyticsZeroResultSearchListData, 'itemList'>, unknown>
-> & {
-  termList?: unknown;
-};
-
-export const toZeroResultSearchList = (raw: RawZeroResultSearchList = {}): AnalyticsZeroResultSearchListData => ({
-  ...baseList(raw),
-  itemList: Array.isArray(raw.termList)
-    ? raw.termList.filter(isObject).map(toZeroResultSearch)
-    : [],
-});
-
-export const toRevenueReport = (raw: Record<string, unknown> = {}): AnalyticsRevenueReportData => ({
-  from: toString(raw.from),
-  to: toString(raw.to),
-  groupBy: toString(raw.groupBy),
-  totalRevenue: toNumber(raw.totalRevenue),
-  totalOrders: toNumber(raw.totalOrders),
-  averageOrderValue: toNumber(raw.averageOrderValue),
   series: Array.isArray(raw.series)
     ? raw.series.filter(isObject).map((item) => ({
         date: toString(item.date),
-        revenue: toNumber(item.revenue),
+        carts: toNumber(item.carts),
         orders: toNumber(item.orders),
+        revenue: toNumber(item.revenue),
+        conversionRate: toNumber(item.conversionRate),
+      }))
+    : [],
+});
+
+const toAbandonedCart = (raw: Record<string, unknown>): AnalyticsAbandonedCartData => {
+  const userData = isObject(raw.userData) ? raw.userData : {};
+  return {
+    cartId: toString(raw.cartId),
+    itemCount: toNumber(raw.itemCount),
+    value: toNumber(raw.value),
+    abandonedForHours: toNumber(raw.abandonedForHours),
+    userData: {
+      userId: toString(userData.userId),
+      name: toString(userData.name),
+      email: toString(userData.email),
+    },
+    itemList: Array.isArray(raw.itemList)
+      ? raw.itemList.filter(isObject).map((item) => ({
+          productId: toString(item.productId),
+          name: toString(item.name),
+          qty: toNumber(item.qty),
+          price: toNumber(item.price),
+          image: toString(item.image),
+        }))
+      : [],
+  };
+};
+
+export const toAbandonedCartList = (raw: RawList = {}): AnalyticsAbandonedCartListData => ({
+  ...baseList(raw),
+  totalValue: toNumber(raw.totalValue),
+  itemList: Array.isArray(raw.cartList) ? raw.cartList.filter(isObject).map(toAbandonedCart) : [],
+});
+
+export const toSearchTerm = (raw: Record<string, unknown>): AnalyticsSearchTermData => ({
+  searchLogId: toString(raw.searchLogId),
+  term: toString(raw.term),
+  resultCount: toNumber(raw.resultCount),
+  hasResults: raw.hasResults === true,
+  createdAt: toString(raw.createdAt),
+});
+
+export const toSearchTermList = (raw: RawList = {}): AnalyticsSearchTermListData => ({
+  ...baseList(raw),
+  itemList: Array.isArray(raw.termList) ? raw.termList.filter(isObject).map(toSearchTerm) : [],
+});
+
+export const toAnalyticsFunnel = (raw: Record<string, unknown>): AnalyticsFunnelData => ({
+  funnelId: toString(raw.funnelId),
+  name: toString(raw.name),
+  slug: toString(raw.slug),
+  description: toString(raw.description),
+  isActive: raw.isActive === true,
+  stepCount: toNumber(raw.stepCount),
+  stepList: Array.isArray(raw.stepList)
+    ? raw.stepList.filter(isObject).map((step) => ({
+        stepId: toString(step.stepId),
+        name: toString(step.name),
+        eventName: toString(step.eventName),
+        sortOrder: toNumber(step.sortOrder),
+      }))
+    : [],
+});
+
+export const toAnalyticsFunnelList = (raw: Record<string, unknown> = {}): AnalyticsFunnelListData => ({
+  funnelCount: toNumber(raw.funnelCount),
+  funnelList: Array.isArray(raw.funnelList) ? raw.funnelList.filter(isObject).map(toAnalyticsFunnel) : [],
+});
+
+export const toAnalyticsFunnelReport = (raw: Record<string, unknown> = {}): AnalyticsFunnelReportData => ({
+  funnelId: toString(raw.funnelId),
+  name: toString(raw.name),
+  from: toString(raw.from),
+  to: toString(raw.to),
+  overallConversionRate: toNumber(raw.overallConversionRate),
+  stepList: Array.isArray(raw.stepList)
+    ? raw.stepList.filter(isObject).map((step) => ({
+        stepId: toString(step.stepId),
+        name: toString(step.name),
+        eventName: toString(step.eventName),
+        sortOrder: toNumber(step.sortOrder),
+        count: toNumber(step.count),
+        dropOff: toNumber(step.dropOff),
+        conversionRate: toNumber(step.conversionRate),
+      }))
+    : [],
+});
+
+export const toAnalyticsRealtime = (raw: Record<string, unknown> = {}): AnalyticsRealtimeData => ({
+  windowMinutes: toNumber(raw.windowMinutes),
+  activeVisitors: toNumber(raw.activeVisitors),
+  pageViews: toNumber(raw.pageViews),
+  orders: toNumber(raw.orders),
+  recentEventList: Array.isArray(raw.recentEventList)
+    ? raw.recentEventList.filter(isObject).map((event) => ({
+        name: toString(event.name),
+        sessionKey: toString(event.sessionKey),
+        at: toString(event.at),
       }))
     : [],
 });

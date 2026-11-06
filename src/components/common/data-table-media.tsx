@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { ImagePreview } from '@/components/common/image-preview';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
@@ -36,18 +36,17 @@ export function DataTableMedia({ sources, alt, fallback, max = 3 }: DataTableMed
   return (
     <span className="flex shrink-0 items-center">
       {images.map((source, index) => (
-        <Image
+        <ImagePreview
           key={`${source}-${index}`}
           src={source}
-          alt={index === 0 ? alt : ''}
+          alt={alt}
           width={40}
           height={40}
-          unoptimized
-          className={cn(
-            'bg-surface-muted size-10 rounded-lg border border-border object-cover',
+          triggerClassName={cn(
+            'bg-surface-muted size-10 rounded-lg border border-border',
             index > 0 && '-ml-3 ring-2 ring-background',
           )}
-          style={{ zIndex: images.length - index }}
+          className="size-full rounded-lg object-cover"
         />
       ))}
       {overflow > 0 && (

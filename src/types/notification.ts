@@ -22,10 +22,9 @@ type RawNotificationList = Partial<
   notificationList?: unknown;
 };
 
-type RawNotificationTemplateList = Partial<
-  Record<keyof Omit<NotificationTemplateListData, 'itemList'>, unknown>
-> & {
-  notificationTemplateList?: unknown;
+type RawNotificationTemplateList = {
+  itemCount?: unknown;
+  templateList?: unknown;
 };
 
 export const toNotification = (raw: Record<string, unknown> = {}): NotificationData => ({
@@ -75,22 +74,30 @@ export const toNotificationTemplate = (
 
 export const toNotificationTemplateList = (
   raw: RawNotificationTemplateList = {},
-): NotificationTemplateListData => ({
-  totalRecord: toNumber(raw.totalRecord),
-  totalPage: toNumber(raw.totalPage),
-  currentPage: toNumber(raw.currentPage),
-  limit: toNumber(raw.limit),
-  hasNext: raw.hasNext === true,
-  hasPrevious: raw.hasPrevious === true,
-  nextPage: toNumber(raw.nextPage),
-  previousPage: toNumber(raw.previousPage),
-  itemList: Array.isArray(raw.notificationTemplateList)
-    ? raw.notificationTemplateList.filter(isObject).map((item) => toNotificationTemplate(item))
-    : [],
-});
+): NotificationTemplateListData => {
+  const itemList = Array.isArray(raw.templateList)
+    ? raw.templateList.filter(isObject).map((item) => toNotificationTemplate(item))
+    : [];
+  const totalRecord = toNumber(raw.itemCount) || itemList.length;
+
+  // The backend's template endpoint intentionally returns one complete list,
+  // not a paginated envelope. Keep PageData compatible for the existing table.
+  return {
+    totalRecord,
+    totalPage: itemList.length > 0 ? 1 : 0,
+    currentPage: 1,
+    limit: Math.max(1, itemList.length),
+    hasNext: false,
+    hasPrevious: false,
+    nextPage: 0,
+    previousPage: 0,
+    itemList,
+  };
+};
 
 export const toNotificationUnreadCount = (
   raw: Record<string, unknown> = {},
 ): NotificationUnreadCountData => ({
-  unreadCount: toNumber(raw.unreadCount),
+  // The API returns `total`; accept the older `unreadCount` alias as well.
+  unreadCount: toNumber(raw.total ?? raw.unreadCount),
 });

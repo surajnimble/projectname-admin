@@ -29,12 +29,19 @@ export const resetOrderReviewsCache = () => {
 const isSameQuery = (a: ReviewQuery, b: ReviewQuery) =>
   a.page === b.page && a.search === b.search && a.from === b.from && a.to === b.to;
 
+const toLocalDayBoundary = (value: string, endOfDay = false): string | undefined => {
+  if (!value) return undefined;
+  const boundary = endOfDay ? '23:59:59.999' : '00:00:00.000';
+  const date = new Date(`${value}T${boundary}`);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+};
+
 const toRequest = (query: ReviewQuery) => ({
   page: query.page,
   limit: ORDER_PAGE_SIZE,
   ...(query.search ? { search: query.search } : {}),
-  ...(query.from ? { from: query.from } : {}),
-  ...(query.to ? { to: query.to } : {}),
+  ...(query.from ? { from: toLocalDayBoundary(query.from) } : {}),
+  ...(query.to ? { to: toLocalDayBoundary(query.to, true) } : {}),
 });
 
 export function useOrderReviews() {
@@ -115,6 +122,26 @@ export function useOrderReviews() {
     [refresh],
   );
 
+  const adminBulkReview = useCallback(
+    async (action: 'CONFIRM' | 'REJECT', subOrderIds: string[], reason?: string) => {
+      setIsActioning(true);
+      setActionError('');
+      const response = await apiService.adminBulkReview({
+        subOrderIds,
+        action,
+        ...(reason ? { reason } : {}),
+      });
+      setIsActioning(false);
+      if (!response.status) {
+        setActionError(response.message);
+        return null;
+      }
+      await refresh();
+      return response.data;
+    },
+    [refresh],
+  );
+
   const rejectByAdmin = useCallback(
     async (subOrderId: string, reason: string) => {
       setIsActioning(true);
@@ -149,6 +176,7 @@ export function useOrderReviews() {
     refresh,
     confirmForVendor,
     rejectByAdmin,
+    adminBulkReview,
     clearActionError: () => setActionError(''),
   };
 }

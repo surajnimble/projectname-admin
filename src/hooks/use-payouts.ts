@@ -158,6 +158,16 @@ export function usePayouts() {
     [refresh],
   );
 
+  const bulkApprove = useCallback(async (payoutIds: string[]) => {
+    setIsActioning(true);
+    setActionError('');
+    const response = await apiService.bulkApprovePayouts({ payoutIds });
+    setIsActioning(false);
+    if (!response.status) setActionError(response.message);
+    else await refresh();
+    return response;
+  }, [refresh]);
+
   return {
     data,
     isLoading,
@@ -179,6 +189,7 @@ export function usePayouts() {
     refresh,
     approve,
     reject,
+    bulkApprove,
     clearActionError: () => setActionError(''),
   };
 }

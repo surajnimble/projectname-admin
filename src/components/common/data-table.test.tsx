@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DataTable, type DataTableColumn, type DataTableSelection } from './data-table';
+import { Button } from '@/components/ui/button';
 
 interface Row {
   id: string;
@@ -233,5 +234,163 @@ describe('DataTable', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Show one row' }));
 
     await waitFor(() => expect(screen.queryByText('1 selected')).not.toBeInTheDocument());
+  });
+});
+
+describe('DataTable identity and row actions', () => {
+  beforeEach(() => {
+    setViewport(true);
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  it('generates stable unique keys when an API row key is missing or unknown', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const incompleteRows = [
+      { source: 'Organic', sessions: 12 },
+      { source: 'Paid Search', sessions: 8 },
+    ];
+    const incompleteColumns: readonly DataTableColumn<(typeof incompleteRows)[number]>[] = [
+      { key: 'source', header: 'Source', cell: (row) => row.source },
+      { key: 'sessions', header: 'Sessions', cell: (row) => row.sessions },
+    ];
+
+    render(
+      <DataTable
+        columns={incompleteColumns}
+        rows={incompleteRows}
+        rowKey={() => 'unknown'}
+      />,
+    );
+
+    expect(screen.getByText('Organic')).toBeInTheDocument();
+    expect(screen.getByText('Paid Search')).toBeInTheDocument();
+    expect(consoleError).not.toHaveBeenCalledWith(
+      expect.stringContaining('same key'),
+      expect.anything(),
+    );
+  });
+
+  it('renders row actions only once when legacy action columns and shared actions are both supplied', () => {
+    const edit = vi.fn();
+    const duplicateColumns: readonly DataTableColumn<Row>[] = [
+      ...columns,
+      {
+        key: 'actions',
+        header: 'Legacy Actions',
+        cell: () => <Button size="sm" onClick={() => {}}>Duplicate Edit</Button>,
+      },
+    ];
+
+    render(
+      <DataTable
+        columns={duplicateColumns}
+        rows={[rows[0]!]}
+        rowKey={(row) => row.id}
+        actions={{
+          header: 'Actions',
+          render: () => (
+            <div className="flex gap-2">
+              <Button size="sm" onClick={edit}>Edit</Button>
+              <Button size="sm" variant="destructive" onClick={() => {}}>Delete</Button>
+            </div>
+          ),
+        }}
+      />,
+    );
+
+    expect(screen.getByRole('columnheader', { name: 'Actions' })).toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'Legacy Actions' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Duplicate Edit' })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Row actions' })).toHaveLength(1);
+  });
+
+  it('keeps row keys unique when incomplete API rows are identical', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const duplicateRows = [
+      { source: 'Organic', sessions: 12 },
+      { source: 'Organic', sessions: 12 },
+    ];
+    const incompleteColumns: readonly DataTableColumn<(typeof duplicateRows)[number]>[] = [
+      { key: 'source', header: 'Source', cell: (row) => row.source },
+      { key: 'sessions', header: 'Sessions', cell: (row) => row.sessions },
+    ];
+
+    render(
+      <DataTable
+        columns={incompleteColumns}
+        rows={duplicateRows}
+        rowKey={() => 'unknown'}
+      />,
+    );
+
+    expect(screen.getAllByRole('row')).toHaveLength(3);
+    expect(consoleError).not.toHaveBeenCalledWith(
+      expect.stringContaining('same key'),
+      expect.anything(),
+    );
+  });
+
+  it('does not render a duplicate legacy actions column on mobile cards', () => {
+    setViewport(false);
+    const duplicateColumns: readonly DataTableColumn<Row>[] = [
+      ...columns,
+      {
+        key: 'actions',
+        header: 'Legacy Actions',
+        cell: () => <Button size="sm" onClick={() => {}}>Duplicate Edit</Button>,
+      },
+    ];
+
+    render(
+      <DataTable
+        columns={duplicateColumns}
+        rows={[rows[0]!]}
+        rowKey={(row) => row.id}
+        actions={{
+          header: 'Actions',
+          render: () => (
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => {}}>Edit</Button>
+              <Button size="sm" variant="destructive" onClick={() => {}}>Delete</Button>
+            </div>
+          ),
+        }}
+      />,
+    );
+
+    expect(screen.queryByText('Legacy Actions')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Duplicate Edit' })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Row actions' })).toHaveLength(1);
+  });
+
+  it('combines multiple row action buttons into one shared kebab menu', () => {
+    const edit = vi.fn();
+    const remove = vi.fn();
+    render(
+      <DataTable
+        columns={columns}
+        rows={[rows[0]!]}
+        rowKey={(row) => row.id}
+        actions={{
+          header: 'Actions',
+          render: () => (
+            <div className="flex gap-2">
+              <Button size="sm" onClick={edit}>Edit</Button>
+              <Button size="sm" variant="destructive" onClick={remove}>Delete</Button>
+            </div>
+          ),
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Row actions' }));
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Edit' }));
+    expect(edit).toHaveBeenCalledTimes(1);
+    expect(remove).not.toHaveBeenCalled();
   });
 });

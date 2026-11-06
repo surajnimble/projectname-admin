@@ -38,12 +38,12 @@ export function validateVendorReason(reason: string): ValidationResult {
   return valid;
 }
 
-export function validateVendorCommission(commission: string): ValidationResult {
+export function validateVendorCommission(commission: string, min = VENDOR_COMMISSION_MIN, max = VENDOR_COMMISSION_MAX): ValidationResult {
   const { vendorCommissionInvalid } = MESSAGES.validation;
   if (isEmpty(commission)) return valid;
   const rate = Number(commission);
-  if (!Number.isFinite(rate) || rate < VENDOR_COMMISSION_MIN || rate > VENDOR_COMMISSION_MAX) {
-    return invalid('commissionRate', vendorCommissionInvalid);
+  if (!Number.isFinite(rate) || rate < min || rate > max) {
+    return invalid('commissionRate', vendorCommissionInvalid(min, max));
   }
   return valid;
 }

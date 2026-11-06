@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ORDER_STATUS_OPTIONS, VENDOR_REASON_MAX_LENGTH } from '@/constants';
+import { ORDER_STATUS_OPTIONS, ORDER_STATUSES, VENDOR_REASON_MAX_LENGTH } from '@/constants';
 import { MESSAGES } from '@/messages';
 
 const { orders } = MESSAGES;
@@ -67,7 +67,7 @@ export function OrderStatusDialog({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {ORDER_STATUS_OPTIONS.map((option) => (
+              {ORDER_STATUS_OPTIONS.filter((option) => option !== ORDER_STATUSES.delivered).map((option) => (
                 <SelectItem key={option} value={option}>
                   {orders.statuses[option]}
                 </SelectItem>

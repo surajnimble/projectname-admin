@@ -24,15 +24,16 @@ describe('validateVendorReason', () => {
 });
 
 describe('validateVendorCommission', () => {
-  it('treats an empty rate as valid and rejects a rate outside 0-100', () => {
+  it('treats an empty rate as valid and enforces the configured commission bounds', () => {
     expect(validateVendorCommission('').isValid).toBe(true);
     expect(validateVendorCommission('10').isValid).toBe(true);
     expect(validateVendorCommission('0').isValid).toBe(true);
-    expect(validateVendorCommission('100').isValid).toBe(true);
-    expect(validateVendorCommission('101')).toMatchObject({
+    expect(validateVendorCommission('50').isValid).toBe(true);
+    expect(validateVendorCommission('51')).toMatchObject({
       isValid: false,
       field: 'commissionRate',
     });
+    expect(validateVendorCommission('75', 5, 80).isValid).toBe(true);
     expect(validateVendorCommission('abc')).toMatchObject({
       isValid: false,
       field: 'commissionRate',

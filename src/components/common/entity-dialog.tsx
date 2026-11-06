@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { MESSAGES } from '@/messages';
+import { FormError } from '@/components/common/form-error';
 
 type FieldType = 'text' | 'textarea' | 'select' | 'switch' | 'number';
 
@@ -29,6 +30,7 @@ interface EntityDialogProps {
   fields: EntityField[];
   defaultValues: Record<string, unknown>;
   isSubmitting: boolean;
+  error?: string;
   onClose: () => void;
   onSubmit: (values: Record<string, unknown>) => void;
 }
@@ -41,6 +43,7 @@ export function EntityDialog({
   fields,
   defaultValues,
   isSubmitting,
+  error,
   onClose,
   onSubmit,
 }: EntityDialogProps) {
@@ -83,6 +86,7 @@ export function EntityDialog({
       }
     >
       <form id="entity-form" onSubmit={handleSubmit} className="flex flex-col gap-4 p-4">
+        {error && <FormError message={error} />}
         {fields.map((field) => {
           const isRequired = field.required ?? false;
           const baseClass = 'w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
@@ -108,7 +112,7 @@ export function EntityDialog({
                 <Label htmlFor={field.key} className="text-sm text-fg">
                   {field.label}{isRequired ? ' *' : ''}
                 </Label>
-                <Select onValueChange={(value) => handleChange(field.key, value)}>
+                <Select value={String(values[field.key] ?? '')} onValueChange={(value) => handleChange(field.key, value)}>
                   <SelectTrigger className={baseClass}>
                     <SelectValue placeholder={field.placeholder} />
                   </SelectTrigger>

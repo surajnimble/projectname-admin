@@ -6,7 +6,7 @@ import { toProductPerformanceList } from '@/types/analytics';
 import { toDashboardStats } from '@/types/dashboard';
 import { toOrderList } from '@/types/order';
 import { toPaymentList } from '@/types/payment';
-import { toLowStockList } from '@/types/report';
+import { toInventoryList, toLowStockList } from '@/types/report';
 import { toVendor, toVendorList } from '@/types/vendor';
 import { apiService } from './api.service';
 
@@ -22,6 +22,49 @@ describe('ApiService', () => {
     clearSession();
   });
   afterEach(() => vi.unstubAllGlobals());
+
+  describe('settings', () => {
+    it('sends the backend feature-toggle field `enabled`', async () => {
+      fetchMock.mockResolvedValueOnce(
+        respond(200, { status: true, message: 'ok', result: { enabled: false } }),
+      );
+
+      await apiService.toggleFeature({ key: 'featureWishlist', enabled: false });
+
+      const [url, init] = fetchMock.mock.calls[0] ?? [];
+      expect(url).toBe('/api/v1/settings/toggleFeature');
+      expect(init?.method).toBe('PATCH');
+      expect(init?.body).toBe(JSON.stringify({ key: 'featureWishlist', enabled: false }));
+    });
+  });
+
+  describe('customer impersonation', () => {
+    it('posts the required reason and requested lifetime to the customer impersonation endpoint', async () => {
+      fetchMock.mockResolvedValueOnce(respond(200, {
+        status: true,
+        message: 'Impersonation session started.',
+        result: {
+          accessToken: 'short-lived-token',
+          expiresIn: 1800,
+          expiresAt: '2026-11-05T14:30:00.000Z',
+          isImpersonating: true,
+          userData: { userId: 'customer-1', name: 'Customer', email: 'customer@example.test', role: 'CUSTOMER' },
+        },
+      }));
+
+      const response = await apiService.impersonateUser('customer-1', {
+        reason: 'Support investigation',
+        durationMin: 30,
+      });
+
+      const [url, init] = fetchMock.mock.calls[0] ?? [];
+      expect(url).toBe('/api/v1/users/impersonate/customer-1');
+      expect(init?.method).toBe('POST');
+      expect(init?.body).toBe(JSON.stringify({ reason: 'Support investigation', durationMin: 30 }));
+      expect(response.data).toMatchObject({ accessToken: 'short-lived-token', expiresIn: 1800, isImpersonating: true });
+      expect(response.data.userData.role).toBe('CUSTOMER');
+    });
+  });
 
   describe('auth', () => {
     it('logs in with only the given fields and without a bearer token', async () => {
@@ -182,6 +225,7 @@ describe('ApiService', () => {
         ...toDashboardStats(),
         totalUsers: 4,
         totalVendors: 1,
+        availableStats: ['totalUsers', 'totalVendors'],
       });
     });
   });
@@ -275,6 +319,89 @@ describe('ApiService', () => {
       expect(url).toBe('/api/v1/reports/inventory');
       expect(response.data.itemList).toHaveLength(1);
       expect(response.data.itemList[0]?.sku).toBe('LOW-1');
+    });
+
+    it('fetches server-paginated inventory and maps variant stock rows and global totals', async () => {
+      fetchMock.mockResolvedValueOnce(respond(200, {
+        status: true,
+        message: 'ok',
+        result: {
+          totalRecord: 13,
+          totalPage: 2,
+          currentPage: 2,
+          limit: 10,
+          hasNext: false,
+          hasPrevious: true,
+          nextPage: 0,
+          previousPage: 1,
+          itemList: [{
+            productId: 'product-1',
+            variantId: 'variant-1',
+            variantTitle: 'Blue / Medium',
+            isVariant: true,
+            hasVariants: true,
+            name: 'T-Shirt',
+            sku: 'TS-BLU-M',
+            shop: 'Demo Store',
+            stock: 4,
+            threshold: 5,
+            status: 'ACTIVE',
+            isLow: true,
+          }],
+          summary: { products: 13, units: 117, low: 3, out: 1 },
+        },
+      }));
+
+      const response = await apiService.getProductInventory({
+        page: 2,
+        limit: 10,
+        search: 'blue shirt',
+        status: 'LOW',
+      });
+
+      const [url] = fetchMock.mock.calls[0] ?? [];
+      expect(url).toBe('/api/v1/products/inventory?page=2&limit=10&search=blue+shirt&status=LOW');
+      expect(response.data).toEqual(toInventoryList({
+        totalRecord: 13,
+        totalPage: 2,
+        currentPage: 2,
+        limit: 10,
+        hasNext: false,
+        hasPrevious: true,
+        nextPage: 0,
+        previousPage: 1,
+        itemList: [{
+          productId: 'product-1', variantId: 'variant-1', variantTitle: 'Blue / Medium',
+          isVariant: true, hasVariants: true, name: 'T-Shirt', sku: 'TS-BLU-M', shop: 'Demo Store',
+          stock: 4, threshold: 5, status: 'ACTIVE', isLow: true,
+        }],
+        summary: { products: 13, units: 117, low: 3, out: 1 },
+      }));
+    });
+
+    it('submits audited stock adjustments for product variants', async () => {
+      fetchMock.mockResolvedValueOnce(respond(200, { status: true, message: 'ok', result: {} }));
+
+      await apiService.adjustProductStock('product-1', {
+        adjustment: 0,
+        setStockTo: 12,
+        expectedStock: 10,
+        variantId: 'variant-1',
+        lowStockThreshold: 5,
+        reason: 'Stock count correction',
+      });
+
+      const [url, init] = fetchMock.mock.calls[0] ?? [];
+      expect(url).toBe('/api/v1/products/adjustStock/product-1');
+      expect(init?.method).toBe('POST');
+      expect(JSON.parse(String(init?.body))).toEqual({
+        adjustment: 0,
+        setStockTo: 12,
+        expectedStock: 10,
+        variantId: 'variant-1',
+        lowStockThreshold: 5,
+        reason: 'Stock count correction',
+      });
     });
 
     it('lists vendors with the filters', async () => {

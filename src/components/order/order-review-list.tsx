@@ -1,25 +1,28 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { CheckCheck, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import { DataTable } from '@/components/common/data-table';
+import { RefreshButton } from '@/components/common/refresh-button';
 import { Pagination } from '@/components/common/pagination';
 import { orderReviewColumns } from '@/components/order/order-review-columns';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
 import {
   ORDER_PAGE_SIZE,
-  ORDER_STATUSES,
   PERMISSIONS,
   ROUTES,
 } from '@/constants';
 import { useOrderReviews } from '@/hooks/use-order-reviews';
 import { usePermission } from '@/hooks/use-permission';
 import type { OrderReviewData } from '@/lib/api/contract';
-import { showSuccess } from '@/lib/utils/toast';
+import { showSuccess, showWarning } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
 import { ReasonDialog } from '@/components/common/reason-dialog';
+import { FormError } from '@/components/common/form-error';
 
 const { orderReviews } = MESSAGES;
 
@@ -36,14 +39,18 @@ export function OrderReviewList() {
     search,
     from,
     to,
+    setDateRange,
     setPage,
     setSearch,
-    setDateRange,
     confirmForVendor,
     rejectByAdmin,
+    adminBulkReview,
+    refresh,
     clearActionError,
   } = useOrderReviews();
   const [rejecting, setRejecting] = useState<OrderReviewData | null>(null);
+  const [selectedOrders, setSelectedOrders] = useState<OrderReviewData[]>([]);
+  const [rejectingSelection, setRejectingSelection] = useState<OrderReviewData[] | null>(null);
 
   const closeDialog = () => {
     setRejecting(null);
@@ -56,6 +63,7 @@ export function OrderReviewList() {
   const handleConfirm = async (order: OrderReviewData) => {
     const done = await confirmForVendor(order.subOrderId);
     if (!done) return;
+    setSelectedOrders([]);
     showSuccess(orderReviews.orderConfirmed);
   };
 
@@ -65,55 +73,102 @@ export function OrderReviewList() {
     if (!done) return;
     showSuccess(orderReviews.orderRejected);
     setRejecting(null);
+    setSelectedOrders([]);
   };
 
-  const dateRangeControls = (
-    <div className="flex items-center gap-2 shrink-0 sm:ml-auto">
-      <label className="text-xs text-fg-muted shrink-0">{orderReviews.fromLabel}</label>
-      <Input
-        type="date"
-        value={from}
-        onChange={(e) => setDateRange(e.target.value, to)}
-        className="text-xs shrink-0 w-32"
-        aria-label={orderReviews.fromLabel}
-      />
-      <label className="text-xs text-fg-muted shrink-0">{orderReviews.toLabel}</label>
-      <Input
-        type="date"
-        value={to}
-        onChange={(e) => setDateRange(from, e.target.value)}
-        className="text-xs shrink-0 w-32"
-        aria-label={orderReviews.toLabel}
-      />
-    </div>
-  );
+  const handleBulkConfirm = async (rows: OrderReviewData[]) => {
+    const result = await adminBulkReview('CONFIRM', rows.map((row) => row.subOrderId));
+    if (!result) return;
+    setSelectedOrders([]);
+    const summary = orderReviews.bulkResultSummary(result.updatedCount, result.skippedCount);
+    if (result.skippedCount > 0) showWarning(summary);
+    else showSuccess(orderReviews.bulkConfirmSuccess);
+  };
+
+  const handleBulkReject = async (reason: string) => {
+    if (!rejectingSelection?.length) return;
+    const result = await adminBulkReview(
+      'REJECT',
+      rejectingSelection.map((row) => row.subOrderId),
+      reason,
+    );
+    if (!result) return;
+    setSelectedOrders([]);
+    setRejectingSelection(null);
+    const summary = orderReviews.bulkResultSummary(result.updatedCount, result.skippedCount);
+    if (result.skippedCount > 0) showWarning(summary);
+    else showSuccess(orderReviews.bulkRejectSuccess);
+  };
 
   return (
     <Card className="overflow-hidden">
+      {actionError && <FormError message={actionError} className="m-4 mb-0" />}
       <DataTable
         columns={orderReviewColumns}
         rows={data.itemList}
         rowKey={(order) => order.subOrderId}
         onRowClick={(order) => router.push(ROUTES.orderDetails(order.orderId))}
+        selection={can(PERMISSIONS.orderConfirm) ? {
+          selected: selectedOrders,
+          onChange: setSelectedOrders,
+          isSelectable: (order) => order.status === 'AWAITING_ADMIN_REVIEW',
+          actions: [
+            {
+              label: orderReviews.bulkConfirm,
+              icon: CheckCheck,
+              onSelect: (rows) => void handleBulkConfirm(rows),
+            },
+            {
+              label: orderReviews.bulkReject,
+              icon: XCircle,
+              intent: 'danger',
+              onSelect: (rows) => setRejectingSelection(rows),
+            },
+          ],
+        } : undefined}
         toolbar={{
           search: {
             value: search,
             placeholder: orderReviews.searchPlaceholder,
             onChange: setSearch,
           },
-          select: {
-            value: ORDER_STATUSES.all,
-            ariaLabel: orderReviews.statusLabel,
-            options: [
-              { value: ORDER_STATUSES.all, label: orderReviews.columns.order },
-              {
-                value: ORDER_STATUSES.awaitingAdminReview,
-                label: orderReviews.statuses.AWAITING_ADMIN_REVIEW,
-              },
-            ],
-            onChange: () => {},
-          },
-          actions: dateRangeControls,
+          actions: (
+            <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+              <label className="flex items-center gap-2 text-xs text-fg-muted">
+                <span>{orderReviews.fromDate}</span>
+                <Input
+                  type="date"
+                  value={from}
+                  max={to || undefined}
+                  aria-label={orderReviews.fromDate}
+                  onChange={(event) => setDateRange(event.target.value, to)}
+                  className="w-full sm:w-36"
+                />
+              </label>
+              <label className="flex items-center gap-2 text-xs text-fg-muted">
+                <span>{orderReviews.toDate}</span>
+                <Input
+                  type="date"
+                  value={to}
+                  min={from || undefined}
+                  aria-label={orderReviews.toDate}
+                  onChange={(event) => setDateRange(from, event.target.value)}
+                  className="w-full sm:w-36"
+                />
+              </label>
+              {(from || to) && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDateRange('', '')}
+                >
+                  {orderReviews.clearDates}
+                </Button>
+              )}
+              <RefreshButton onRefresh={refresh} isRefreshing={isLoading} label={MESSAGES.dashboard.refresh} />
+            </div>
+          ),
         }}
         actions={{
           header: orderReviews.columns.actions,
@@ -168,6 +223,24 @@ export function OrderReviewList() {
           error={actionError}
           onConfirm={handleReject}
           onClose={closeDialog}
+        />
+      )}
+
+      {rejectingSelection && (
+        <ReasonDialog
+          open
+          title={orderReviews.bulkRejectTitle}
+          description={orderReviews.bulkRejectDescription}
+          label={orderReviews.reasonLabel}
+          placeholder={orderReviews.reasonPlaceholder}
+          confirmLabel={orderReviews.bulkReject}
+          isSubmitting={isActioning}
+          error={actionError}
+          onConfirm={handleBulkReject}
+          onClose={() => {
+            setRejectingSelection(null);
+            clearActionError();
+          }}
         />
       )}
     </Card>

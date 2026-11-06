@@ -1,6 +1,6 @@
 'use client';
 
-import { RefreshCw } from 'lucide-react';
+
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { DataTable } from '@/components/common/data-table';
@@ -19,6 +19,7 @@ import { useVendorProducts, type ProductStatusFilter } from '@/hooks/use-vendor-
 import type { ProductSummaryData } from '@/lib/api/contract';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
+import { RefreshButton } from '@/components/common/refresh-button';
 
 const { products } = MESSAGES;
 
@@ -122,16 +123,7 @@ export function ProductList({ vendorId }: { vendorId: string }) {
               onOpen: openFilters,
             },
             actions: (
-              <Button
-                variant="outline"
-                size="sm"
-                loading={isLoading}
-                onClick={() => void refresh()}
-                className="shrink-0"
-              >
-                <RefreshCw className="size-4" aria-hidden="true" />
-                {MESSAGES.dashboard.refresh}
-              </Button>
+              <RefreshButton onRefresh={() => void refresh()} size="sm" label={MESSAGES.dashboard.refresh} isRefreshing={isLoading} />
             ),
           }}
           actions={{

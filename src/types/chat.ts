@@ -1,111 +1,59 @@
-import type {
-  ConversationData,
-  ConversationListData,
-  MessageData,
-  MessageListData,
-} from '@/lib/api/contract';
+import type { ChatMessageData, ChatMessageListData, ConversationData, ConversationListData, PageData } from '@/lib/api/contract';
 
-const toNumber = (value: unknown): number =>
-  typeof value === 'number' && Number.isFinite(value) ? value : 0;
+type Raw = Record<string, unknown>;
+const text = (value: unknown): string => typeof value === 'string' ? value : '';
+const number = (value: unknown): number => typeof value === 'number' && Number.isFinite(value) ? value : 0;
+const object = (value: unknown): Raw => value && typeof value === 'object' && !Array.isArray(value) ? value as Raw : {};
+const array = (value: unknown): unknown[] => Array.isArray(value) ? value : [];
+const flag = (value: unknown): boolean => value === true;
 
-const toString = (value: unknown): string => (typeof value === 'string' ? value : '');
-
-const isObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null;
-
-const baseList = (raw: Record<string, unknown>) => ({
-  totalRecord: toNumber(raw.totalRecord),
-  totalPage: toNumber(raw.totalPage),
-  currentPage: toNumber(raw.currentPage),
-  limit: toNumber(raw.limit),
-  hasNext: raw.hasNext === true,
-  hasPrevious: raw.hasPrevious === true,
-  nextPage: toNumber(raw.nextPage),
-  previousPage: toNumber(raw.previousPage),
+const page = <T>(raw: Raw, itemList: T[]): PageData<T> => ({
+  totalRecord: number(raw.totalRecord),
+  totalPage: number(raw.totalPage),
+  currentPage: number(raw.currentPage),
+  limit: number(raw.limit),
+  hasNext: flag(raw.hasNext),
+  hasPrevious: flag(raw.hasPrevious),
+  nextPage: number(raw.nextPage),
+  previousPage: number(raw.previousPage),
+  itemList,
 });
 
-const mapList = <T>(raw: Record<string, unknown>, mapper: (item: Record<string, unknown>) => T): T[] =>
-  Array.isArray(raw.list)
-    ? raw.list.filter(isObject).map((item) => mapper(item))
-    : [];
-
-export const toConversation = (raw: Record<string, unknown> = {}): ConversationData => {
-  const lmd = raw.lastMessageData as Record<string, unknown> | undefined;
+export const toConversation = (rawValue: unknown): ConversationData => {
+  const raw = object(rawValue);
+  const last = object(raw.lastMessageData);
   return {
-    conversationId: toString(raw.conversationId),
-    lastMessageAt: toString(raw.lastMessageAt),
-    isActive: raw.isActive === true,
-    createdAt: toString(raw.createdAt),
+    conversationId: text(raw.conversationId),
+    lastMessageAt: text(raw.lastMessageAt),
+    isActive: flag(raw.isActive),
+    createdAt: text(raw.createdAt),
     lastMessageData: {
-      messageId: toString(lmd?.messageId),
-      body: toString(lmd?.body),
-      senderId: toString(lmd?.senderId),
-      isRead: lmd?.isRead === true,
-      createdAt: toString(lmd?.createdAt),
+      messageId: text(last.messageId), body: text(last.body), senderId: text(last.senderId),
+      isRead: flag(last.isRead), createdAt: text(last.createdAt),
     },
-    participantList: Array.isArray(raw.participantList)
-      ? raw.participantList.filter(isObject).map((p) => {
-          const ud = p.userData as Record<string, unknown> | undefined;
-          const vd = p.vendorData as Record<string, unknown> | undefined;
-          return {
-            userId: toString(p.userId),
-            lastReadAt: toString(p.lastReadAt),
-            isArchived: p.isArchived === true,
-            userData: {
-              userId: toString(ud?.userId),
-              name: toString(ud?.name),
-              avatarUrl: toString(ud?.avatarUrl),
-            },
-            vendorData: vd
-              ? {
-                  vendorId: toString(vd.vendorId),
-                  shopName: toString(vd.shopName),
-                  slug: toString(vd.slug),
-                }
-              : null,
-          };
-        })
-      : [],
+    participantList: array(raw.participantList).map((value) => {
+      const participant = object(value); const user = object(participant.userData); const vendor = object(participant.vendorData);
+      return {
+        userId: text(participant.userId), lastReadAt: text(participant.lastReadAt), isArchived: flag(participant.isArchived),
+        userData: { userId: text(user.userId), name: text(user.name), avatarUrl: text(user.avatarUrl) },
+        vendorData: { vendorId: text(vendor.vendorId), shopName: text(vendor.shopName), slug: text(vendor.slug) },
+      };
+    }),
   };
 };
 
-export const toConversationList = (raw: Record<string, unknown> = {}): ConversationListData => ({
-  ...baseList(raw),
-  itemList: Array.isArray(raw.conversationList)
-    ? raw.conversationList.filter(isObject).map(toConversation)
-    : [],
-  unreadTotal: toNumber(raw.unreadTotal),
-});
+export const toConversationList = (raw: Raw = {}): ConversationListData =>
+  page(raw, array(raw.conversationList).map(toConversation));
 
-export const toMessage = (raw: Record<string, unknown> = {}): MessageData => {
-  const sd = raw.senderData as Record<string, unknown> | undefined;
+export const toChatMessage = (rawValue: unknown): ChatMessageData => {
+  const raw = object(rawValue); const sender = object(raw.senderData);
   return {
-    messageId: toString(raw.messageId),
-    conversationId: toString(raw.conversationId),
-    senderId: toString(raw.senderId),
-    body: toString(raw.body),
-    attachments: Array.isArray(raw.attachments) ? raw.attachments.filter(isObject).map(String) : [],
-    isRead: raw.isRead === true,
-    readAt: toString(raw.readAt),
-    isDeleted: raw.isDeleted === true,
-    createdAt: toString(raw.createdAt),
-    senderData: {
-      userId: toString(sd?.userId),
-      name: toString(sd?.name),
-      avatarUrl: toString(sd?.avatarUrl),
-    },
+    messageId: text(raw.messageId), conversationId: text(raw.conversationId), senderId: text(raw.senderId),
+    body: text(raw.body), attachments: array(raw.attachments).filter((value): value is string => typeof value === 'string'),
+    isRead: flag(raw.isRead), readAt: text(raw.readAt), isDeleted: flag(raw.isDeleted), createdAt: text(raw.createdAt),
+    senderData: { userId: text(sender.userId), name: text(sender.name), avatarUrl: text(sender.avatarUrl) },
   };
 };
 
-type RawMessageList = Partial<
-  Record<keyof Omit<MessageListData, 'itemList'>, unknown>
-> & {
-  messageList?: unknown;
-};
-
-export const toMessageList = (raw: RawMessageList = {}): MessageListData => ({
-  ...baseList(raw),
-  itemList: Array.isArray(raw.messageList)
-    ? raw.messageList.filter(isObject).map(toMessage)
-    : [],
-});
+export const toChatMessageList = (raw: Raw = {}): ChatMessageListData =>
+  page(raw, array(raw.messageList).map(toChatMessage));

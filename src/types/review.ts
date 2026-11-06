@@ -4,9 +4,6 @@ import type {
   ReviewSummaryData,
   QuestionData,
   QuestionListData,
-  FlashSaleData,
-  FlashSaleListData,
-  FlashSaleItemData,
 } from '@/lib/api/contract';
 
 const toNumber = (value: unknown): number =>
@@ -125,71 +122,3 @@ export const toQuestionList = (raw: RawQuestionList = {}): QuestionListData => (
     ? raw.questionList.filter(isObject).map((item) => toQuestion(item))
     : [],
 });
-
-const toFlashSaleItem = (raw: unknown = {}): FlashSaleItemData => {
-  const r = raw as Record<string, unknown>;
-  const pd = r.productData as Record<string, unknown> | undefined;
-  return {
-    flashSaleItemId: toString(r.flashSaleItemId),
-    productId: toString(r.productId),
-    salePrice: toNumber(r.salePrice),
-    originalPrice: toNumber(r.originalPrice),
-    mrpPrice: toNumber(r.mrpPrice),
-    saving: toNumber(r.saving),
-    saleStock: toNumber(r.saleStock),
-    soldCount: toNumber(r.soldCount),
-    stockRemaining: toNumber(r.stockRemaining),
-    isSoldOut: toBoolean(r.isSoldOut),
-    discountPercent: toNumber(r.discountPercent),
-    productData: {
-      productId: toString(pd?.productId),
-      name: toString(pd?.name),
-      slug: toString(pd?.slug),
-      price: toNumber(pd?.price),
-      mrpPrice: toNumber(pd?.mrpPrice),
-      stock: toNumber(pd?.stock),
-      isActive: toBoolean(pd?.isActive),
-      imageList: Array.isArray(pd?.imageList)
-        ? pd.imageList.filter(isObject).map(String)
-        : [],
-    },
-  };
-};
-
-type RawFlashSaleList = Partial<FlashSaleListData> & {
-  flashSaleList?: unknown;
-};
-
-export const toFlashSaleList = (raw: RawFlashSaleList = {}): FlashSaleListData => ({
-  totalRecord: toNumber(raw.totalRecord),
-  totalPage: toNumber(raw.totalPage),
-  currentPage: toNumber(raw.currentPage),
-  limit: toNumber(raw.limit),
-  hasNext: raw.hasNext === true,
-  hasPrevious: raw.hasPrevious === true,
-  nextPage: toNumber(raw.nextPage),
-  previousPage: toNumber(raw.previousPage),
-  itemList: Array.isArray(raw.flashSaleList)
-    ? raw.flashSaleList.filter(isObject).map((item) => toFlashSale(item))
-    : [],
-});
-
-const toFlashSale = (raw: unknown = {}): FlashSaleData => {
-  const r = raw as Record<string, unknown>;
-  return {
-    flashSaleId: toString(r.flashSaleId),
-    name: toString(r.name),
-    slug: toString(r.slug),
-    banner: toString(r.banner),
-    startsAt: toString(r.startsAt),
-    endsAt: toString(r.endsAt),
-    discountType: toString(r.discountType),
-    discountValue: toNumber(r.discountValue),
-    isActive: toBoolean(r.isActive),
-    isLive: toBoolean(r.isLive),
-    isUpcoming: toBoolean(r.isUpcoming),
-    hasEnded: toBoolean(r.hasEnded),
-    secondsRemaining: toNumber(r.secondsRemaining),
-    itemList: Array.isArray(r.itemList) ? r.itemList.filter(isObject).map(toFlashSaleItem) : [],
-  };
-};

@@ -1,6 +1,7 @@
 'use client';
 
-import { RefreshCw } from 'lucide-react';
+import { RefreshButton } from '@/components/common/refresh-button';
+
 import { useState } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import { PageHeader } from '@/components/common/page-header';
@@ -32,8 +33,8 @@ const CATEGORY_OPTIONS = [
   { key: 'currency', label: settings.categories.currency },
   { key: 'customer', label: settings.categories.customer },
   { key: 'feature', label: settings.categories.feature },
-  { key: 'analytics', label: settings.categories.analytics },
   { key: 'order', label: settings.categories.order },
+  { key: 'analytics', label: settings.categories.analytics },
 ] as const;
 
 type SettingsTab = 'settings' | 'features' | 'maintenance';
@@ -42,6 +43,9 @@ export function SettingsPage() {
   const {
     data,
     flags,
+    orderRequireAdminConfirmation,
+    isOrderReviewSettingLoading,
+    orderReviewSettingError,
     status,
     isLoading,
     error,
@@ -57,6 +61,7 @@ export function SettingsPage() {
     updateSetting,
     resetSettings,
     toggleFlag,
+    updateOrderReviewSetting,
     saveMaintenance,
   } = useSettings();
 
@@ -69,9 +74,6 @@ export function SettingsPage() {
   const [maintOpen, setMaintOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [draftCategory, setDraftCategory] = useState(category);
-  const orderRequireAdminConfirmation =
-    data.itemList.find((s) => s.key === 'orderRequireAdminConfirmation')?.value === true ||
-    data.itemList.find((s) => s.key === 'orderRequireAdminConfirmation')?.value === 'true';
 
   const activeFilterCount = (search ? 1 : 0) + (category !== 'all' ? 1 : 0);
 
@@ -162,23 +164,35 @@ export function SettingsPage() {
   ] as const;
 
   const settingsContent = (
-    <div className="p-6">
-      <Card>
-        <div className="flex items-center justify-between p-4">
-          <div>
-            <h2 className="text-fg font-semibold">{settings.orderRequireAdminConfirmationLabel}</h2>
-            <p className="text-fg-muted text-sm">{settings.orderRequireAdminConfirmationDescription}</p>
+    <div className="p-6 space-y-4">
+      <Card className="p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h2 className="text-fg text-sm font-semibold">{settings.orderReviewTitle}</h2>
+            <p className="text-fg-muted mt-1 text-sm">{settings.orderReviewDescription}</p>
           </div>
           <Switch
-            checked={orderRequireAdminConfirmation ?? false}
-            onChange={(checked) => {
-              void updateSetting('orderRequireAdminConfirmation', String(checked));
-            }}
-            disabled={isActioning}
+            checked={orderRequireAdminConfirmation}
+            onChange={(enabled) => void updateOrderReviewSetting(enabled)}
+            disabled={isActioning || isOrderReviewSettingLoading || Boolean(orderReviewSettingError)}
+            aria-label={settings.orderReviewTitle}
           />
         </div>
+        {orderReviewSettingError ? (
+          <div className="mt-3">
+            <ErrorState message={orderReviewSettingError} onRetry={() => void refresh()} />
+          </div>
+        ) : (
+          <p className="text-fg-muted mt-3 text-xs">
+            {isOrderReviewSettingLoading
+              ? common.loading
+              : orderRequireAdminConfirmation
+                ? settings.orderReviewEnabled
+                : settings.orderReviewDisabled}
+          </p>
+        )}
       </Card>
-      <Card className="overflow-hidden mt-4">
+      <Card className="overflow-hidden">
         <DataTable
           columns={columns}
           rows={data.itemList}
@@ -196,16 +210,7 @@ export function SettingsPage() {
             },
             actions: (
               <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  loading={isLoading}
-                  onClick={() => void refresh()}
-                  className="shrink-0"
-                >
-                  <RefreshCw className="size-4" aria-hidden="true" />
-                  {MESSAGES.dashboard.refresh}
-                </Button>
+                <RefreshButton onRefresh={() => void refresh()} size="sm" label={MESSAGES.dashboard.refresh} isRefreshing={isLoading} />
                 <Button
                   variant="destructive"
                   size="sm"
@@ -395,17 +400,7 @@ export function SettingsPage() {
       <PageHeader
         title={settings.title}
         description={settings.subtitle}
-        action={
-          <Button
-            variant="outline"
-            size="sm"
-            loading={isLoading}
-            onClick={() => void refresh()}
-            disabled={isActioning}
-          >
-            {MESSAGES.dashboard.refresh}
-          </Button>
-        }
+        action={<RefreshButton onRefresh={() => void refresh()} isRefreshing={isLoading} disabled={isActioning} label={MESSAGES.dashboard.refresh} />}
       />
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as SettingsTab)} className="w-full">
         <TabsList className="grid w-full grid-cols-3">

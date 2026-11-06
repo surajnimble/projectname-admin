@@ -1,5 +1,7 @@
 'use client';
 
+import { RefreshButton } from '@/components/common/refresh-button';
+import { CheckCheck } from 'lucide-react';
 import { useState } from 'react';
 import { DataTable, type DataTableColumn } from '@/components/common/data-table';
 import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
@@ -8,10 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu';
-import { PAYOUTS_PAGE_SIZE } from '@/constants';
+import { PAYOUTS_PAGE_SIZE, PERMISSIONS } from '@/constants';
+import { usePermission } from '@/hooks/use-permission';
 import { usePayouts } from '@/hooks/use-payouts';
 import type { PayoutData } from '@/lib/api/contract';
-import { showSuccess } from '@/lib/utils/toast';
+import { showError, showSuccess, showWarning } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
 import { StatusBadge, productStatusMeta } from '@/components/common/status-badge';
 
@@ -103,6 +106,7 @@ export function PayoutRowActions({ payout, onAction }: PayoutRowActionsProps) {
 }
 
 export function PayoutList() {
+  const { can } = usePermission();
   const {
     data,
     isLoading,
@@ -123,6 +127,7 @@ export function PayoutList() {
     refresh,
     approve,
     reject,
+    bulkApprove,
     clearActionError,
   } = usePayouts();
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -132,6 +137,7 @@ export function PayoutList() {
   const [draftTo, setDraftTo] = useState(to);
   const [dialog, setDialog] = useState<{ payout: PayoutData; action: 'approve' | 'reject' } | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [selectedPayouts, setSelectedPayouts] = useState<PayoutData[]>([]);
 
   const activeFilterCount =
     (search ? 1 : 0) + (status ? 1 : 0) + (vendorId ? 1 : 0) + (from ? 1 : 0) + (to ? 1 : 0);
@@ -156,6 +162,20 @@ export function PayoutList() {
     }
     if (!done) return;
     closeDialog();
+  };
+
+  const handleBulkApprove = async (rows: PayoutData[]) => {
+    const response = await bulkApprove(rows.map((payout) => payout.payoutId));
+    if (!response.status) {
+      showError(response.message);
+      return;
+    }
+    setSelectedPayouts([]);
+    if (response.data.failedList.length > 0) {
+      showWarning(payouts.bulkPartial(response.data.approvedCount, response.data.failedList.length));
+    } else {
+      showSuccess(payouts.bulkApproved(response.data.approvedCount));
+    }
   };
 
   const openFilters = () => {
@@ -191,6 +211,16 @@ export function PayoutList() {
           columns={payoutColumns}
           rows={data.itemList}
           rowKey={(payout) => payout.payoutId}
+          selection={can(PERMISSIONS.payoutApprove) ? {
+            selected: selectedPayouts,
+            onChange: setSelectedPayouts,
+            isSelectable: (payout) => payout.status === 'PENDING',
+            actions: [{
+              label: payouts.bulkApprove,
+              icon: CheckCheck,
+              onSelect: (rows) => void handleBulkApprove(rows),
+            }],
+          } : undefined}
           toolbar={{
             search: {
               value: search,
@@ -202,17 +232,7 @@ export function PayoutList() {
               count: activeFilterCount,
               onOpen: openFilters,
             },
-            actions: (
-              <Button
-                variant="outline"
-                size="sm"
-                loading={isLoading}
-                onClick={() => void refresh()}
-                className="shrink-0"
-              >
-                {MESSAGES.dashboard.refresh}
-              </Button>
-            ),
+            actions: <RefreshButton onRefresh={() => void refresh()} isRefreshing={isLoading} label={MESSAGES.dashboard.refresh} />,
           }}
           actions={{
             header: payouts.actionsLabel,

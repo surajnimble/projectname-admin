@@ -15,6 +15,7 @@ export class ApiRequest {
   name?: string;
   page?: number;
   limit?: number;
+  scope?: string;
   sort?: string;
   search?: string;
   action?: string;
@@ -42,9 +43,11 @@ export class ApiRequest {
   to?: string;
   orderId?: string;
   amount?: number;
+  collectedAmount?: number;
   reference?: string;
   notes?: string;
   permissions?: string[];
+  subOrderIds?: string[];
   paymentStatus?: string;
   location?: string;
   role?: string;

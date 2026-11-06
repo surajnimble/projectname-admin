@@ -1,7 +1,8 @@
 'use client';
 
+import { RefreshButton } from '@/components/common/refresh-button';
 import { useMemo, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
@@ -25,31 +26,38 @@ const broadcastFields = [
   { key: 'title', label: notifications.titleLabel, type: 'text' as const, required: true },
   { key: 'body', label: notifications.bodyLabel, type: 'textarea' as const, required: true },
   { key: 'type', label: notifications.typeLabel, type: 'select' as const, required: true, options: [
-    { label: notifications.types.INFO, value: 'INFO' },
-    { label: notifications.types.WARNING, value: 'WARNING' },
-    { label: notifications.types.ALERT, value: 'ALERT' },
+    { label: notifications.types.ORDER, value: 'ORDER' },
+    { label: notifications.types.PAYMENT, value: 'PAYMENT' },
+    { label: notifications.types.PAYOUT, value: 'PAYOUT' },
+    { label: notifications.types.RETURN, value: 'RETURN' },
+    { label: notifications.types.TICKET, value: 'TICKET' },
     { label: notifications.types.PROMO, value: 'PROMO' },
+    { label: notifications.types.SYSTEM, value: 'SYSTEM' },
+    { label: notifications.types.ALERT, value: 'ALERT' },
   ] },
   { key: 'channel', label: notifications.channelLabel, type: 'select' as const, required: true, options: [
-    { label: notifications.channels.PUSH, value: 'PUSH' },
-    { label: notifications.channels.EMAIL, value: 'EMAIL' },
-    { label: notifications.channels.SMS, value: 'SMS' },
+    { label: notifications.channels.IN_APP, value: 'IN_APP' },
   ] },
   { key: 'toAll', label: notifications.toAllLabel, type: 'switch' as const },
+  { key: 'userIds', label: notifications.recipientIdsLabel, type: 'textarea' as const, placeholder: notifications.recipientIdsPlaceholder },
 ];
 
 const templateFields = [
   { key: 'name', label: notifications.templateTitle, type: 'text' as const, required: true },
   { key: 'key', label: notifications.templateKeyLabel, type: 'text' as const, required: true },
-  { key: 'title', label: notifications.templateTitleLabel, type: 'text' as const },
-  { key: 'body', label: notifications.templateBodyLabel, type: 'textarea' as const },
+  { key: 'title', label: notifications.templateTitleLabel, type: 'text' as const, required: true },
+  { key: 'body', label: notifications.templateBodyLabel, type: 'textarea' as const, required: true },
   { key: 'channel', label: notifications.channelLabel, type: 'select' as const, options: [
+    { label: notifications.channels.IN_APP, value: 'IN_APP' },
     { label: notifications.channels.PUSH, value: 'PUSH' },
     { label: notifications.channels.EMAIL, value: 'EMAIL' },
     { label: notifications.channels.SMS, value: 'SMS' },
+    { label: notifications.channels.WHATSAPP, value: 'WHATSAPP' },
   ] },
   { key: 'isActive', label: notifications.templateActiveLabel, type: 'switch' as const },
 ];
+
+const templateEditFields = templateFields.filter((field) => field.key !== 'key');
 
 export function NotificationList() {
   const {
@@ -79,6 +87,7 @@ export function NotificationList() {
   const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
   const [defaultValues, setDefaultValues] = useState<Record<string, unknown>>({});
   const [dialogKey, setDialogKey] = useState(0);
+  const [dialogError, setDialogError] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [confirmIsTemplate, setConfirmIsTemplate] = useState(false);
@@ -89,7 +98,8 @@ export function NotificationList() {
   const handleAddBroadcast = () => {
     setDialogKind('broadcast');
     setDialogMode('add');
-    setDefaultValues({});
+    setDefaultValues({ toAll: true, type: 'PROMO', channel: 'IN_APP' });
+    setDialogError('');
     setDialogKey((k) => k + 1);
     setDialogOpen(true);
   };
@@ -98,7 +108,8 @@ export function NotificationList() {
     setDialogKind('template');
     setDialogMode('add');
     setEditingTemplateId(null);
-    setDefaultValues({});
+    setDefaultValues({ name: '', key: '', title: '', body: '', channel: 'PUSH', isActive: true });
+    setDialogError('');
     setDialogKey((k) => k + 1);
     setDialogOpen(true);
   };
@@ -115,6 +126,7 @@ export function NotificationList() {
       channel: row.channel,
       isActive: row.isActive,
     });
+    setDialogError('');
     setDialogKey((k) => k + 1);
     setDialogOpen(true);
   };
@@ -134,7 +146,23 @@ export function NotificationList() {
   const handleSubmit = async (values: Record<string, unknown>) => {
     let ok = false;
     if (dialogKind === 'broadcast') {
-      ok = await broadcastNotification(values);
+      const userIds = String(values.userIds ?? '')
+        .split(/[\s,;]+/)
+        .map((id) => id.trim())
+        .filter(Boolean);
+      const toAll = values.toAll === true;
+      if (!toAll && userIds.length === 0) {
+        setDialogError(notifications.recipientRequired);
+        return;
+      }
+      const payload: Record<string, unknown> = {
+        ...values,
+        toAll,
+        channel: 'IN_APP',
+      };
+      if (toAll || userIds.length === 0) delete payload.userIds;
+      else payload.userIds = userIds;
+      ok = await broadcastNotification(payload);
     } else if (dialogMode === 'add') {
       ok = await createTemplate(values);
     } else if (editingTemplateId) {
@@ -163,7 +191,7 @@ export function NotificationList() {
     setFilters({});
   };
   const applyDraft = () => {
-    setFilters(filterStatus === 'all' ? {} : { status: filterStatus });
+    setFilters(filterStatus === 'all' ? {} : { isRead: String(filterStatus === 'read') });
     setFiltersOpen(false);
   };
 
@@ -283,14 +311,15 @@ export function NotificationList() {
             <Button variant="outline" size="sm" onClick={() => void markAllRead()} disabled={isActioning}>
               {notifications.markAllRead}
             </Button>
-            <Button variant="primary" size="sm" onClick={handleAddBroadcast} disabled={isActioning}>
-              {notifications.send}
-            </Button>
+            <PermissionGuard permission={PERMISSIONS.notificationSend}>
+              <Button variant="primary" size="sm" onClick={handleAddBroadcast} disabled={isActioning}>
+                {notifications.send}
+              </Button>
+            </PermissionGuard>
           </div>
         }
       />
-      <PermissionGuard permission={PERMISSIONS.notificationSend}>
-        <Card className="overflow-hidden">
+      <Card className="overflow-hidden">
           <DataTable
             columns={notificationColumns}
             rows={data.itemList}
@@ -307,16 +336,7 @@ export function NotificationList() {
                 onOpen: openFilters,
               },
               actions: (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  loading={isLoading}
-                  onClick={() => void refresh()}
-                  className="shrink-0"
-                >
-                  <RefreshCw className="size-4" aria-hidden="true" />
-                  {MESSAGES.dashboard.refresh}
-                </Button>
+                <RefreshButton onRefresh={() => void refresh()} size="sm" label={MESSAGES.dashboard.refresh} isRefreshing={isLoading} />
               ),
             }}
             actions={{
@@ -387,10 +407,11 @@ export function NotificationList() {
           mode={dialogMode}
           title={dialogKind === 'broadcast' ? notifications.sendTitle : dialogMode === 'add' ? notifications.templateCreate : notifications.templateUpdate}
           submitLabel={dialogKind === 'broadcast' ? notifications.send : dialogMode === 'add' ? common.addNew : common.save}
-          fields={dialogKind === 'broadcast' ? broadcastFields : templateFields}
+          fields={dialogKind === 'broadcast' ? broadcastFields : dialogMode === 'add' ? templateFields : templateEditFields}
           defaultValues={defaultValues}
           key={dialogKey}
           isSubmitting={isActioning}
+          error={dialogError || actionError}
           onClose={() => setDialogOpen(false)}
           onSubmit={handleSubmit}
         />
@@ -405,9 +426,10 @@ export function NotificationList() {
           onClose={() => setConfirmOpen(false)}
         />
 
-        <Card className="overflow-hidden mt-6">
+        <PermissionGuard permission={PERMISSIONS.notificationTemplateManage}>
+          <Card className="overflow-hidden mt-6">
           <div className="p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <h3 className="text-lg font-semibold">{notifications.templateTitle}</h3>
+            <h3 className="text-lg font-semibold">{notifications.templateTitle} ({templates.totalRecord})</h3>
             <Button variant="outline" size="sm" onClick={handleTemplateCreate} disabled={isActioning}>
               {notifications.templateCreate}
             </Button>
@@ -417,17 +439,7 @@ export function NotificationList() {
             rows={templates.itemList}
             rowKey={(row: NotificationTemplateData) => row.templateId}
             toolbar={{
-              actions: (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  loading={isLoading}
-                  onClick={() => void refresh()}
-                  className="shrink-0"
-                >
-                  {MESSAGES.dashboard.refresh}
-                </Button>
-              ),
+              actions: <RefreshButton onRefresh={() => void refresh()} isRefreshing={isLoading} label={MESSAGES.dashboard.refresh} />,
             }}
             actions={{
               header: common.actions,
@@ -446,18 +458,9 @@ export function NotificationList() {
             onRetry={() => void refresh()}
             emptyTitle={notifications.empty}
             emptyDescription={notifications.emptyFiltered}
-            footer={
-              <Pagination
-                currentPage={templates.currentPage}
-                totalPage={templates.totalPage}
-                totalRecord={templates.totalRecord}
-                limit={templates.limit}
-                onPageChange={setPage}
-              />
-            }
           />
-        </Card>
-      </PermissionGuard>
+          </Card>
+        </PermissionGuard>
     </div>
   );
 }

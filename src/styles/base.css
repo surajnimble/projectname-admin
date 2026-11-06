@@ -49,13 +49,13 @@ body {
   }
 
   :where(
-    button:not(:disabled),
+    button:not(:disabled):not([data-switch-fixed-edge]),
     select:not(:disabled),
     [role='button'],
     [role='menuitem'],
     [role='option'],
     [role='tab'],
-    [role='switch'],
+    [role='switch']:not([data-switch-fixed-edge]),
     [role='radio'],
     [data-ripple]:not([data-ripple='off']):not(tr),
     [data-hover-color]:not(tr)
@@ -71,13 +71,13 @@ body {
   }
 
   :where(
-    button:not(:disabled),
+    button:not(:disabled):not([data-switch-fixed-edge]),
     select:not(:disabled),
     [role='button'],
     [role='menuitem'],
     [role='option'],
     [role='tab'],
-    [role='switch'],
+    [role='switch']:not([data-switch-fixed-edge]),
     [role='radio'],
     [data-ripple]:not([data-ripple='off']):not(tr),
     [data-hover-color]:not(tr)
@@ -86,13 +86,13 @@ body {
   }
 
   :where(
-    button:not(:disabled),
+    button:not(:disabled):not([data-switch-fixed-edge]),
     select:not(:disabled),
     [role='button'],
     [role='menuitem'],
     [role='option'],
     [role='tab'],
-    [role='switch'],
+    [role='switch']:not([data-switch-fixed-edge]),
     [role='radio'],
     [data-ripple]:not([data-ripple='off']):not(tr),
     [data-hover-color]:not(tr)
@@ -118,6 +118,15 @@ body {
   outline-offset: 2px;
 }
 
+/*
+ * Switches keep a neutral, fixed focus edge instead of inheriting --ring from
+ * the active theme. Their track fill and thumb colours remain theme-aware.
+ * This prevents custom theme palettes from visually changing the switch edge.
+ */
+[data-switch-fixed-edge]:focus-visible {
+  outline-color: #94a3b8;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -125,5 +134,58 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+
+@layer utilities {
+  /* Shared component dimensions use named tokens instead of screen-local
+     arbitrary values, keeping geometry predictable across theme changes. */
+  .min-h-chat-panel {
+    min-height: calc(32rem * var(--density, 1));
+  }
+
+  .grid-cols-chat-review {
+    grid-template-columns: minmax(20rem, 0.9fr) minmax(0, 1.6fr);
+  }
+
+  .max-h-preview-dialog {
+    max-height: 78vh;
+  }
+
+  .max-h-preview-image {
+    max-height: 76vh;
+  }
+
+  .min-w-customer-wallet {
+    min-width: 40rem;
+  }
+
+  .min-w-customer-loyalty {
+    min-width: 38.75rem;
+  }
+
+  .max-w-wallet-description {
+    max-width: 13.75rem;
+  }
+
+  .max-w-loyalty-description {
+    max-width: 15rem;
+  }
+
+  .max-h-regional-form {
+    max-height: 65vh;
+  }
+
+  .w-calendar-panel {
+    width: min(19rem, calc(100vw - 2rem));
+  }
+
+  .max-h-carousel-vertical {
+    max-height: 28rem;
+  }
+
+  .min-w-chart {
+    min-width: 20rem;
   }
 }

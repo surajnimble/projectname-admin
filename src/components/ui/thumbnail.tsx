@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { ImagePreview } from '@/components/common/image-preview';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -27,13 +27,13 @@ export function Thumbnail({ src, alt, className, fallback }: ThumbnailProps) {
   }
 
   return (
-    <Image
+    <ImagePreview
       src={src}
       alt={alt}
       width={40}
       height={40}
-      unoptimized
-      className={cn('size-10 shrink-0 rounded-lg object-cover', className)}
+      triggerClassName={cn('size-10 shrink-0', className)}
+      className="size-full rounded-lg object-cover"
     />
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
-import { RefreshCw } from 'lucide-react';
+import { RefreshButton } from '@/components/common/refresh-button';
+
 import { useState } from 'react';
 import { Spinner } from '@/components/ui/spinner';
 import { PageHeader } from '@/components/common/page-header';
@@ -190,9 +191,7 @@ export function SystemHealthPage() {
         <PageHeader title={df.title} description={df.subtitle} />
         <div className="p-8 flex flex-col items-center justify-center gap-3">
           <p className="text-destructive">{error}</p>
-          <Button variant="outline" onClick={() => void refresh()}>
-            {MESSAGES.common.retry}
-          </Button>
+          <RefreshButton onRefresh={() => void refresh()} label={MESSAGES.common.retry} />
         </div>
       </div>
     );
@@ -203,11 +202,7 @@ export function SystemHealthPage() {
       <PageHeader
         title={df.title}
         description={df.subtitle}
-        action={
-          <Button variant="outline" size="sm" loading={isActioning} onClick={() => void refresh()} disabled={isActioning}>
-            {MESSAGES.dashboard.refresh}
-          </Button>
-        }
+        action={<RefreshButton onRefresh={() => void refresh()} isRefreshing={isActioning} label={MESSAGES.dashboard.refresh} />}
       />
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -304,16 +299,7 @@ export function SystemHealthPage() {
                 onOpen: openCronFilters,
               },
               actions: (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  loading={isLoading}
-                  onClick={() => void refresh()}
-                  className="shrink-0"
-                >
-                  <RefreshCw className="size-4" aria-hidden="true" />
-                  {MESSAGES.dashboard.refresh}
-                </Button>
+                <RefreshButton onRefresh={() => void refresh()} size="sm" label={MESSAGES.dashboard.refresh} isRefreshing={isLoading} />
               ),
             }}
             isLoading={isLoading}
@@ -373,16 +359,7 @@ export function SystemHealthPage() {
             rowKey={(row) => row.failedJobId}
             toolbar={{
               actions: (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  loading={isLoading}
-                  onClick={() => void refresh()}
-                  className="shrink-0"
-                >
-                  <RefreshCw className="size-4" aria-hidden="true" />
-                  {MESSAGES.dashboard.refresh}
-                </Button>
+                <RefreshButton onRefresh={() => void refresh()} size="sm" label={MESSAGES.dashboard.refresh} isRefreshing={isLoading} />
               ),
             }}
             isLoading={isLoading}

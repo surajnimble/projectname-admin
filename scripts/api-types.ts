@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 
-const base = (process.env.API_BASE_URL ?? 'https://projectname-api-render.onrender.com').replace(
+const base = (process.env.API_BASE_URL ?? 'http://127.0.0.1:5000').replace(
   /\/+$/,
   '',
 );

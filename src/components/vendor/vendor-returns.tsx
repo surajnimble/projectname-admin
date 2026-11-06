@@ -8,6 +8,7 @@ import { OptionsMenu, type OptionsMenuItem } from '@/components/ui/options-menu'
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { ReasonDialog } from '@/components/common/reason-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { RefreshButton } from '@/components/common/refresh-button';
 import { useVendorReturns } from '@/hooks/use-vendor-returns';
 import { formatCurrency } from '@/lib/utils';
 import { formatRelativeTime } from '@/lib/utils/datetime';
@@ -16,7 +17,7 @@ import { MESSAGES } from '@/messages';
 const { vendors } = MESSAGES;
 
 export function VendorReturns({ vendorId }: { vendorId: string }) {
-  const { data, isLoading, error, actionError, isActioning, runAction } = useVendorReturns(vendorId);
+  const { data, isLoading, error, actionError, isActioning, refresh, runAction } = useVendorReturns(vendorId);
   const [approving, setApproving] = useState('');
   const [rejecting, setRejecting] = useState('');
 
@@ -34,8 +35,9 @@ export function VendorReturns({ vendorId }: { vendorId: string }) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between gap-3">
         <CardTitle>{vendors.returnsTitle}</CardTitle>
+        <RefreshButton onRefresh={refresh} isRefreshing={isLoading} label={MESSAGES.dashboard.refresh} />
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {isLoading ? (

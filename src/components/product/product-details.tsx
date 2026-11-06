@@ -1,12 +1,13 @@
 'use client';
 
 import { ArrowLeft, Package, Tag, Trash2, Warehouse } from 'lucide-react';
-import Image from 'next/image';
+import { ImagePreview } from '@/components/common/image-preview';
 import Link from 'next/link';
 import { useState } from 'react';
 import { EmptyState } from '@/components/common/empty-state';
 import { ErrorState } from '@/components/common/error-state';
 import { PageHeader } from '@/components/common/page-header';
+import { RefreshButton } from '@/components/common/refresh-button';
 import {
   ProductActionDialog,
   type ProductDialogAction,
@@ -91,7 +92,7 @@ const variantColumns: readonly DataTableColumn<ProductVariantData>[] = [
 ];
 
 export function ProductDetails({ vendorId, productId }: { vendorId: string; productId: string }) {
-  const { product, isLoading, isPending, error, actionError, isActioning, runAction } =
+  const { product, isLoading, isPending, error, actionError, isActioning, refresh, runAction } =
     useProductDetail(productId, true);
   const [dialog, setDialog] = useState<ProductDialogAction | null>(null);
 
@@ -235,6 +236,7 @@ export function ProductDetails({ vendorId, productId }: { vendorId: string; prod
         description={product.sku ? `SKU ${product.sku}` : undefined}
         action={
           <div className="flex flex-wrap items-center gap-2">
+            <RefreshButton onRefresh={refresh} isRefreshing={isPending} label={MESSAGES.dashboard.refresh} />
             <Badge intent={STATUS_INTENTS[status] ?? 'neutral'}>
               {STATUS_LABELS[status] ?? status}
             </Badge>
@@ -247,14 +249,14 @@ export function ProductDetails({ vendorId, productId }: { vendorId: string; prod
       {product.imageList.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {product.imageList.map((image) => (
-            <Image
+            <ImagePreview
               key={image}
               src={image}
               alt={product.name}
-              width={320}
-              height={320}
-              unoptimized
-              className="border-border aspect-square w-full rounded-lg border object-cover"
+              width={640}
+              height={640}
+              triggerClassName="aspect-square w-full border border-border"
+              className="aspect-square w-full rounded-lg object-cover"
             />
           ))}
         </div>

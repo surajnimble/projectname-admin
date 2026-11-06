@@ -4,7 +4,7 @@ Admin panel (Next.js) for the `projectname-api` marketplace backend. Staff only:
 
 **Stack:** Next.js 16 (App Router) · React 19 · TypeScript (strict) · Tailwind CSS 4 · centralized design tokens (light + dark).
 
-It talks to the **real API** at `https://projectname-api-render.onrender.com/api/v1`. There are no mocks in the app.
+The development default is the local backend at `http://127.0.0.1:5000/api/v1`. The app uses the real API; it does not replace API calls with mocks.
 
 ## Run it
 
@@ -19,7 +19,16 @@ npm run dev
 
 Open <http://localhost:3000> → you land on `/login` → sign in → you arrive on the Overview (home) page.
 
-`.env.local` is included and points at the live API. To use another backend, change `API_BASE_URL` there and restart `npm run dev` (for a production build, set it **before** `npm run build`: the `/api/v1` rewrite is fixed at build time).
+Create the local frontend environment from the safe template before starting Next.js:
+
+```bash
+# Windows
+copy .env.example .env.local
+# macOS / Linux
+cp .env.example .env.local
+```
+
+`API_BASE_URL` points to `http://127.0.0.1:5000` by default. Keep it local for QA. To use a different local backend port, change `API_BASE_URL` in `.env.local` and restart `npm run dev` (for a production build, set it **before** `npm run build`: the `/api/v1` rewrite is fixed at build time).
 
 ## Deploy to Cloudflare Workers
 

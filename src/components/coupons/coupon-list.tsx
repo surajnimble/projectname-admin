@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
 import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
@@ -18,6 +18,8 @@ import type { CouponData } from '@/lib/api/contract';
 import { COUPON_PAGE_SIZE } from '@/constants';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
+import { CouponUsagesDialog } from '@/components/coupons/coupon-usages-dialog';
+import { RefreshButton } from '@/components/common/refresh-button';
 
 const { coupons, common } = MESSAGES;
 
@@ -64,6 +66,7 @@ export function CouponList() {
   const [dialogKey, setDialogKey] = useState(0);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmRow, setConfirmRow] = useState<CouponData | null>(null);
+  const [usageCoupon, setUsageCoupon] = useState<CouponData | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [draftStatus, setDraftStatus] = useState(isActive);
   const activeFilterCount = useMemo(() => (search ? 1 : 0) + (isActive !== 'all' ? 1 : 0), [search, isActive]);
@@ -241,22 +244,14 @@ export function CouponList() {
                 onOpen: openFilters,
               },
               actions: (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  loading={isLoading}
-                  onClick={() => void refresh()}
-                  className="shrink-0"
-                >
-                  <RefreshCw className="size-4" aria-hidden="true" />
-                  {MESSAGES.dashboard.refresh}
-                </Button>
+                <RefreshButton onRefresh={() => void refresh()} size="sm" label={MESSAGES.dashboard.refresh} isRefreshing={isLoading} />
               ),
             }}
             actions={{
               header: MESSAGES.common.actions,
               render: (row: CouponData) => {
                 const items: OptionsMenuItem[] = [
+                  { label: coupons.viewUsage, onSelect: () => setUsageCoupon(row) },
                   { label: MESSAGES.common.editExisting, onSelect: () => handleEdit(row) },
                   { label: row.isActive ? coupons.deactivate : coupons.activate, onSelect: () => void toggleCouponStatus(row.couponId, !row.isActive) },
                   { label: coupons.delete, intent: 'danger', onSelect: () => handleDelete(row) },
@@ -325,6 +320,12 @@ export function CouponList() {
           isSubmitting={isActioning}
           onClose={() => setDialogOpen(false)}
           onSubmit={handleSubmit}
+        />
+
+        <CouponUsagesDialog
+          coupon={usageCoupon}
+          open={usageCoupon !== null}
+          onClose={() => setUsageCoupon(null)}
         />
 
         <ConfirmDialog

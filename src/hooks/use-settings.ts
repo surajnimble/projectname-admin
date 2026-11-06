@@ -25,6 +25,9 @@ export function useSettings() {
     itemList: [],
   }));
   const [flags, setFlags] = useState<Record<string, boolean>>({});
+  const [orderRequireAdminConfirmation, setOrderRequireAdminConfirmation] = useState(true);
+  const [isOrderReviewSettingLoading, setIsOrderReviewSettingLoading] = useState(true);
+  const [orderReviewSettingError, setOrderReviewSettingError] = useState('');
   const [status, setStatus] = useState<MaintenanceStatus>({
     enabled: false,
     message: '',
@@ -61,6 +64,51 @@ export function useSettings() {
       setIsLoading(false);
     }
   }, [query]);
+
+  const fetchOrderReviewSetting = useCallback(async () => {
+    setIsOrderReviewSettingLoading(true);
+    try {
+      const res = await apiService.getSettings({ page: 1, limit: 100, category: 'order' });
+      if (res.status) {
+        const setting = res.data.itemList.find((item) => item.key === 'orderRequireAdminConfirmation');
+        setOrderRequireAdminConfirmation(setting ? setting.value === true : true);
+        setOrderReviewSettingError('');
+      } else {
+        setOrderReviewSettingError(res.message);
+      }
+    } catch {
+      setOrderReviewSettingError('Failed to load order review setting');
+    } finally {
+      setIsOrderReviewSettingLoading(false);
+    }
+  }, []);
+
+  const updateOrderReviewSetting = useCallback(async (enabled: boolean) => {
+    const previous = orderRequireAdminConfirmation;
+    setOrderRequireAdminConfirmation(enabled);
+    setIsActioning(true);
+    try {
+      const res = await apiService.updateSetting({
+        key: 'orderRequireAdminConfirmation',
+        value: enabled,
+        category: 'order',
+        isPublic: false,
+      });
+      if (res.status) {
+        await fetchOrderReviewSetting();
+        return true;
+      }
+      setOrderRequireAdminConfirmation(previous);
+      setOrderReviewSettingError(res.message);
+      return false;
+    } catch {
+      setOrderRequireAdminConfirmation(previous);
+      setOrderReviewSettingError('Failed to update order review setting');
+      return false;
+    } finally {
+      setIsActioning(false);
+    }
+  }, [fetchOrderReviewSetting, orderRequireAdminConfirmation]);
 
   const fetchFlags = useCallback(async () => {
     try {
@@ -137,7 +185,7 @@ export function useSettings() {
     setFlags((prev) => ({ ...prev, [key]: next }));
     setIsActioning(true);
     try {
-      const res = await apiService.toggleFeature({ key, value: next });
+      const res = await apiService.toggleFeature({ key, enabled: next });
       if (!res.status) {
         setFlags((prev) => ({ ...prev, [key]: current }));
         setError(res.message);
@@ -173,8 +221,9 @@ export function useSettings() {
       await fetchSettings();
       await fetchFlags();
       await fetchStatus();
+      await fetchOrderReviewSetting();
     })();
-  }, [fetchSettings, fetchFlags, fetchStatus]);
+  }, [fetchSettings, fetchFlags, fetchStatus, fetchOrderReviewSetting]);
 
   const setSearch = useCallback((value: string) => {
     setSearchState(value);
@@ -192,12 +241,16 @@ export function useSettings() {
     await fetchSettings();
     await fetchFlags();
     await fetchStatus();
+    await fetchOrderReviewSetting();
     setIsLoading(false);
-  }, [fetchSettings, fetchFlags, fetchStatus]);
+  }, [fetchSettings, fetchFlags, fetchStatus, fetchOrderReviewSetting]);
 
   return {
     data,
     flags,
+    orderRequireAdminConfirmation,
+    isOrderReviewSettingLoading,
+    orderReviewSettingError,
     status,
     isLoading,
     error,
@@ -216,6 +269,7 @@ export function useSettings() {
     updateSetting,
     resetSettings,
     toggleFlag,
+    updateOrderReviewSetting,
     saveMaintenance,
   };
 }

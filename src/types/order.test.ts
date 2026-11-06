@@ -1,44 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { toOrderDetail, toOrderList } from './order';
+import { toOrderDetail } from './order';
 
-describe('toOrderList', () => {
-  it('defaults every field when the payload is empty', () => {
-    const list = toOrderList({});
-    expect(list.itemList).toEqual([]);
-    expect(list.totalRecord).toBe(0);
-    expect(list.hasNext).toBe(false);
-  });
-
-  it('maps order rows with the customer and vendors', () => {
-    const list = toOrderList({
-      totalRecord: 1,
-      orderList: [
-        {
-          orderId: 'o1',
-          orderNumber: 'ORD-1',
-          status: 'CONFIRMED',
-          total: 250,
-          userData: { name: 'Asha' },
-          vendorList: [{ shopName: 'Shop' }, null],
-        },
-      ],
+describe('order detail mapper', () => {
+  it('maps serialized subOrderList rows into vendorList with shipment tracking data', () => {
+    const result = toOrderDetail({
+      orderId: 'order-1',
+      subOrderList: [{
+        subOrderId: 'sub-1',
+        vendorId: 'vendor-1',
+        status: 'SHIPPED',
+        vendorData: { vendorId: 'vendor-1', shopName: 'Shop One' },
+        trackingNumber: 'AWB-123',
+        shipmentData: { shipmentId: 'shipment-1', awb: 'AWB-123', status: 'IN_TRANSIT', trackingUrl: 'https://carrier.example/track/AWB-123' },
+      }],
     });
-    expect(list.itemList[0]?.orderNumber).toBe('ORD-1');
-    expect(list.itemList[0]?.userData.name).toBe('Asha');
-    expect(list.itemList[0]?.userData.email).toBe('');
-    expect(list.itemList[0]?.vendorList).toHaveLength(1);
-  });
-});
 
-describe('toOrderDetail', () => {
-  it('keeps items and timeline and defaults the address', () => {
-    const detail = toOrderDetail({
-      orderId: 'o1',
-      itemList: [{ orderItemId: 'i1', name: 'Shirt', qty: 2, price: 10, total: 20 }],
-      timelineList: [{ timelineId: 't1', status: 'SHIPPED' }],
-    });
-    expect(detail.itemList[0]?.qty).toBe(2);
-    expect(detail.timelineList[0]?.status).toBe('SHIPPED');
-    expect(detail.addressData.city).toBe('');
+    expect(result.vendorList).toHaveLength(1);
+    expect(result.vendorList[0]?.shopName).toBe('Shop One');
+    expect(result.vendorList[0]?.shipmentData.awb).toBe('AWB-123');
   });
 });

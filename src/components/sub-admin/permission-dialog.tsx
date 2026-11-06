@@ -26,14 +26,9 @@ export function PermissionDialog({
   onClose,
   onSubmit,
 }: PermissionDialogProps) {
-  const grantedPermissions = useMemo(
-    () => allPermissions.roleList['SUB_ADMIN'] ?? [],
-    [allPermissions.roleList],
-  );
-
   const initial = useMemo(
-    () => [...new Set([...grantedPermissions, ...currentPermissions])],
-    [grantedPermissions, currentPermissions],
+    () => [...new Set(currentPermissions)],
+    [currentPermissions],
   );
   const [picked, setPicked] = useState<string[] | null>(null);
   const selected = picked ?? initial;

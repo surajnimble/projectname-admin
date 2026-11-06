@@ -1,5 +1,6 @@
 'use client';
 
+import { RefreshButton } from '@/components/common/refresh-button';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Spinner } from '@/components/ui/spinner';
@@ -19,6 +20,9 @@ import { formatRelativeTime } from '@/lib/utils/datetime';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
 import { StatusBadge, orderStatusMeta } from '@/components/common/status-badge';
+import { CustomerWalletPanel } from '@/components/customer/customer-wallet-panel';
+import { CustomerLoyaltyPanel } from '@/components/customer/customer-loyalty-panel';
+import { CustomerImpersonationAction } from '@/components/customer/customer-impersonation-action';
 
 const { customers } = MESSAGES;
 const orderMessages = MESSAGES.orders;
@@ -130,8 +134,8 @@ export default function CustomerDetailPage({ params }: { params: Params | Promis
     );
   }
 
-  const isSuspended = detail?.userData.isActive === false;
-  const isBanned = detail?.userData.isActive === false;
+  const isBanned = detail?.banData.isActive === true;
+  const isSuspended = detail?.userData.isActive === false && !isBanned;
 
   const handleSuspend = async () => {
     const done = await suspendUser(!isSuspended, '');
@@ -178,9 +182,7 @@ export default function CustomerDetailPage({ params }: { params: Params | Promis
         <PageHeader title={customers.detail.title} description={customers.detail.subtitle} />
         <div className="p-8 flex flex-col items-center justify-center gap-3">
           <p className="text-destructive">{error}</p>
-          <Button variant="outline" onClick={() => void refresh()}>
-            {MESSAGES.common.retry}
-          </Button>
+          <RefreshButton onRefresh={() => void refresh()} label={MESSAGES.common.retry} />
         </div>
       </div>
     );
@@ -199,11 +201,14 @@ export default function CustomerDetailPage({ params }: { params: Params | Promis
             <Link href={ROUTES.customers} replace>
               <Button size="sm" variant="outline">{customers.back}</Button>
             </Link>
+            {detail && user && (
+              <CustomerImpersonationAction userId={userId} userName={user.name} />
+            )}
             {detail && can(PERMISSIONS.userSuspend) && (
               <Button
                 size="sm"
                 onClick={handleSuspend}
-                disabled={isActioning}
+                disabled={isActioning || isBanned}
                 loading={isActioning}
                 variant={isSuspended ? 'outline' : 'destructive'}
               >
@@ -309,6 +314,14 @@ export default function CustomerDetailPage({ params }: { params: Params | Promis
                 </CardContent>
               </Card>
             </div>
+
+            {detail && can(PERMISSIONS.walletAdjust) && user && (
+              <CustomerWalletPanel userId={userId} userName={user?.name ?? ''} />
+            )}
+
+            {detail && can(PERMISSIONS.loyaltyManage) && user && (
+              <CustomerLoyaltyPanel userId={userId} />
+            )}
 
             {detail && detail.addressList.length > 0 && (
               <Card className="mt-6">

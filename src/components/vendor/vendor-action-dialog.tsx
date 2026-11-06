@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState, type FormEvent } from 'react';
+import { useEffect, useId, useState, type FormEvent } from 'react';
 import { FormError } from '@/components/common/form-error';
 import { FormField } from '@/components/common/form-field';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import type { VendorAction } from '@/lib/api/vendor-actions';
 import type { VendorData } from '@/lib/api/contract';
 import { validateVendorCommission, validateVendorReason } from '@/lib/utils/validations';
 import { MESSAGES } from '@/messages';
+import { apiService } from '@/lib/api/api.service';
 
 const { vendors } = MESSAGES;
 
@@ -67,10 +68,43 @@ export function VendorActionDialog({
   const [commission, setCommission] = useState(
     action === 'commission' ? String(vendor.commissionRate) : '',
   );
+  const [commissionBounds, setCommissionBounds] = useState({
+    min: VENDOR_COMMISSION_MIN,
+    max: VENDOR_COMMISSION_MAX,
+  });
+  const [isCommissionBoundsLoading, setIsCommissionBoundsLoading] = useState(false);
   const [remark, setRemark] = useState('');
   const [reasonError, setReasonError] = useState('');
   const [commissionError, setCommissionError] = useState('');
   const shop = vendor.shopName || vendors.shopFallback;
+
+  useEffect(() => {
+    if (!open) return;
+    setReason('');
+    setRemark('');
+    setReasonError('');
+    setCommissionError('');
+    setCommission(action === 'approve' || action === 'commission' ? String(vendor.commissionRate) : '');
+  }, [open, action, vendor.vendorId, vendor.commissionRate]);
+
+  useEffect(() => {
+    if (!open || (action !== 'approve' && action !== 'commission')) return;
+    let active = true;
+    setIsCommissionBoundsLoading(true);
+    void apiService.getVendorCommissionBounds().then((response) => {
+      if (!active || !response.status) return;
+      const min = Number(response.data.min);
+      const max = Number(response.data.max);
+      if (Number.isFinite(min) && Number.isFinite(max) && min <= max) {
+        setCommissionBounds({ min, max });
+      }
+    }).finally(() => {
+      if (active) setIsCommissionBoundsLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, [open, action]);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -81,7 +115,11 @@ export function VendorActionDialog({
     }
 
     if (action === 'approve' || action === 'commission') {
-      const commissionResult = validateVendorCommission(commission);
+      if (action === 'commission' && commission.trim() === '') {
+        setCommissionError(MESSAGES.validation.vendorCommissionInvalid(commissionBounds.min, commissionBounds.max));
+        return;
+      }
+      const commissionResult = validateVendorCommission(commission, commissionBounds.min, commissionBounds.max);
       setCommissionError(commissionResult.message);
       if (!commissionResult.isValid) return;
       onSubmit({
@@ -143,16 +181,17 @@ export function VendorActionDialog({
           <>
             <FormField
               label={vendors.approveCommissionLabel}
-              hint={action === 'commission' ? vendors.commissionHint : vendors.approveCommissionHint}
+              hint={`${action === 'commission' ? vendors.commissionHint : vendors.approveCommissionHint} ${vendors.commissionRangeHint(commissionBounds.min, commissionBounds.max)}`}
               error={commissionError}
             >
               <Input
                 type="number"
                 inputMode="decimal"
-                min={VENDOR_COMMISSION_MIN}
-                max={VENDOR_COMMISSION_MAX}
+                min={commissionBounds.min}
+                max={commissionBounds.max}
                 value={commission}
-                onChange={(event) => setCommission(event.target.value)}
+                onChange={(event) => { setCommission(event.target.value); setCommissionError(''); }}
+                disabled={isCommissionBoundsLoading}
                 autoFocus
               />
             </FormField>

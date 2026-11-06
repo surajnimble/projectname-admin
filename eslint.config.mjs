@@ -22,6 +22,7 @@ export default defineConfig([
   ]),
   {
     rules: {
+      'no-duplicate-imports': ['error', { allowSeparateTypeImports: true }],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/ban-ts-comment': 'error',
       '@typescript-eslint/no-non-null-assertion': 'error',

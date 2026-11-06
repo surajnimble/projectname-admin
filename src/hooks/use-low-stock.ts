@@ -3,6 +3,8 @@ import type { BaseResponse, LowStockListData } from '@/lib/api/contract';
 import { apiService } from '@/lib/api/api.service';
 import { toLowStockList } from '@/types/report';
 
+const LOAD_ERROR = 'Inventory could not be loaded. Please try again.';
+
 export function useLowStock() {
   const [data, setData] = useState<LowStockListData>(toLowStockList());
   const [isLoading, setIsLoading] = useState(true);
@@ -16,9 +18,15 @@ export function useLowStock() {
 
   useEffect(() => {
     let active = true;
-    void apiService.getLowStockProducts().then((response) => {
-      if (active) apply(response);
-    });
+    void apiService.getLowStockProducts()
+      .then((response) => {
+        if (active) apply(response);
+      })
+      .catch(() => {
+        if (!active) return;
+        setError(LOAD_ERROR);
+        setIsLoading(false);
+      });
     return () => {
       active = false;
     };
@@ -26,7 +34,12 @@ export function useLowStock() {
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
-    apply(await apiService.getLowStockProducts());
+    try {
+      apply(await apiService.getLowStockProducts());
+    } catch {
+      setError(LOAD_ERROR);
+      setIsLoading(false);
+    }
   }, [apply]);
 
   return { data, isLoading, error, refresh };

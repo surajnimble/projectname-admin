@@ -1,4 +1,4 @@
-import type { PayoutData, PayoutListData, PayoutStatementData } from '@/lib/api/contract';
+import type { PayoutBulkApproveData, PayoutData, PayoutListData, PayoutStatementData } from '@/lib/api/contract';
 
 type RawPayout = Partial<Record<keyof PayoutData, unknown>> & {
   bankData?: {
@@ -73,6 +73,17 @@ export const toPayoutStatement = (raw: Partial<PayoutStatementData> = {}): Payou
         commission: toNumber(item.commission),
         status: toString(item.status),
         createdAt: toString(item.createdAt),
+      }))
+    : [],
+});
+
+
+export const toPayoutBulkApprove = (raw: Partial<PayoutBulkApproveData> = {}): PayoutBulkApproveData => ({
+  approvedCount: toNumber(raw.approvedCount),
+  failedList: Array.isArray(raw.failedList)
+    ? raw.failedList.filter(isObject).map((item) => ({
+        payoutId: toString(item.payoutId),
+        reason: toString(item.reason),
       }))
     : [],
 });

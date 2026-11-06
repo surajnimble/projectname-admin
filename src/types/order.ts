@@ -10,6 +10,7 @@ import type {
   OrderTimelineData,
   OrderVendorData,
   OrderReviewListData,
+  OrderBulkReviewResult,
 } from '@/lib/api/contract';
 
 type Raw = Record<string, unknown>;
@@ -33,12 +34,23 @@ const toCustomer = (raw: Raw = {}): OrderCustomerData => ({
   phone: toString(raw.phone),
 });
 
-const toVendor = (raw: Raw = {}): OrderVendorData => ({
-  subOrderId: toString(raw.subOrderId),
-  vendorId: toString(raw.vendorId),
-  status: toString(raw.status),
-  shopName: toString(raw.shopName),
-});
+const toVendor = (raw: Raw = {}): OrderVendorData => {
+  const vendorData = isObject(raw.vendorData) ? raw.vendorData : {};
+  const shipment = isObject(raw.shipmentData) ? raw.shipmentData : {};
+  return {
+    subOrderId: toString(raw.subOrderId),
+    vendorId: toString(raw.vendorId) || toString(vendorData.vendorId),
+    status: toString(raw.status),
+    shopName: toString(raw.shopName) || toString(vendorData.shopName),
+    trackingNumber: toString(raw.trackingNumber),
+    shipmentData: {
+      shipmentId: toString(shipment.shipmentId), awb: toString(shipment.awb),
+      status: toString(shipment.status), trackingUrl: toString(shipment.trackingUrl),
+      estimatedDays: toNumber(shipment.estimatedDays), shippedAt: toString(shipment.shippedAt),
+      deliveredAt: toString(shipment.deliveredAt),
+    },
+  };
+};
 
 const toAddress = (raw: Raw = {}): OrderAddressData => ({
   fullName: toString(raw.fullName),
@@ -83,7 +95,7 @@ export const toOrderSummary = (raw: Raw = {}): OrderSummaryData => ({
   deliveredAt: toString(raw.deliveredAt),
   createdAt: toString(raw.createdAt),
   userData: toCustomer(isObject(raw.userData) ? raw.userData : {}),
-  vendorList: toObjects(raw.vendorList).map(toVendor),
+  vendorList: toObjects(raw.vendorList ?? raw.subOrderList).map(toVendor),
 });
 
 export const toOrderList = (raw: RawOrderList = {}): OrderListData => ({
@@ -191,4 +203,16 @@ export const toOrderTagList = (raw: RawOrderTagList = {}): OrderTagListData => (
         createdAt: toString(item.createdAt),
       }))
     : [],
+});
+
+
+export const toOrderBulkReviewResult = (raw: Raw = {}): OrderBulkReviewResult => ({
+  action: toString(raw.action),
+  requestedCount: toNumber(raw.requestedCount),
+  updatedCount: toNumber(raw.updatedCount),
+  skippedCount: toNumber(raw.skippedCount),
+  skippedList: toObjects(raw.skippedList).map((row) => ({
+    subOrderId: toString(row.subOrderId),
+    reason: toString(row.reason),
+  })),
 });

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
 import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
@@ -16,6 +16,7 @@ import { useReviews } from '@/hooks/use-reviews';
 import type { ReviewData } from '@/lib/api/contract';
 import { PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
+import { RefreshButton } from '@/components/common/refresh-button';
 
 const { reviews, common } = MESSAGES;
 
@@ -171,16 +172,7 @@ export function ReviewList() {
                 onOpen: openFilters,
               },
               actions: (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  loading={isLoading}
-                  onClick={() => void refresh()}
-                  className="shrink-0"
-                >
-                  <RefreshCw className="size-4" aria-hidden="true" />
-                  {MESSAGES.dashboard.refresh}
-                </Button>
+                <RefreshButton onRefresh={() => void refresh()} size="sm" label={MESSAGES.dashboard.refresh} isRefreshing={isLoading} />
               ),
             }}
             actions={{

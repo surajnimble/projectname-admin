@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7625fb18-17aa-4f8a-b36f-9159c1283c24" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/src/components/analytics/analytics-extended-reports.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/analytics/analytics-extended-reports.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/chat/chat-review.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/chat/chat-review.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/customer/customer-wallet-panel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/customer/customer-wallet-panel.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/inventory-report/inventory-report.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/inventory-report/inventory-report.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/layout/sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/layout/sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/newsletter/newsletter-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/newsletter/newsletter-list.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/platform-operations/regional-settings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/platform-operations/regional-settings.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/platform-operations/webhook-manager.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/platform-operations/webhook-manager.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/ui/navigation-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/navigation-menu.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hooks/use-analytics.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/use-analytics.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/api/contract/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/api/contract/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/messages/en.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/messages/en.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/types/analytics.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/analytics.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "surajnimble"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/surajnimble/projectname-admin.git",
+    "accountId": "b2a5a6f2-0d28-463f-aca7-b43c3c587b37"
+  }
+}]]></component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0023390101271317" />
+      <entry key="MS500" value="1.3553640087311947" />
+      <entry key="S2" value="2.779218141376431" />
+      <entry key="S5" value="4.589452549180902" />
+      <entry key="S10" value="7.0908680983726695" />
+      <entry key="S30" value="11.547754879088727" />
+      <entry key="S60" value="13.48834213328401" />
+      <entry key="M2" value="14.661255990291545" />
+      <entry key="M5" value="15.442871113773835" />
+      <entry key="M10" value="15.717673617394423" />
+      <entry key="M15" value="15.810934337058104" />
+      <entry key="M30" value="15.905040061393066" />
+      <entry key="H1" value="15.95241267375411" />
+      <entry key="H2" value="15.976179424719659" />
+      <entry key="H4" value="15.988082975179994" />
+      <entry key="D1" value="15.998012892700254" />
+      <entry key="W1" value="15.999716104583863" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="0.0" />
+      <entry key="S2" value="0.0" />
+      <entry key="S5" value="0.0" />
+      <entry key="S10" value="0.0" />
+      <entry key="S30" value="0.0" />
+      <entry key="S60" value="0.0" />
+      <entry key="M2" value="0.0" />
+      <entry key="M5" value="0.0" />
+      <entry key="M10" value="0.0" />
+      <entry key="M15" value="0.0" />
+      <entry key="M30" value="0.0" />
+      <entry key="H1" value="0.0" />
+      <entry key="H2" value="0.0" />
+      <entry key="H4" value="0.0" />
+      <entry key="D1" value="0.0" />
+      <entry key="W1" value="0.0" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.9223851991097132" />
+      <entry key="MS500" value="1.3341906229188378" />
+      <entry key="S2" value="2.7686320669709863" />
+      <entry key="S5" value="4.580394548360512" />
+      <entry key="S10" value="7.0793133942593975" />
+      <entry key="S30" value="11.537596403063572" />
+      <entry key="S60" value="13.48159360632369" />
+      <entry key="M2" value="14.657342555393706" />
+      <entry key="M5" value="15.441156755080526" />
+      <entry key="M10" value="15.716789773179647" />
+      <entry key="M15" value="15.810339038241642" />
+      <entry key="M30" value="15.904739340557239" />
+      <entry key="H1" value="15.952261538510331" />
+      <entry key="H2" value="15.976103662513392" />
+      <entry key="H4" value="15.9880450453206" />
+      <entry key="D1" value="15.998006564275943" />
+      <entry key="W1" value="15.999715200357059" />
+    </decayedShown>
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "779ca5e5",
+  "associatedIndex": 8,
+  "fromUser": false
+}]]></component>
+  <component name="ProjectId" id="3Lj7CVdEsJuDDWIBgi4ugqlfQ15" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "main",
+    "js.debugger.nextJs.config.created.client": "true",
+    "js.debugger.nextJs.config.created.server": "true",
+    "last_opened_file_path": "F:/SurajWork/Extra/projectname-admin",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm"
+  }
+}]]></component>
+  <component name="RunManager" selected="npm.Next.js: server-side">
+    <configuration name="Next.js: debug client-side" type="JavascriptDebugType" uri="http://localhost:3000/">
+      <method v="2" />
+    </configuration>
+    <configuration name="Next.js: server-side" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-WS-262.11879.105" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7625fb18-17aa-4f8a-b36f-9159c1283c24" name="Changes" comment="" />
+      <created>1793955495931</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1793955495931</updated>
+      <workItem from="1793955497069" duration="566000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

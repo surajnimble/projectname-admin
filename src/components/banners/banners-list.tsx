@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+
 import { PageHeader } from '@/components/common/page-header';
 import { DataTable } from '@/components/common/data-table';
 import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
@@ -17,6 +17,8 @@ import { useContent } from '@/hooks/use-content';
 import type { BannerData } from '@/lib/api/contract';
 import { CONTENT_PAGE_SIZE, PERMISSIONS } from '@/constants';
 import { MESSAGES } from '@/messages';
+import { RefreshButton } from '@/components/common/refresh-button';
+import { ImagePreview } from '@/components/common/image-preview';
 
 const { banners, common, dashboard } = MESSAGES;
 
@@ -113,7 +115,7 @@ export function BannersList() {
       cell: (row: BannerData) => (
         <div className="flex items-center gap-3">
           {row.image ? (
-            <img src={row.image} alt={row.title} className="size-6 rounded-md object-cover" />
+            <ImagePreview src={row.image} alt={row.title} width={96} height={96} triggerClassName="size-8" className="size-8 rounded-md object-cover" />
           ) : (
             <div className="size-6 rounded-md bg-surface-muted flex items-center justify-center">
               {row.title.slice(0, 2).toUpperCase()}
@@ -199,16 +201,7 @@ export function BannersList() {
                 onOpen: openFilters,
               },
               actions: (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  loading={isLoading}
-                  onClick={() => void refresh()}
-                  className="shrink-0"
-                >
-                  <RefreshCw className="size-4" aria-hidden="true" />
-                  {dashboard.refresh}
-                </Button>
+                <RefreshButton onRefresh={() => void refresh()} size="sm" label={dashboard.refresh} isRefreshing={isLoading} />
               ),
             }}
             actions={{

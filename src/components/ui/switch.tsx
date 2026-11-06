@@ -33,11 +33,14 @@ function Switch({
     <div className={cn('flex items-center gap-2', label && 'text-sm text-foreground')}>
       <SwitchPrimitive.Root
         data-slot="switch"
+        data-switch-fixed-edge=""
         checked={checked}
         onCheckedChange={onChange}
         disabled={disabled}
         className={cn(
-          'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input data-[state=checked]:active:bg-primary/90 dark:data-[state=unchecked]:bg-input/80 data-hover-color',
+          // Keep the switch's track/thumb theme-aware, but isolate its outer edge
+          // from theme ring/hover tokens so theme changes cannot distort its shape.
+          'peer inline-flex shrink-0 cursor-pointer items-center rounded-full border border-transparent shadow-xs transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input data-[state=checked]:active:bg-primary/90 dark:data-[state=unchecked]:bg-input/80',
           size === 'default' ? 'h-[1.15rem] w-8' : 'h-6 w-11',
           className,
         )}

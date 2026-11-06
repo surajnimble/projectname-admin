@@ -3,6 +3,7 @@ import type {
   OrderListData,
   SocialProviderData,
   UserData,
+  UserImpersonationData,
   UserDetailData,
   UserStatsData,
   UserListData,
@@ -67,6 +68,13 @@ type RawUserDetail = Record<string, unknown> & {
 export const toUserDetail = (raw: RawUserDetail = {}): UserDetailData => ({
   role: toString(raw.role),
   userData: toUser(isObject(raw.userData) ? raw.userData : {}),
+  banData: {
+    isActive: isObject(raw.banData) && raw.banData.isActive === true,
+    reason: isObject(raw.banData) ? toString(raw.banData.reason) : '',
+    expiresAt: isObject(raw.banData) ? toString(raw.banData.expiresAt) : '',
+    revokedAt: isObject(raw.banData) ? toString(raw.banData.revokedAt) : '',
+    revokeReason: isObject(raw.banData) ? toString(raw.banData.revokeReason) : '',
+  },
   vendorData: isObject(raw.vendorData) ? raw.vendorData : {},
   addressList: Array.isArray(raw.addressList)
     ? raw.addressList.filter(isObject).map((item) => ({
@@ -98,3 +106,16 @@ export const toUserDetail = (raw: RawUserDetail = {}): UserDetailData => ({
 
 export const toUserOrderList = (raw: Partial<OrderListData> = {}): OrderListData =>
   toOrderList(raw);
+
+
+type RawUserImpersonation = Partial<Record<keyof UserImpersonationData, unknown>> & {
+  userData?: unknown;
+};
+
+export const toUserImpersonation = (raw: RawUserImpersonation = {}): UserImpersonationData => ({
+  accessToken: toString(raw.accessToken),
+  expiresIn: toNumber(raw.expiresIn),
+  expiresAt: toString(raw.expiresAt),
+  isImpersonating: raw.isImpersonating === true,
+  userData: toUser(isObject(raw.userData) ? raw.userData : {}),
+});

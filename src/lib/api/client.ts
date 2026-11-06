@@ -119,10 +119,72 @@ async function execute<T>(
   return response;
 }
 
+
+export interface DownloadResponse {
+  status: boolean;
+  message: string;
+  data: Blob;
+}
+
+async function executeDownload(
+  path: string,
+  query: Query | undefined,
+  retried: boolean,
+): Promise<DownloadResponse> {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    showError(MESSAGES.errors.offline);
+    return { status: false, message: MESSAGES.errors.offline, data: new Blob() };
+  }
+
+  const headers: Record<string, string> = {
+    Accept: 'text/csv, application/json',
+    ...buildDeviceHeaders(),
+  };
+  const token = getAccessToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  try {
+    const response = await fetch(buildUrl(path, query), {
+      method: 'GET',
+      headers,
+      credentials: 'include',
+    });
+
+    if (response.status === 401 && !retried) {
+      if (await refreshAccessToken()) return executeDownload(path, query, true);
+    }
+
+    if (!response.ok) {
+      const responseText = await response.text();
+      let message = MESSAGES.errors.unknown;
+      try {
+        const parsed = JSON.parse(responseText) as { message?: unknown };
+        if (typeof parsed.message === 'string' && parsed.message.trim()) message = parsed.message;
+      } catch {
+        // Preserve the generic error message for non-JSON error bodies.
+      }
+      showError(message);
+      return { status: false, message, data: new Blob() };
+    }
+
+    return {
+      status: true,
+      message: MESSAGES.common.exportReady,
+      data: await response.blob(),
+    };
+  } catch {
+    const message = MESSAGES.errors.serverWaking;
+    showError(message);
+    return { status: false, message, data: new Blob() };
+  }
+}
+
 export const apiClient = {
   get: <T>(path: string, options: RequestOptions<T>) => execute('GET', path, options, false),
   post: <T>(path: string, options: RequestOptions<T>) => execute('POST', path, options, false),
   patch: <T>(path: string, options: RequestOptions<T>) => execute('PATCH', path, options, false),
   put: <T>(path: string, options: RequestOptions<T>) => execute('PUT', path, options, false),
   delete: <T>(path: string, options: RequestOptions<T>) => execute('DELETE', path, options, false),
+  download: (path: string, options: Pick<RequestOptions<never>, 'query'> = {}) =>
+    executeDownload(path, options.query, false),
 };

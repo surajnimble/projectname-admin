@@ -140,6 +140,32 @@ export function useVendors() {
     [refresh],
   );
 
+  const bulkApprove = useCallback(async (vendorIds: string[]) => {
+    setIsActioning(true);
+    setActionError('');
+    const response = await apiService.bulkApproveVendors({ vendorIds });
+    setIsActioning(false);
+    if (!response.status) {
+      setActionError(response.message);
+      return response;
+    }
+    await refresh();
+    return response;
+  }, [refresh]);
+
+  const bulkSuspend = useCallback(async (vendorIds: string[], reason: string) => {
+    setIsActioning(true);
+    setActionError('');
+    const response = await apiService.bulkSuspendVendors({ vendorIds, reason });
+    setIsActioning(false);
+    if (!response.status) {
+      setActionError(response.message);
+      return response;
+    }
+    await refresh();
+    return response;
+  }, [refresh]);
+
   return {
     data,
     isLoading,
@@ -157,5 +183,7 @@ export function useVendors() {
     setHasDocuments,
     refresh,
     runAction,
+    bulkApprove,
+    bulkSuspend,
   };
 }

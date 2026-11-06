@@ -24,23 +24,41 @@ export const toAuditLogList = (raw: RawAuditLogList = {}): AuditLogListData => (
   nextPage: toNumber(raw.nextPage),
   previousPage: toNumber(raw.previousPage),
   itemList: Array.isArray(raw.auditLogList)
-    ? raw.auditLogList.filter(isObject).map((item) => ({
-        auditLogId: toString(item.auditLogId),
-        userId: toString(item.userId),
-        action: toString(item.action),
-        entity: toString(item.entity),
-        entityId: toString(item.entityId),
-        meta: isObject(item.meta) ? item.meta : {},
-        ip: toString(item.ip),
-        deviceId: toString(item.deviceId),
-        createdAt: toString(item.createdAt),
-        userData: isObject(item.userData)
-          ? {
-              userId: toString(item.userData.userId),
-              name: toString(item.userData.name),
-              email: toString(item.userData.email),
-            }
-          : { userId: '', name: '', email: '' },
-      }))
+    ? raw.auditLogList.filter(isObject).map((item) => {
+        const actorData = isObject(item.actorData)
+          ? item.actorData
+          : isObject(item.userData)
+            ? item.userData
+            : {};
+        const impersonatedByData = isObject(item.impersonatedByData)
+          ? item.impersonatedByData
+          : {};
+
+        return {
+          auditLogId: toString(item.auditLogId),
+          actorId: toString(item.actorId ?? item.userId),
+          actorRole: toString(item.actorRole),
+          impersonatedById: toString(item.impersonatedById),
+          action: toString(item.action),
+          entity: toString(item.entity),
+          entityId: toString(item.entityId),
+          description: toString(item.description),
+          changes: isObject(item.changes) ? item.changes : {},
+          meta: isObject(item.meta) ? item.meta : {},
+          ip: toString(item.ip),
+          userAgent: toString(item.userAgent),
+          createdAt: toString(item.createdAt),
+          actorData: {
+            userId: toString(actorData.userId),
+            name: toString(actorData.name),
+            email: toString(actorData.email),
+          },
+          impersonatedByData: {
+            userId: toString(impersonatedByData.userId),
+            name: toString(impersonatedByData.name),
+            email: toString(impersonatedByData.email),
+          },
+        };
+      })
     : [],
 });

@@ -1,4 +1,4 @@
-import type { ShippingZoneListData } from '@/lib/api/contract';
+import type { ShippingPartnerData, ShippingPartnerListData, ShippingZoneListData } from '@/lib/api/contract';
 
 const toNumber = (value: unknown): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : 0;
@@ -41,5 +41,35 @@ export const toShippingZoneList = (raw: RawShippingZoneList = {}): ShippingZoneL
         createdAt: toString(item.createdAt),
         updatedAt: toString(item.updatedAt),
       }))
+    : [],
+});
+
+
+export const toShippingPartner = (raw: Partial<ShippingPartnerData> = {}): ShippingPartnerData => ({
+  partnerId: toString(raw.partnerId),
+  name: toString(raw.name),
+  code: toString(raw.code),
+  apiUrl: toString(raw.apiUrl),
+  isActive: toBoolean(raw.isActive),
+  createdAt: toString(raw.createdAt),
+});
+
+type RawShippingPartnerList = Partial<
+  Record<keyof Omit<ShippingPartnerListData, 'itemList'>, unknown>
+> & {
+  shippingPartnerList?: unknown;
+};
+
+export const toShippingPartnerList = (raw: RawShippingPartnerList = {}): ShippingPartnerListData => ({
+  totalRecord: toNumber(raw.totalRecord),
+  totalPage: toNumber(raw.totalPage),
+  currentPage: toNumber(raw.currentPage),
+  limit: toNumber(raw.limit),
+  hasNext: raw.hasNext === true,
+  hasPrevious: raw.hasPrevious === true,
+  nextPage: toNumber(raw.nextPage),
+  previousPage: toNumber(raw.previousPage),
+  itemList: Array.isArray(raw.shippingPartnerList)
+    ? raw.shippingPartnerList.filter(isObject).map((item) => toShippingPartner(item as Partial<ShippingPartnerData>))
     : [],
 });

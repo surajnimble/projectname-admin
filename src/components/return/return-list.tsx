@@ -1,5 +1,6 @@
 'use client';
 
+import { RefreshButton } from '@/components/common/refresh-button';
 import { useState } from 'react';
 import { DataTable, type DataTableColumn } from '@/components/common/data-table';
 import { FilterGroup, FilterOption, FilterSheet } from '@/components/common/filter-sheet';
@@ -195,17 +196,7 @@ export function ReturnList() {
               count: activeFilterCount,
               onOpen: openFilters,
             },
-            actions: (
-              <Button
-                variant="outline"
-                size="sm"
-                loading={isLoading}
-                onClick={() => void refresh()}
-                className="shrink-0"
-              >
-                {MESSAGES.dashboard.refresh}
-              </Button>
-            ),
+            actions: <RefreshButton onRefresh={() => void refresh()} isRefreshing={isLoading} label={MESSAGES.dashboard.refresh} />,
           }}
           actions={{
             header: returns.actionsLabel,

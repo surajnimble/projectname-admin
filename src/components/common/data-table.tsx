@@ -1,10 +1,11 @@
 'use client';
 
 import { Search, SlidersHorizontal, X, type LucideIcon } from 'lucide-react';
-import { useEffect, type ReactNode } from 'react';
+import { Children, Fragment, isValidElement, useEffect, useMemo, type ReactElement, type ReactNode } from 'react';
 import { ErrorState } from '@/components/common/error-state';
 import { EmptyState } from '@/components/common/empty-state';
 import { Button } from '@/components/ui/button';
+import { OptionsMenu } from '@/components/ui/options-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -130,7 +131,131 @@ const ALIGNMENT: Record<DataTableAlign, string> = {
 };
 
 const SELECT_COLUMN_WIDTH = 'w-12';
-const ACTIONS_COLUMN_WIDTH = 'w-24';
+const ACTIONS_COLUMN_WIDTH = 'w-16';
+
+const INVALID_ROW_KEYS = new Set(['', 'unknown', 'undefined', 'null', 'nan', '[object object]']);
+
+function stableRowFingerprint<T>(row: T): string {
+  const seen = new WeakSet<object>();
+  const normalize = (value: unknown): unknown => {
+    if (value === null || typeof value !== 'object') return value;
+    if (seen.has(value)) return '[circular]';
+    seen.add(value);
+    if (Array.isArray(value)) return value.map(normalize);
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([key, item]) => [key, normalize(item)]),
+    );
+  };
+
+  let serialized = '';
+  try {
+    serialized = JSON.stringify(normalize(row)) ?? String(row);
+  } catch {
+    serialized = String(row);
+  }
+
+  // FNV-1a keeps generated keys short while retaining deterministic identity.
+  let hash = 2166136261;
+  for (let index = 0; index < serialized.length; index += 1) {
+    hash ^= serialized.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+function normalizeRowKey<T>(row: T, rowKey: (row: T) => string): string {
+  let raw = '';
+  try {
+    raw = String(rowKey(row) ?? '').trim();
+  } catch {
+    raw = '';
+  }
+  if (!INVALID_ROW_KEYS.has(raw.toLowerCase())) return raw;
+  return `row-${stableRowFingerprint(row)}`;
+}
+
+function createUniqueRowKeys<T>(rows: readonly T[], rowKey: (row: T) => string): string[] {
+  const used = new Set<string>();
+  const duplicateCounts = new Map<string, number>();
+
+  return rows.map((row, index) => {
+    const base = normalizeRowKey(row, rowKey);
+    if (!used.has(base)) {
+      used.add(base);
+      return base;
+    }
+
+    const duplicateCount = (duplicateCounts.get(base) ?? 0) + 1;
+    duplicateCounts.set(base, duplicateCount);
+    const fingerprint = stableRowFingerprint(row);
+    let candidate = `${base}-${fingerprint}`;
+    let suffix = duplicateCount;
+    while (used.has(candidate)) {
+      candidate = `${base}-${fingerprint}-${suffix}`;
+      suffix += 1;
+    }
+    used.add(candidate);
+    return candidate || `row-${index}`;
+  });
+}
+
+type ActionButtonProps = {
+  children?: ReactNode;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  disabled?: boolean;
+  loading?: boolean;
+  variant?: string;
+};
+
+function getActionButtons(content: ReactNode, buttons: ReactElement<ActionButtonProps>[] = [], unsupported = { value: false }) {
+  Children.forEach(content, (child) => {
+    if (!isValidElement(child)) {
+      if (child !== null && child !== undefined && typeof child !== 'boolean') unsupported.value = true;
+      return;
+    }
+    if (child.type === Button) {
+      const props = child.props as ActionButtonProps;
+      if (typeof props.onClick !== 'function' || props.onClick.length > 0) {
+        // Keep event-dependent actions as buttons; a menu item has no originating
+        // button event/currentTarget to forward safely.
+        unsupported.value = true;
+        return;
+      }
+      buttons.push(child as ReactElement<ActionButtonProps>);
+      return;
+    }
+    if (child.type === Fragment || child.type === 'div' || child.type === 'span') {
+      getActionButtons((child.props as { children?: ReactNode }).children, buttons, unsupported);
+      return;
+    }
+    unsupported.value = true;
+  });
+  return { buttons, hasUnsupportedContent: unsupported.value };
+}
+
+function renderRowActions(content: ReactNode): ReactNode {
+  const { buttons, hasUnsupportedContent } = getActionButtons(content);
+  if (hasUnsupportedContent || buttons.length < 2) return content;
+
+  return (
+    <OptionsMenu
+      label="Row actions"
+      items={buttons.map((button, index) => {
+        const props = button.props;
+        const variant = props.variant ?? 'default';
+        return {
+          id: button.key ? String(button.key) : `action-${index}`,
+          label: props.children ?? `Action ${index + 1}`,
+          intent: variant.toLowerCase().includes('destructive') ? 'danger' : 'default',
+          disabled: Boolean(props.disabled || props.loading),
+          onSelect: () => props.onClick?.({} as React.MouseEvent<HTMLButtonElement>),
+        };
+      })}
+    />
+  );
+}
 
 function columnClass<T>(column: DataTableColumn<T>) {
   return [
@@ -338,7 +463,7 @@ function DataTableCardSkeleton({ rows }: { rows: number }) {
 function DataTableCards<T>({
   columns,
   rows,
-  rowKey,
+  rowKeys,
   actions,
   selection,
   selectedKeys,
@@ -347,7 +472,7 @@ function DataTableCards<T>({
 }: {
   columns: readonly DataTableColumn<T>[];
   rows: readonly T[];
-  rowKey: (row: T) => string;
+  rowKeys: readonly string[];
   actions?: DataTableActions<T>;
   selection?: DataTableSelection<T>;
   selectedKeys: Set<string>;
@@ -358,8 +483,8 @@ function DataTableCards<T>({
 
   return (
     <div className="divide-border divide-y">
-      {rows.map((row) => {
-        const key = rowKey(row);
+      {rows.map((row, index) => {
+        const key = rowKeys[index] ?? `row-${index}`;
         const isSelected = selectedKeys.has(key);
         const isSelectable = !selection?.isSelectable || selection.isSelectable(row);
 
@@ -391,7 +516,7 @@ function DataTableCards<T>({
                   className="relative z-10 shrink-0"
                   onClick={(event) => event.stopPropagation()}
                 >
-                  {actions.render(row)}
+                  {renderRowActions(actions.render(row))}
                 </div>
               )}
             </div>
@@ -432,29 +557,36 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const isDesktop = useMediaQuery(TABLE_DESKTOP_MEDIA_QUERY);
   const selectedRows = selection?.selected ?? [];
-  const selectedKeys = new Set(selectedRows.map(rowKey));
+  const rowKeys = useMemo(() => createUniqueRowKeys(rows, rowKey), [rows, rowKey]);
+  // When a screen supplies the shared row-actions renderer, an `actions` column
+  // in its own columns array is a legacy duplicate. Render actions from exactly
+  // one source so the same controls cannot appear twice on desktop or mobile.
+  const visibleColumns = actions ? columns.filter((column) => column.key !== 'actions') : columns;
+  const keyByRow = useMemo(() => new Map(rows.map((row, index) => [row, rowKeys[index]!] as const)), [rows, rowKeys]);
+  const getKey = (row: T) => keyByRow.get(row) ?? normalizeRowKey(row, rowKey);
+  const selectedKeys = new Set(selectedRows.map(getKey));
   const selectableRows = selection
     ? rows.filter((row) => !selection.isSelectable || selection.isSelectable(row))
     : [];
   const allSelected =
-    selectableRows.length > 0 && selectableRows.every((row) => selectedKeys.has(rowKey(row)));
+    selectableRows.length > 0 && selectableRows.every((row) => selectedKeys.has(getKey(row)));
   const someSelected =
-    !allSelected && selectableRows.some((row) => selectedKeys.has(rowKey(row)));
+    !allSelected && selectableRows.some((row) => selectedKeys.has(getKey(row)));
 
   useEffect(() => {
     if (!selection) return;
-    const visible = new Set(rows.map(rowKey));
-    const kept = selection.selected.filter((row) => visible.has(rowKey(row)));
+    const visible = new Set(rowKeys);
+    const kept = selection.selected.filter((row) => visible.has(getKey(row)));
     if (kept.length !== selection.selected.length) {
       selection.onChange(kept);
     }
-  }, [rows, rowKey, selection]);
+  }, [rows, rowKeys, rowKey, selection]);
 
   const toggleRow = (row: T) => {
     if (!selection) return;
-    const key = rowKey(row);
+    const key = getKey(row);
     const next = selectedKeys.has(key)
-      ? selection.selected.filter((item) => rowKey(item) !== key)
+      ? selection.selected.filter((item) => getKey(item) !== key)
       : [...selection.selected, row];
     selection.onChange(next);
   };
@@ -470,7 +602,7 @@ export function DataTable<T>({
 
   const renderSelectionCell = (row: T) => {
     if (!selection) return null;
-    const key = rowKey(row);
+    const key = getKey(row);
     const isSelectable = !selection.isSelectable || selection.isSelectable(row);
 
     return (
@@ -491,7 +623,7 @@ export function DataTable<T>({
     if (isLoading) {
       return isDesktop ? (
         <DataTableSkeleton
-          columns={columns}
+          columns={visibleColumns}
           actions={actions}
           selectable={Boolean(selection)}
           rows={skeletonRows}
@@ -520,9 +652,9 @@ export function DataTable<T>({
     if (!isDesktop) {
       return (
         <DataTableCards
-          columns={columns}
+          columns={visibleColumns}
           rows={rows}
-          rowKey={rowKey}
+          rowKeys={rowKeys}
           actions={actions}
           selection={selection}
           selectedKeys={selectedKeys}
@@ -546,7 +678,7 @@ export function DataTable<T>({
                 />
               </TableHead>
             )}
-            {columns.map((column) => (
+            {visibleColumns.map((column) => (
               <TableHead key={column.key} scope="col" className={headerClass(column)}>
                 {column.header}
               </TableHead>
@@ -560,7 +692,7 @@ export function DataTable<T>({
         </TableHeader>
         <TableBody>
           {rows.map((row, index) => {
-            const key = rowKey(row) || String(index);
+            const key = rowKeys[index] ?? `row-${index}`;
             const isSelected = selectedKeys.has(key);
 
             return (
@@ -572,7 +704,7 @@ export function DataTable<T>({
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
               >
                 {renderSelectionCell(row)}
-                {columns.map((column) => (
+                {visibleColumns.map((column) => (
                   <TableCell key={column.key} className={columnClass(column)}>
                     {column.cell(row)}
                   </TableCell>
@@ -582,7 +714,7 @@ export function DataTable<T>({
                     className={cn(ACTIONS_COLUMN_WIDTH, 'relative z-10 text-right')}
                     onClick={(event) => event.stopPropagation()}
                   >
-                    {actions.render(row)}
+                    {renderRowActions(actions.render(row))}
                   </TableCell>
                 )}
               </TableRow>

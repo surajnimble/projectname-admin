@@ -14,6 +14,7 @@ import { formatCurrency } from '@/lib/utils';
 import { formatRelativeTime } from '@/lib/utils/datetime';
 import { showSuccess } from '@/lib/utils/toast';
 import { MESSAGES } from '@/messages';
+import { RefreshButton } from '@/components/common/refresh-button';
 
 const { payments } = MESSAGES;
 
@@ -28,6 +29,7 @@ export function PaymentList() {
     search,
     setPage,
     setSearch,
+    refresh,
     runAction,
   } = usePayments();
   const [refunding, setRefunding] = useState<PaymentSummaryData | null>(null);
@@ -113,6 +115,7 @@ export function PaymentList() {
             placeholder: payments.searchPlaceholder,
             onChange: setSearch,
           },
+          actions: <RefreshButton onRefresh={refresh} isRefreshing={isLoading} label={MESSAGES.dashboard.refresh} />,
         }}
         actions={{
           header: payments.columns.actions,

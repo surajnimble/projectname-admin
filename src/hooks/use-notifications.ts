@@ -1,14 +1,14 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { apiService } from '@/lib/api/api.service';
+import { usePermission } from '@/hooks/use-permission';
+import { PERMISSIONS } from '@/constants';
 import type { ApiRequest, NotificationListData, NotificationTemplateListData, NotificationUnreadCountData } from '@/lib/api/contract';
 
-const toNumber = (value: unknown): number =>
-  typeof value === 'number' && Number.isFinite(value) ? value : 0;
-
 export function useNotifications() {
+  const { can } = usePermission();
   const [data, setData] = useState<NotificationListData>({
     totalRecord: 0,
     totalPage: 0,
@@ -48,6 +48,7 @@ export function useNotifications() {
 
   const fetchNotifications = useCallback(async () => {
     setIsLoading(true);
+    setError('');
     try {
       const res = await apiService.getNotifications({
         page: query.page,
@@ -68,6 +69,7 @@ export function useNotifications() {
   }, [query]);
 
   const fetchTemplates = useCallback(async () => {
+    if (!can(PERMISSIONS.notificationTemplateManage)) return;
     try {
       const res = await apiService.getNotificationTemplates();
       if (res.status) {
@@ -78,7 +80,7 @@ export function useNotifications() {
     } catch {
       setError('Failed to load templates');
     }
-  }, []);
+  }, [can]);
 
   const fetchUnreadCount = useCallback(async () => {
     try {

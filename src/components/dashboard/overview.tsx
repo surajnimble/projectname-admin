@@ -5,7 +5,6 @@ import {
   Clock,
   LifeBuoy,
   Package,
-  RefreshCw,
   RotateCcw,
   ShoppingCart,
   Store,
@@ -39,10 +38,11 @@ import { showInfo } from '@/lib/utils/toast';
 import { cn } from '@/lib/utils';
 import { MESSAGES } from '@/messages';
 import { useAuth } from '@/providers/auth-provider';
+import { RefreshButton } from '@/components/common/refresh-button';
 
 const { dashboard, sections } = MESSAGES;
 
-type StatKey = keyof DashboardStatsData;
+type StatKey = Exclude<keyof DashboardStatsData, 'availableStats'>;
 type StatIntent = 'primary' | 'info' | 'success' | 'warning' | 'danger';
 
 interface StatDefinition {
@@ -117,6 +117,13 @@ const STATS: readonly StatDefinition[] = [
     icon: Undo2,
     intent: 'danger',
   },
+  {
+    key: 'pendingAdminOrders',
+    label: dashboard.stats.pendingAdminOrders,
+    section: sections.orders,
+    icon: Clock,
+    intent: 'warning',
+  },
 ];
 
 const INTENT_CLASSES: Record<StatIntent, string> = {
@@ -145,6 +152,7 @@ const STAT_ROUTES: Partial<Record<StatKey, string>> = {
   pendingRefunds: ROUTES.payments,
   totalVendors: ROUTES.vendors,
   pendingVendors: ROUTES.vendors,
+  pendingAdminOrders: ROUTES.orderReviews,
 };
 
 const formatValue = (value: number) => value.toLocaleString('en-IN');
@@ -234,7 +242,7 @@ export function DashboardOverview() {
       [sections.payments]: ROUTES.payments,
       [sections.analytics]: ROUTES.analytics,
       [sections.products]: ROUTES.productApprovals,
-      [sections.inventory]: ROUTES.returns,
+      [sections.inventory]: ROUTES.inventoryReport,
       [sections.activity]: ROUTES.activityLogs,
     };
     const target = route[section];
@@ -268,10 +276,7 @@ export function DashboardOverview() {
           ) : undefined
         }
         action={
-          <Button variant="outline" size="sm" loading={isLoading} onClick={refresh}>
-            <RefreshCw className="size-4" aria-hidden="true" />
-            {dashboard.refresh}
-          </Button>
+          <RefreshButton onRefresh={refresh} size="sm" label={dashboard.refresh} isRefreshing={isLoading} />
         }
       />
 
@@ -291,7 +296,7 @@ export function DashboardOverview() {
           <ErrorState message={stats.error} onRetry={() => void stats.refresh()} />
         ) : (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 lg:gap-4">
-            {STATS.map((stat) => (
+            {STATS.filter((stat) => stats.data.availableStats.includes(stat.key)).map((stat) => (
               <StatCard
                 key={stat.key}
                 label={stat.label}
