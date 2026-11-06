@@ -42,10 +42,10 @@ type RawList = Partial<
 > & {
   list?: unknown;
   vendorList?: unknown;
-  totalValue?: unknown;
-  crashList?: unknown;
-  termList?: unknown;
   cartList?: unknown;
+  termList?: unknown;
+  crashList?: unknown;
+  totalValue?: unknown;
 };
 
 const toNumber = (value: unknown): number =>

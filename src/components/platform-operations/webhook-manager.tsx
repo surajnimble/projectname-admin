@@ -55,14 +55,14 @@ export function WebhookManager() {
     if (!/^https:\/\//i.test(form.url.trim())) { setActionError(m.httpsRequired); return; }
     if (!events.length) { setActionError(m.eventsRequired); return; }
     setSaving(true); setActionError('');
-    const response = await apiService.createAdminWebhook({ url: form.url.trim(), provider: form.provider, events, isActive: 'true' });
+    const response = await apiService.createAdminWebhook({ url: form.url.trim(), provider: form.provider, events, isActive: true });
     setSaving(false);
     if (!response.status) { setActionError(response.message); return; }
     setCreateOpen(false); setForm({ url: '', provider: 'CUSTOM', events: '' }); setSecret(response.data.secret || '');
     showSuccess(m.created); await load();
   };
   const toggle = async (row: AdminWebhookData) => {
-    const response = await apiService.updateAdminWebhook(row.webhookId, { isActive: !row.isActive ? 'true' : 'false' });
+    const response = await apiService.updateAdminWebhook(row.webhookId, { isActive: !row.isActive });
     if (response.status) { showSuccess(row.isActive ? m.disabled : m.enabled); await load(); } else setError(response.message);
   };
   const rotate = async (row: AdminWebhookData) => {

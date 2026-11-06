@@ -1,6 +1,10 @@
 export const en = {
   common: {
     retry: 'Try again',
+    refresh: 'Refresh',
+    export: 'Export',
+    exportReady: 'Your export is ready.',
+    create: 'Create',
     signOut: 'Sign out',
     loading: 'Loading…',
     themeSettings: 'Theme settings',
@@ -78,10 +82,6 @@ export const en = {
     editExisting: 'Edit existing',
     yes: 'Yes',
     no: 'No',
-    refresh: 'Refresh',
-    export: 'Export',
-    create: 'Create',
-    exportReady: 'Export ready',
     dash: '—',
   },
   errors: {
@@ -327,7 +327,7 @@ export const en = {
       shipping: 'Shipping',
       wallet: 'Wallet used',
       total: 'Total',
-      delivered: 'Delivered on',
+      deliveredOn: 'Delivered on',
       cancelReason: 'Cancel reason',
       notes: 'Customer notes',
       name: 'Name',
@@ -346,6 +346,7 @@ export const en = {
       collectedAmountLabel: 'Cash collected (optional)',
       deliveryRemarksLabel: 'Delivery remarks (optional)',
       deliveryVerified: 'Delivery confirmed successfully.',
+      delivered: 'Delivered',
     },
     noTimeline: 'No status changes recorded yet.',
     dash: '—',

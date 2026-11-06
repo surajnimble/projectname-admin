@@ -316,7 +316,7 @@ export default function CustomerDetailPage({ params }: { params: Params | Promis
             </div>
 
             {detail && can(PERMISSIONS.walletAdjust) && user && (
-              <CustomerWalletPanel userId={userId} userName={user?.name ?? ''} />
+              <CustomerWalletPanel userId={userId} />
             )}
 
             {detail && can(PERMISSIONS.loyaltyManage) && user && (

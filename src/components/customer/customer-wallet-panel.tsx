@@ -47,10 +47,9 @@ const emptyList = (): WalletTransactionListData => ({
 
 interface CustomerWalletPanelProps {
   userId: string;
-  userName: string;
 }
 
-export function CustomerWalletPanel({ userId, userName }: CustomerWalletPanelProps) {
+export function CustomerWalletPanel({ userId }: CustomerWalletPanelProps) {
   const [summary, setSummary] = useState<WalletSummaryData>(emptySummary);
   const [transactions, setTransactions] = useState<WalletTransactionListData>(emptyList);
   const [page, setPage] = useState(1);
@@ -137,7 +136,7 @@ export function CustomerWalletPanel({ userId, userName }: CustomerWalletPanelPro
     <Card className="mt-6">
       <CardHeader className="flex flex-row items-center justify-between gap-3">
         <div>
-          <CardTitle>{walletMessages.title} <span className="text-sm font-normal text-fg-muted">({userName})</span></CardTitle>
+          <CardTitle>{walletMessages.title}</CardTitle>
           <p className="mt-1 text-sm text-fg-muted">{walletMessages.description}</p>
         </div>
         <div className="flex flex-wrap gap-2">

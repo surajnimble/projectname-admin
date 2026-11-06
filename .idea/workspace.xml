@@ -4,21 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7625fb18-17aa-4f8a-b36f-9159c1283c24" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/components/analytics/analytics-extended-reports.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/analytics/analytics-extended-reports.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/chat/chat-review.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/chat/chat-review.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/customer/customer-wallet-panel.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/customer/customer-wallet-panel.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/inventory-report/inventory-report.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/inventory-report/inventory-report.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/layout/sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/layout/sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/newsletter/newsletter-list.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/newsletter/newsletter-list.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/platform-operations/regional-settings.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/platform-operations/regional-settings.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/platform-operations/webhook-manager.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/platform-operations/webhook-manager.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/components/ui/navigation-menu.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/ui/navigation-menu.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/hooks/use-analytics.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/hooks/use-analytics.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/api/contract/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/api/contract/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/messages/en.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/messages/en.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/types/analytics.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/types/analytics.ts" afterDir="false" />
-    </list>
+    <list default="true" id="7625fb18-17aa-4f8a-b36f-9159c1283c24" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -123,7 +109,9 @@
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm"
+    "nodejs_package_manager_path": "npm",
+    "prettierjs.PrettierConfiguration.Package": "F:\\SurajWork\\Extra\\projectname-admin\\node_modules\\prettier",
+    "ts.external.directory.path": "F:\\SurajWork\\Extra\\projectname-admin\\node_modules\\typescript\\lib"
   }
 }]]></component>
   <component name="RunManager" selected="npm.Next.js: server-side">
@@ -155,7 +143,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1793955495931</updated>
-      <workItem from="1793955497069" duration="566000" />
+      <workItem from="1793955497069" duration="903000" />
     </task>
     <servers />
   </component>

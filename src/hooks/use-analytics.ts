@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { apiService } from '@/lib/api/api.service';
-import { toAnalyticsRealtime } from '@/types/analytics';
 import type {
   AnalyticsConversionData,
   AnalyticsCrashData,
@@ -11,8 +10,8 @@ import type {
   AnalyticsFunnelStepData,
   AnalyticsGeoData,
   AnalyticsOverviewData,
-  AnalyticsPageViewData,
   AnalyticsRealtimeData,
+  AnalyticsPageViewData,
   AnalyticsSessionData,
   AnalyticsSessionListData,
   AnalyticsTrafficSourceData,
@@ -58,7 +57,13 @@ export function useAnalytics() {
   const [abandonedCarts, setAbandonedCarts] = useState<ProductPerformanceData[]>([]);
   const [searchTerms, setSearchTerms] = useState<ProductPerformanceData[]>([]);
   const [zeroResultSearches, setZeroResultSearches] = useState<ProductPerformanceData[]>([]);
-  const [realtime, setRealtime] = useState<AnalyticsRealtimeData>(toAnalyticsRealtime());
+  const [realtime, setRealtime] = useState<AnalyticsRealtimeData>({
+    windowMinutes: 0,
+    activeVisitors: 0,
+    pageViews: 0,
+    orders: 0,
+    recentEventList: [],
+  });
   const [crashes, setCrashes] = useState<AnalyticsCrashData[]>([]);
   const [appVersions, setAppVersions] = useState<AnalyticsAppVersionData[]>([]);
   const [funnelList, setFunnelList] = useState<AnalyticsFunnelStepData[]>([]);

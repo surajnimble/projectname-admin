@@ -278,7 +278,7 @@ export function OrderDetails({ orderId }: { orderId: string }) {
         <DetailItem label={orders.fields.total} value={formatCurrency(order.total)} />
         {order.deliveredAt && (
           <DetailItem
-            label={orders.fields.delivered}
+            label={orders.fields.deliveredOn}
             value={formatRelativeTime(order.deliveredAt)}
           />
         )}

@@ -65,7 +65,11 @@ export function ChatReview() {
     <PageHeader title={m.title} description={m.subtitle} action={<RefreshButton onRefresh={() => void loadConversations()} isRefreshing={loading} label={m.refresh} />} />
     <Card><CardContent className="flex flex-col gap-3 p-4 sm:flex-row">
       <Input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} placeholder={m.search} className="flex-1" />
-      <select value={status} onChange={(event) => { setStatus(event.target.value as 'true' | 'false'); setPage(1); }} className="h-10 rounded-md border border-input bg-background px-3 text-sm text-fg">
+      <select value={status} onChange={(event) => {
+        const nextStatus = event.target.value;
+        if (nextStatus === '' || nextStatus === 'true' || nextStatus === 'false') setStatus(nextStatus);
+        setPage(1);
+      }} className="h-10 rounded-md border border-input bg-background px-3 text-sm text-fg">
         <option value="">{m.all}</option><option value="true">{m.active}</option><option value="false">{m.inactive}</option>
       </select>
     </CardContent></Card>

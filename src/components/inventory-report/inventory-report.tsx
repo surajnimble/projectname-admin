@@ -523,13 +523,11 @@ export function InventoryReportPage() {
                   placeholder={adjustmentMode === 'set' ? String(currentStock) : '0'}
                 />
               </FormField>
-              <FormField label={m.thresholdLabel}>
-                <>
-                  <Input type="number" min={0} step={1} required value={thresholdValue} onChange={(event) => setThresholdValue(event.target.value)} />
-                  {selectedProduct.hasVariants && (
-                    <p className="text-fg-muted text-xs">{m.thresholdSharedHint}</p>
-                  )}
-                </>
+              <FormField
+                label={m.thresholdLabel}
+                hint={selectedProduct.hasVariants ? m.thresholdSharedHint : undefined}
+              >
+                <Input type="number" min={0} step={1} required value={thresholdValue} onChange={(event) => setThresholdValue(event.target.value)} />
               </FormField>
             </div>
             <div className="grid grid-cols-2 gap-3 rounded-md border border-border bg-muted/30 p-3">

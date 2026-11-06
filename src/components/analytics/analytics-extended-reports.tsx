@@ -181,10 +181,10 @@ export function AnalyticsExtendedReports() {
           <p className="text-sm text-fg-muted">{x.subtitle}</p>
         </div>
         <div className="flex items-center gap-2">
-          <RefreshButton onRefresh={() => void refresh()} size="sm" label={MESSAGES.common.refresh} isRefreshing={isFetching || isLoading} />
+          <RefreshButton onRefresh={() => void refresh()} size="sm" label={common.refresh} isRefreshing={isFetching || isLoading} />
           <PermissionGuard permission={PERMISSIONS.analyticsExport} fallback={null}>
             <Button variant="primary" size="sm" onClick={() => void exportCsv()} loading={isExporting}>
-              <Download className="size-4" aria-hidden="true" />{MESSAGES.common.export}
+              <Download className="size-4" aria-hidden="true" />{common.export}
             </Button>
           </PermissionGuard>
         </div>
@@ -272,7 +272,7 @@ export function AnalyticsExtendedReports() {
         open={dialogOpen}
         mode={dialogMode}
         title={dialogMode === 'add' ? x.newFunnel : x.editFunnel}
-        submitLabel={dialogMode === 'add' ? MESSAGES.common.create : common.save}
+        submitLabel={dialogMode === 'add' ? common.create : common.save}
         fields={dialogMode === 'add' ? funnelCreateFields : funnelEditFields}
         defaultValues={dialogValues}
         isSubmitting={isFetching || isMutating}

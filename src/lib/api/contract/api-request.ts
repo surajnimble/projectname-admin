@@ -22,7 +22,8 @@ export class ApiRequest {
   days?: number;
   status?: string;
   hasDocuments?: boolean;
-  isActive?: 'true' | 'false';
+  // Boolean payloads use booleans; URL filters may also use their string form.
+  isActive?: boolean | 'true' | 'false';
   commissionRate?: number;
   remark?: string;
   reason?: string;

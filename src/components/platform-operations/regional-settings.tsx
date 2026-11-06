@@ -55,10 +55,10 @@ export function RegionalSettings() {
   const load = useCallback(async () => {
     setLoading(true); setError('');
     if (tab === 'currencies') {
-      const response = await apiService.getCurrencies({ isActive: 'false' });
+      const response = await apiService.getCurrencies({ isActive: false });
       if (response.status) setCurrencies(response.data); else setError(response.message);
     } else if (tab === 'taxes') {
-      const response = await apiService.getTaxConfigs({ isActive: 'false' });
+      const response = await apiService.getTaxConfigs({ isActive: false });
       if (response.status) setTaxes(response.data); else setError(response.message);
     } else {
       const response = await apiService.getCountries({ page, limit: PAGE_SIZE });
@@ -67,7 +67,12 @@ export function RegionalSettings() {
     setLoading(false);
   }, [page, tab]);
   useEffect(() => { void load(); }, [load]);
-  useEffect(() => { if (availableTabs.length && !availableTabs.includes(tab)) setTab(availableTabs[0] as 'currencies' | 'taxes' | 'countries'); }, [availableTabs, tab]);
+  useEffect(() => {
+    if (availableTabs.length > 0 && !availableTabs.includes(tab)) {
+      const firstAvailableTab = availableTabs[0];
+      if (firstAvailableTab) setTab(firstAvailableTab);
+    }
+  }, [availableTabs, tab]);
 
   const startCreate = () => {
     setFormError(''); setEditingCurrency(null); setEditingTax(null);
@@ -85,7 +90,7 @@ export function RegionalSettings() {
   const saveCurrency = async () => {
     if (currencyForm.code.trim().length !== 3 || currencyForm.name.trim().length < 2 || Number(currencyForm.rate) < 0) { setFormError(m.invalidCurrency); return; }
     setSaving(true); setFormError('');
-    const body = { ...(editingCurrency ? {} : { code: currencyForm.code.trim().toUpperCase() }), name: currencyForm.name.trim(), symbol: currencyForm.symbol.trim(), decimals: Number(currencyForm.decimals), rate: Number(currencyForm.rate), isDefault: currencyForm.isDefault, isActive: (currencyForm.isActive ? 'true' : 'false') as 'true' | 'false' };
+    const body = { ...(editingCurrency ? {} : { code: currencyForm.code.trim().toUpperCase() }), name: currencyForm.name.trim(), symbol: currencyForm.symbol.trim(), decimals: Number(currencyForm.decimals), rate: Number(currencyForm.rate), isDefault: currencyForm.isDefault, isActive: currencyForm.isActive };
     const response = editingCurrency ? await apiService.updateCurrency(editingCurrency.currencyId, body) : await apiService.createCurrency(body);
     setSaving(false);
     if (!response.status) { setFormError(response.message); return; }
@@ -94,7 +99,7 @@ export function RegionalSettings() {
   const saveTax = async () => {
     if (taxForm.name.trim().length < 2 || ![taxForm.percent, taxForm.cgstPercent, taxForm.sgstPercent, taxForm.igstPercent].every((value) => Number.isFinite(Number(value)) && Number(value) >= 0 && Number(value) <= 100)) { setFormError(m.invalidTax); return; }
     setSaving(true); setFormError('');
-    const body = { ...taxForm, isActive: (taxForm.isActive ? 'true' : 'false') as 'true' | 'false', name: taxForm.name.trim(), percent: Number(taxForm.percent), cgstPercent: Number(taxForm.cgstPercent), sgstPercent: Number(taxForm.sgstPercent), igstPercent: Number(taxForm.igstPercent), ...(taxForm.vendorId.trim() ? { vendorId: taxForm.vendorId.trim() } : { vendorId: undefined }), ...(taxForm.stateCode.trim() ? { stateCode: taxForm.stateCode.trim() } : {}) };
+    const body = { ...taxForm, name: taxForm.name.trim(), percent: Number(taxForm.percent), cgstPercent: Number(taxForm.cgstPercent), sgstPercent: Number(taxForm.sgstPercent), igstPercent: Number(taxForm.igstPercent), ...(taxForm.vendorId.trim() ? { vendorId: taxForm.vendorId.trim() } : { vendorId: undefined }), ...(taxForm.stateCode.trim() ? { stateCode: taxForm.stateCode.trim() } : {}) };
     const response = editingTax ? await apiService.updateTaxConfig(editingTax.taxConfigId, body) : await apiService.createTaxConfig(body);
     setSaving(false);
     if (!response.status) { setFormError(response.message); return; }

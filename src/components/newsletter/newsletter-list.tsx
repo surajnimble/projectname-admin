@@ -80,7 +80,10 @@ export function NewsletterList() {
             select: { value: activeFilter, ariaLabel: m.status, placeholder: m.allStatuses,
               options: [
                 { value: 'ALL', label: m.allStatuses }, { value: 'true', label: m.active }, { value: 'false', label: m.inactive },
-              ], onChange: (value) => { setActiveFilter(value as 'true' | 'false' | 'ALL'); setPage(1); },
+              ], onChange: (value) => {
+                if (value === 'ALL' || value === 'true' || value === 'false') setActiveFilter(value);
+                setPage(1);
+              },
             },
             actions: <RefreshButton onRefresh={() => void load()} isRefreshing={loading} label="Refresh" />,
           }}
